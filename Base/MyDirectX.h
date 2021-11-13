@@ -6,11 +6,6 @@
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
-struct PipelineSet
-{
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;	//ルートシグネチャ
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState;	//パイプラインステート
-};
 class MyDirectX
 {
 private:
