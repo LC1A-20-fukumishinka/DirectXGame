@@ -2,7 +2,6 @@
 #include "../Base/MyDirectX.h"
 #include<DirectXMath.h>
 
-
 class Object3DCommon
 {
 public:
@@ -22,8 +21,6 @@ public:
 		PlaneNumIndices = 6
 	};
 	Object3DCommon();
-	//パイプライン設定用構造体
-	PipelineSet pipelineSet;
 	//射影行列
 	DirectX::XMMATRIX matProjection{};
 
@@ -51,7 +48,6 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> planeIndexBuff;
 	D3D12_VERTEX_BUFFER_VIEW planeVBView{};			//頂点バッファビュー
 	D3D12_INDEX_BUFFER_VIEW planeIBView{};
-	void Object3DCommonBeginDraw();
 private:
 	struct Vertex
 	{
@@ -70,9 +66,4 @@ private:
 	void CornTransferIndexBufferVertexBuffer();
 	void BoxTransferIndexBufferVertexBuffer();
 	void PlaneTransferIndexBufferVertexBuffer();
-
-
-
-	void Object3DCreateGraphPipeline(ID3D12Device *dev);
-
 };
