@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include "Object3DCommon.h"
 #include "../Camera.h"
+#include "GraphicsPipeline.h"
 class Object3D
 {
 public:
@@ -36,7 +37,7 @@ public:
 
 	void SetConstBuffer(const Object3DCommon &object3DCommon, const Camera &camera);
 
-	void Draw(const Object3DCommon &object3DCommon);
+	void Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet pipelineSet);
 
 	void SetParent(Object3D *parent);
 	//êF(RGBA)

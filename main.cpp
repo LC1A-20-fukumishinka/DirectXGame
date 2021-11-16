@@ -17,6 +17,7 @@
 #include "3D/BillBoard.h"
 #include "EaseClass.h"
 #include "Sound.h"
+#include "3D/GraphicsPipeline.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -122,8 +123,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//DirectX初期化処理 ここまで
 	MyDirectX *myDirectX = MyDirectX::GetInstance();
 	//DirectInputの初期化処理ここから
+
+	GraphicsPipeline *Pipe3D =GraphicsPipeline::GetInstance();
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+		Input * input = Input::GetInstance();
 
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
@@ -177,7 +180,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 //	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;	//1.0f - ソースのアルファ値
 //#pragma endregion
 #pragma endregion
-	sCommon.SpriteLoadTexture( 0, L"Resources/texture.png");
+	sCommon.SpriteLoadTexture(0, L"Resources/texture.png");
 	Sprite sprite;
 	sprite.Init(window_width, window_height, 0, sCommon);
 
@@ -237,9 +240,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			floor[num].position = { 2, 0, 0 };
 		}
 	}
-	
+
 	floor[0].scale = { 10,10,10 };
-	floor[0].rotation = { 0 , 0, 0};
+	floor[0].rotation = { 0 , 0, 0 };
 	floor[0].position = { -50, -50, 100 };
 	Object3D box;
 	box.Init(obC, cam, 0);
@@ -249,8 +252,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 
-	XMVECTOR boxQuaternion , quaternion2;
-	
+	XMVECTOR boxQuaternion, quaternion2;
+
 	boxQuaternion = XMQuaternionIdentity();//単位クオータニオンの生成
 	quaternion2 = XMQuaternionIdentity();//任意軸(1,0,0)方向に90度回転
 
@@ -350,11 +353,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 
-		bill.Update(obC,cam);
+		bill.Update(obC, cam);
 		//box.Update(obC, cam);
 		SpriteCommonBeginDraw(sCommon);
 
-		if(input->Key(DIK_A))
+		if (input->Key(DIK_A))
 		{
 			sprite.position.x--;
 		}
@@ -366,10 +369,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		sprite.SpriteDraw(sCommon);
 
-		
+
 
 		debugText.Print(sCommon, "Hello,DirectX!!", 200, 100);
-		
+
 		debugText.Print(sCommon, "abcdefghijklmnopqrstuvwxyz", 200, 200, 2.0f);
 
 		debugText.DrawAll(myDirectX->GetCommandList(), sCommon, myDirectX->GetDevice());
@@ -396,13 +399,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		cam.Update();
 #pragma endregion
 		//bill.Draw(obC);
-		box.Draw(obC);
+		box.Draw(obC, Pipe3D->GetPipeLine());
 
 		for (int i = 0; i < 100; i++)
 		{
-			floor[i].Draw(obC);
+			floor[i].Draw(obC, Pipe3D->GetPipeLine());
 		}
-		
+
 		//描画コマンド
 		//④描画コマンドここまで
 

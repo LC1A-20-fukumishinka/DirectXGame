@@ -1,9 +1,12 @@
 #include "GraphicsPipeline.h"
 #include <d3dcompiler.h>
+#include "../Base/MyDirectX.h"
+using namespace PipeClass;
 
-void GraphicsPipeline::Object3DCreateGraphPipeline(ID3D12Device *dev)
+
+GraphicsPipeline::GraphicsPipeline()
 {
-
+	ID3D12Device *device = MyDirectX::GetInstance()->GetDevice();
 	HRESULT result;
 	Microsoft::WRL::ComPtr<ID3DBlob>vsBlob;//頂点シェーダオブジェクト
 	Microsoft::WRL::ComPtr<ID3DBlob>psBlob;//ピクセルシェーダオブジェクト
@@ -150,13 +153,31 @@ void GraphicsPipeline::Object3DCreateGraphPipeline(ID3D12Device *dev)
 			D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSigBlob, &errorBlob);
 	//ルートシグネチャの生成
 	result =
-		dev->CreateRootSignature(0, rootSigBlob->GetBufferPointer(),
+		device->CreateRootSignature(0, rootSigBlob->GetBufferPointer(),
 			rootSigBlob->GetBufferSize(), IID_PPV_ARGS(&pipelineSet.rootSignature));
 	gpipeline.pRootSignature = pipelineSet.rootSignature.Get();
 
-	result = dev->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipelineSet.pipelineState));
+	result = device->CreateGraphicsPipelineState(&gpipeline, IID_PPV_ARGS(&pipelineSet.pipelineState));
 
 #pragma endregion
 
+}
+GraphicsPipeline::~GraphicsPipeline()
+{
+}
+void GraphicsPipeline::Object3DCreateGraphPipeline()
+{
+
+}
+
+const PipelineSet &GraphicsPipeline::GetPipeLine()
+{
+	return pipelineSet;
+}
+
+GraphicsPipeline *GraphicsPipeline::GetInstance()
+{
+	static GraphicsPipeline instance;
+	return &instance;
 }
 

@@ -107,13 +107,13 @@ void Object3D::SetConstBuffer(const Object3DCommon &object3DCommon, const Camera
 
 }
 
-void Object3D::Draw(const Object3DCommon &object3DCommon)
+void Object3D::Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet pipelineSet)
 {
 	MyDirectX *myD = MyDirectX::GetInstance();
 
 
-	myD->GetCommandList()->SetPipelineState(object3DCommon.pipelineSet.pipelineState.Get());
-	myD->GetCommandList()->SetGraphicsRootSignature(object3DCommon.pipelineSet.rootSignature.Get());
+	myD->GetCommandList()->SetPipelineState(pipelineSet.pipelineState.Get());
+	myD->GetCommandList()->SetGraphicsRootSignature(pipelineSet.rootSignature.Get());
 
 	myD->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//デスクリプタヒープの配列

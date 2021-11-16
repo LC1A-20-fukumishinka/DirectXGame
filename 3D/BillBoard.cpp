@@ -44,7 +44,7 @@ void BillBoard::Update(const Object3DCommon &object3DCommon, const Camera &camer
 	obj.constBuff->Unmap(0, nullptr);
 }
 
-void BillBoard::Draw(const Object3DCommon &object3DCommon)
+void BillBoard::Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet pipelineSet)
 {
-	obj.Draw(object3DCommon);
+	obj.Draw(object3DCommon, pipelineSet);
 }

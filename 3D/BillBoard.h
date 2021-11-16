@@ -1,5 +1,6 @@
 #pragma once
 #include "Object3D.h"
+#include "GraphicsPipeline.h"
 class BillBoard
 {
 public:
@@ -7,6 +8,6 @@ public:
 	BillBoard();
 	void Init(const Object3DCommon &object3DCommon, const Camera &camera, UINT texNumber, Object3D *parent = nullptr);
 	void Update(const Object3DCommon &object3DCommon, const Camera &camera);
-	void Draw(const Object3DCommon &object3DCommon);
+	void Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet pipelineSet);
 private:
 };

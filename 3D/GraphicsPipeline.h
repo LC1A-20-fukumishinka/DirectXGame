@@ -5,17 +5,28 @@
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
-class GraphicsPipeline
+namespace PipeClass
 {
-public:
-	void Object3DCreateGraphPipeline(ID3D12Device *dev);
-public://サブクラス
 	struct PipelineSet
 	{
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;	//ルートシグネチャ
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState;	//パイプラインステート
 	};
-
+}
+class GraphicsPipeline
+{
 private:
-	PipelineSet pipelineSet;
+	GraphicsPipeline();
+	~GraphicsPipeline();
+public:
+	GraphicsPipeline(GraphicsPipeline &obj) = delete;
+	GraphicsPipeline &operator=(const GraphicsPipeline &obj) = delete;
+
+	void Object3DCreateGraphPipeline();
+
+	const PipeClass::PipelineSet &GetPipeLine();
+
+	static GraphicsPipeline *GetInstance();
+private:
+	PipeClass::PipelineSet pipelineSet;
 };
