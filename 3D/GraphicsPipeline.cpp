@@ -1,6 +1,6 @@
 #include "GraphicsPipeline.h"
 #include <d3dcompiler.h>
-#include "../Base/MyDirectX.h"
+#include "MyDirectX.h"
 using namespace PipeClass;
 
 
@@ -124,6 +124,8 @@ GraphicsPipeline::GraphicsPipeline()
 	gpipeline.NumRenderTargets = 1;//描画対象は1つ
 	gpipeline.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;//0^255指定のRGBA
 	gpipeline.SampleDesc.Count = 1;//ピクセルにつき1回サンプリング
+
+
 #pragma endregion
 	//ルートシグネチャの生成
 #pragma region RootSignature
