@@ -22,7 +22,7 @@ void BillBoard::Init(const Object3DCommon &object3DCommon, const Camera &camera,
 		Object3D::ConstBufferData *constMap = nullptr;
 	HRESULT result = obj.constBuff->Map(0, nullptr, (void **)&constMap);
 	constMap->color = XMFLOAT4(1, 1, 1, 1);//FŽw’è(RGBA)
-	constMap->mat = obj.matWorld * camera.matView * object3DCommon.matProjection;	//•½s“§Ž‹“Š‰e
+	constMap->mat = obj.matWorld * camera.matView * camera.matProjection;	//•½s“§Ž‹“Š‰e
 	obj.constBuff->Unmap(0, nullptr);
 
 }
@@ -40,7 +40,7 @@ void BillBoard::Update(const Object3DCommon &object3DCommon, const Camera &camer
 	Object3D::ConstBufferData *constMap = nullptr;
 	HRESULT result = obj.constBuff->Map(0, nullptr, (void **)&constMap);
 	constMap->color = XMFLOAT4(1, 1, 1, 1);//FŽw’è(RGBA)
-	constMap->mat = obj.matWorld * camera.matView * object3DCommon.matProjection;	//•½s“§Ž‹“Š‰e
+	constMap->mat = obj.matWorld * camera.matView * camera.matProjection;	//•½s“§Ž‹“Š‰e
 	obj.constBuff->Unmap(0, nullptr);
 }
 
