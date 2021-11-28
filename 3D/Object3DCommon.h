@@ -5,11 +5,6 @@
 class Object3DCommon
 {
 public:
-	struct PipelineSet
-	{
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;	//ルートシグネチャ
-		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState;	//パイプラインステート
-	};
 	enum Sprites
 	{
 		Object3DSRVCount = 512
@@ -21,8 +16,6 @@ public:
 		PlaneNumIndices = 6
 	};
 	Object3DCommon();
-	//射影行列
-	DirectX::XMMATRIX matProjection{};
 
 	//DirectX::XMMATRIX matView{};
 
