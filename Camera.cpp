@@ -1,5 +1,8 @@
 #include "Camera.h"
+#include "MyDirectX.h"
 using namespace DirectX;
+
+using namespace Projection;
 Camera::Camera()
 {
 	this->eye = { 0.0f, 0.0f, -100.0f };
@@ -9,9 +12,22 @@ Camera::Camera()
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
 	matBillBoard = XMMatrixIdentity();
 	matBillBoardY = XMMatrixIdentity();
+
+	MyDirectX *myD = MyDirectX::GetInstance();
+
+
+	projectionData.height = myD->winHeight;
+	projectionData.width = myD->winWidth;
+
+	//視錐台行列の生成
+	matProjection = DirectX::XMMatrixPerspectiveFovLH(
+		DirectX::XMConvertToRadians(projectionData.angle),				//上下画角60度
+		(float)projectionData.width / (float)projectionData.height,	//アスペクト比(画面横幅/画面縦幅)
+		projectionData.screenNear, projectionData.screenFar							//前端、奥端
+	);
 }
 
-void Camera::Init(const DirectX::XMFLOAT3 &eye, const DirectX::XMFLOAT3 &target, const DirectX::XMFLOAT3 &position, const DirectX::XMFLOAT3 &up)
+void Camera::Init(const DirectX::XMFLOAT3 &eye, const DirectX::XMFLOAT3 &target, const DirectX::XMFLOAT3 &position, const DirectX::XMFLOAT3 &up, Projection::ProjectionData &projectionData)
 {
 	this->eye = eye;
 	this->target = target;
@@ -19,6 +35,18 @@ void Camera::Init(const DirectX::XMFLOAT3 &eye, const DirectX::XMFLOAT3 &target,
 	this->position = position;
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
 	matView *= XMMatrixTranslation(position.x, position.y, position.z);
+
+	bool isDefault = (projectionData.height <= 0.0f || projectionData.width <= 0.0f);
+	if (!isDefault)
+	{
+		this->projectionData = projectionData;
+	}
+	//視錐台行列の生成
+	matProjection = DirectX::XMMatrixPerspectiveFovLH(
+		DirectX::XMConvertToRadians(this->projectionData.angle),				//上下画角60度
+		(float)this->projectionData.width / (float)this->projectionData.height,	//アスペクト比(画面横幅/画面縦幅)
+		this->projectionData.screenNear, this->projectionData.screenFar							//前端、奥端
+	);
 }
 
 void Camera::Update()
