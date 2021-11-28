@@ -5,10 +5,6 @@
 class Object3DCommon
 {
 public:
-	enum Sprites
-	{
-		Object3DSRVCount = 512
-	};
 	enum
 	{
 		CornNumIndices = 18,
@@ -18,14 +14,7 @@ public:
 	Object3DCommon();
 
 	//DirectX::XMMATRIX matView{};
-
-	//テクスチャ用デスクリプタヒープの生成
-	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> descHeap;
-	//テクスチャリソース(テクスチャバッファ)の配列
-	Microsoft::WRL::ComPtr<ID3D12Resource> texBuff[Object3DSRVCount];
 	void Init();
-
-	void SpriteLoadTexture(UINT texnumber, const wchar_t *filename);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> cornVertBuff;				//頂点バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> cornIndexBuff;

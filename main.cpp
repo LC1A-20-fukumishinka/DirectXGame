@@ -201,8 +201,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	int testTexNum = 0;
 	int gridTexNum = 1;
-	obC.SpriteLoadTexture(testTexNum, L"Resources/texture.png");
-	obC.SpriteLoadTexture(gridTexNum, L"Resources/gridWall.png");
 
 	int test = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/texture.png");
 	int grid = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/gridWall.png");
