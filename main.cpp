@@ -14,11 +14,11 @@
 #include "3D/Object3DCommon.h"
 #include "3D/Object3D.h"
 #include "Camera.h"
-#include "3D/BillBoard.h"
+//#include "3D/BillBoard.h"
 #include "EaseClass.h"
 #include "Sound.h"
 #include "3D/GraphicsPipeline.h"
-
+#include "TextureMgr.h"
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -204,10 +204,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	obC.SpriteLoadTexture(testTexNum, L"Resources/texture.png");
 	obC.SpriteLoadTexture(gridTexNum, L"Resources/gridWall.png");
 
-	BillBoard bill;
+	int test = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/texture.png");
+	int grid = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/gridWall.png");
+	//BillBoard bill;
 
-	bill.Init(obC, cam, testTexNum);
-	bill.obj.scale = { 10,10,10 };
+	//bill.Init(obC, cam, testTexNum);
+	//bill.obj.scale = { 10,10,10 };
 
 	Object3D floor[100] = {};
 
@@ -344,16 +346,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 		}
-		box.SetConstBuffer(obC, cam);
+		box.SetConstBuffer(cam);
 
 
 		for (int i = 0; i < 100; i++)
 		{
-			floor[i].Update(obC, cam);
+			floor[i].Update( cam);
 		}
 
 
-		bill.Update(obC, cam);
+		//bill.Update(obC, cam);
 		//box.Update(obC, cam);
 		SpriteCommonBeginDraw(sCommon);
 
@@ -399,11 +401,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		cam.Update();
 #pragma endregion
 		//bill.Draw(obC);
-		box.Draw(obC, Pipe3D->GetPipeLine());
+		box.Draw(obC, Pipe3D->GetPipeLine(), test);
 
 		for (int i = 0; i < 100; i++)
 		{
-			floor[i].Draw(obC, Pipe3D->GetPipeLine());
+			floor[i].Draw(obC, Pipe3D->GetPipeLine(), grid);
 		}
 
 		//•`‰æƒRƒ}ƒ“ƒh
