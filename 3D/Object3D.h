@@ -33,11 +33,11 @@ public:
 
 	DirectX::XMMATRIX GetMatWorld();
 
-	void Update(const Object3DCommon &object3DCommon, const Camera &camera);
+	void Update(const Camera &camera);
 
-	void SetConstBuffer(const Object3DCommon &object3DCommon, const Camera &camera);
+	void SetConstBuffer(const Camera &camera);
 
-	void Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet pipelineSet);
+	void Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet pipelineSet, int textureNumber);
 
 	void SetParent(Object3D *parent);
 	//êF(RGBA)

@@ -1,5 +1,5 @@
 #include "Object3D.h"
-
+#include "TextureMgr.h"
 
 using namespace DirectX;
 
@@ -43,7 +43,7 @@ void Object3D::Init(const Object3DCommon &object3DCommon, const Camera &camera, 
 	ConstBufferData *constMap = nullptr;
 	result = constBuff->Map(0, nullptr, (void **)&constMap);
 	constMap->color = XMFLOAT4(1, 1, 1, 1);//色指定(RGBA)
-	constMap->mat = matWorld * camera.matView * object3DCommon.matProjection;	//平行透視投影
+	constMap->mat = matWorld * camera.matView * camera.matProjection;	//平行透視投影
 	constBuff->Unmap(0, nullptr);
 
 }
@@ -78,7 +78,7 @@ XMMATRIX Object3D::GetMatWorld()
 	return matTmp;
 }
 
-void Object3D::Update(const Object3DCommon &object3DCommon, const Camera &camera)
+void Object3D::Update(const Camera &camera)
 {
 	//ワールド行列を設定する
 	matWorld = GetMatWorld();
@@ -87,12 +87,12 @@ void Object3D::Update(const Object3DCommon &object3DCommon, const Camera &camera
 
 	HRESULT result = constBuff->Map(0, nullptr, (void **)&constMap);
 	constMap->color = XMFLOAT4(1, 1, 1, 1);//色指定(RGBA)
-	constMap->mat = matWorld * camera.matView * object3DCommon.matProjection;	//平行透視投影
+	constMap->mat = matWorld * camera.matView * camera.matProjection;	//平行透視投影
 	constBuff->Unmap(0, nullptr);
 
 }
 
-void Object3D::SetConstBuffer(const Object3DCommon &object3DCommon, const Camera &camera)
+void Object3D::SetConstBuffer( const Camera &camera)
 {
 	ConstBufferData *constMap = nullptr;
 
@@ -102,12 +102,12 @@ void Object3D::SetConstBuffer(const Object3DCommon &object3DCommon, const Camera
 
 	HRESULT result = constBuff->Map(0, nullptr, (void **)&constMap);
 	constMap->color = XMFLOAT4(1, 1, 1, 1);//色指定(RGBA)
-	constMap->mat = matWorld * camera.matView * object3DCommon.matProjection;	//平行透視投影
+	constMap->mat = matWorld * camera.matView * camera.matProjection;	//平行透視投影
 	constBuff->Unmap(0, nullptr);
 
 }
 
-void Object3D::Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet pipelineSet)
+void Object3D::Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet pipelineSet, int textureNumber)
 {
 	MyDirectX *myD = MyDirectX::GetInstance();
 
@@ -117,15 +117,23 @@ void Object3D::Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet
 
 	myD->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//デスクリプタヒープの配列
-	ID3D12DescriptorHeap *ppHeaps[] = { object3DCommon.descHeap.Get() };
+
+	ID3D12DescriptorHeap *descHeap = TextureMgr::Instance()->GetDescriptorHeap();
+	ID3D12DescriptorHeap *ppHeaps[] = { descHeap };
 	myD->GetCommandList()->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 	//定数バッファビュー
 	myD->GetCommandList()->SetGraphicsRootConstantBufferView(0, constBuff->GetGPUVirtualAddress());
 
+
+	if (!TextureMgr::Instance()->CheckHandle(textureNumber))
+	{
+		assert(0);
+		return;
+	}
 	myD->GetCommandList()->SetGraphicsRootDescriptorTable(1,
 		CD3DX12_GPU_DESCRIPTOR_HANDLE(
-			object3DCommon.descHeap->GetGPUDescriptorHandleForHeapStart(),
-			texNumber,
+			descHeap->GetGPUDescriptorHandleForHeapStart(),
+			textureNumber,
 			myD->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
 		)
 	);
