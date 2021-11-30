@@ -4,6 +4,9 @@
 #include "Object3DCommon.h"
 #include "../Camera.h"
 #include "GraphicsPipeline.h"
+
+struct ModelObject;
+
 class Object3D
 {
 public:
@@ -38,6 +41,13 @@ public:
 	void SetConstBuffer(const Camera &camera);
 
 	void Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet pipelineSet, int textureNumber);
+
+	/// <summary>
+	/// モデルの描画コマンド
+	/// </summary>
+	/// <param name="isSetTexture">別のテクスチャを使用する</param>
+	/// <param name="textureNumber">使用するテクスチャのハンドル</param>
+	void modelDraw(const ModelObject &model, PipeClass::PipelineSet pipelineSet, bool isSetTexture = false, int textureNumber = -1);
 
 	void SetParent(Object3D *parent);
 	//色(RGBA)

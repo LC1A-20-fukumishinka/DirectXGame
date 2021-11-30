@@ -1,6 +1,6 @@
 #include "Object3D.h"
 #include "TextureMgr.h"
-
+#include "Model.h"
 using namespace DirectX;
 
 Object3D::Object3D()
@@ -137,6 +137,14 @@ void Object3D::Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet
 			myD->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
 		)
 	);
+
+#pragma region とりあえず引っ張り出した描画コマンド
+	myD->GetCommandList()->IASetVertexBuffers(0, 1, &object3DCommon.boxVBView);
+	//インデックスバッファの設定
+	myD->GetCommandList()->IASetIndexBuffer(&object3DCommon.boxIBView);
+	myD->GetCommandList()->DrawIndexedInstanced(object3DCommon.BoxNumIndices, 1, 0, 0, 0);
+#pragma endregion
+
 	switch (type)
 	{
 	case Object3D::Corn:
@@ -168,6 +176,65 @@ void Object3D::Draw(const Object3DCommon &object3DCommon, PipeClass::PipelineSet
 		myD->GetCommandList()->DrawIndexedInstanced(object3DCommon.CornNumIndices, 1, 0, 0, 0);
 		break;
 	}
+
+}
+
+void Object3D::modelDraw(const ModelObject &model, PipeClass::PipelineSet pipelineSet, bool isSetTexture, int textureNumber)
+{
+	MyDirectX *myD = MyDirectX::GetInstance();
+
+
+	myD->GetCommandList()->SetPipelineState(pipelineSet.pipelineState.Get());
+	myD->GetCommandList()->SetGraphicsRootSignature(pipelineSet.rootSignature.Get());
+
+	myD->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//デスクリプタヒープの配列
+
+	ID3D12DescriptorHeap *descHeap = TextureMgr::Instance()->GetDescriptorHeap();
+	ID3D12DescriptorHeap *ppHeaps[] = { descHeap };
+	myD->GetCommandList()->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+	//定数バッファビュー
+	myD->GetCommandList()->SetGraphicsRootConstantBufferView(0, constBuff->GetGPUVirtualAddress());
+
+
+
+	if(isSetTexture)
+	{
+		if (!TextureMgr::Instance()->CheckHandle(textureNumber))
+		{
+			assert(0);
+			return;
+		}
+		myD->GetCommandList()->SetGraphicsRootDescriptorTable(1,
+			CD3DX12_GPU_DESCRIPTOR_HANDLE(
+				descHeap->GetGPUDescriptorHandleForHeapStart(),
+				textureNumber,
+				myD->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+			)
+		);
+	}
+	else
+	{
+		if (!TextureMgr::Instance()->CheckHandle(model.textureHandle))
+		{
+			assert(0);
+			return;
+		}
+		myD->GetCommandList()->SetGraphicsRootDescriptorTable(1,
+			CD3DX12_GPU_DESCRIPTOR_HANDLE(
+				descHeap->GetGPUDescriptorHandleForHeapStart(),
+				model.textureHandle,
+				myD->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
+			)
+		);
+	}
+
+#pragma region とりあえず引っ張り出した描画コマンド
+	myD->GetCommandList()->IASetVertexBuffers(0, 1, &model.vbView);
+	//インデックスバッファの設定
+	myD->GetCommandList()->IASetIndexBuffer(&model.ibView);
+	myD->GetCommandList()->DrawIndexedInstanced(model.indices.size(), 1, 0, 0, 0);
+#pragma endregion
 
 }
 

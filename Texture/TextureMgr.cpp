@@ -104,5 +104,10 @@ ID3D12DescriptorHeap *TextureMgr::GetDescriptorHeap()
 
 bool TextureMgr::CheckHandle(int handle)
 {
-	return handle < LoadTextureCount;
+	bool isCheck = false;
+		if (handle < LoadTextureCount && handle >= 0)
+	{
+			isCheck = true;
+	}
+	return isCheck;
 }
