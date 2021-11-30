@@ -167,10 +167,6 @@ GraphicsPipeline::GraphicsPipeline()
 GraphicsPipeline::~GraphicsPipeline()
 {
 }
-void GraphicsPipeline::Object3DCreateGraphPipeline()
-{
-
-}
 
 const PipelineSet &GraphicsPipeline::GetPipeLine()
 {
