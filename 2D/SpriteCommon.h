@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "../Base/MyDirectX.h"
 #include<DirectXMath.h>
 
@@ -9,30 +9,28 @@ class SpriteCommon
 public:
 	struct PipelineSet
 	{
-		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;	//ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ
-		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState;	//ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒg
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState;
 	};
 	enum Sprites
 	{
 		spriteSRVCount = 512
 	};
-	//ƒpƒCƒvƒ‰ƒCƒ“ƒZƒbƒg
+
 	PipelineSet pipelineSet;
-	//Ë‰es—ñ
+	//å°„å½±è¡Œåˆ—
 	DirectX::XMMATRIX matProjection{};
 
-	//ƒeƒNƒXƒ`ƒƒ—pƒfƒXƒNƒŠƒvƒ^ƒq[ƒv‚Ì¶¬
+	//ãƒ‡ã‚¹ã‚¯ãƒªãƒ—ã‚¿ãƒ’ãƒ¼ãƒ—
 	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> descHeap;
-	//ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX(ƒeƒNƒXƒ`ƒƒƒoƒbƒtƒ@)‚Ì”z—ñ
+	//ãƒ†ã‚¯ã‚¹ãƒãƒ£ãƒ¼ãƒãƒƒãƒ•ã‚¡
 	Microsoft::WRL::ComPtr<ID3D12Resource> texBuff[spriteSRVCount];
 
-
 	void Init();
-
 	void SpriteLoadTexture(UINT texnumber, const wchar_t *filename);
 private:
 
 	MyDirectX *myDirectX;
-	//ƒXƒvƒ‰ƒCƒg‚ÌƒpƒCƒvƒ‰ƒCƒ“İ’èŠÖ”
-void SpriteCreateGraphPipeline(ID3D12Device *dev);
+
+	void SpriteCreateGraphPipeline(ID3D12Device *dev);
 };
