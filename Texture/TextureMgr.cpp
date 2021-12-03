@@ -102,6 +102,11 @@ ID3D12DescriptorHeap *TextureMgr::GetDescriptorHeap()
 	return descHeap.Get();
 }
 
+ID3D12Resource *TextureMgr::GetTexBuff(int handle)
+{
+	return texBuff[handle].Get();
+}
+
 bool TextureMgr::CheckHandle(int handle)
 {
 	bool isCheck = false;

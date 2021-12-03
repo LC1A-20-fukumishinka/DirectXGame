@@ -21,6 +21,8 @@ public:
 
 	ID3D12DescriptorHeap *GetDescriptorHeap();
 
+	ID3D12Resource *GetTexBuff(int handle);
+
 	bool CheckHandle(int handle);
 private:
 	//テクスチャ用デスクリプタヒープの生成
