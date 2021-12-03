@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include "Object3DCommon.h"
 #include "../Camera.h"
-#include "GraphicsPipeline.h"
+#include "IGraphicsPipeline.h"
 
 struct ModelObject;
 

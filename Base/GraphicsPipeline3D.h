@@ -1,16 +1,16 @@
 #pragma once
 #include "IGraphicsPipeline.h"
 
-class GraphicsPipeline : public IGraphicsPipeline
+class GraphicsPipeline3D : public IGraphicsPipeline
 {
 private:
-	GraphicsPipeline();
-	~GraphicsPipeline();
+	GraphicsPipeline3D();
+	~GraphicsPipeline3D();
 public:
 
 	const PipeClass::PipelineSet &GetPipeLine();
 
-	static GraphicsPipeline *GetInstance();
+	static GraphicsPipeline3D *GetInstance();
 private:
 	PipeClass::PipelineSet pipelineSet;
 };

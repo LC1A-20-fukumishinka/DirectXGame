@@ -14,11 +14,12 @@
 #include "3D/Object3DCommon.h"
 #include "3D/Object3D.h"
 #include "Camera.h"
-//#include "3D/BillBoard.h"
 #include "EaseClass.h"
 #include "Sound.h"
-#include "3D/GraphicsPipeline.h"
+#include "Base/GraphicsPipeline3D.h"
+#include "IGraphicsPipeline.h"
 #include "TextureMgr.h"
+#include "Model.h"
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -124,7 +125,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	MyDirectX *myDirectX = MyDirectX::GetInstance();
 	//DirectInputの初期化処理ここから
 
-	GraphicsPipeline *Pipe3D =GraphicsPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
 #pragma region DirectInput
 		Input * input = Input::GetInstance();
 
@@ -204,6 +205,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	int test = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/texture.png");
 	int grid = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/gridWall.png");
+	Model triangle;
+
+	triangle.CreateModel("skydome");
 	//BillBoard bill;
 
 	//bill.Init(obC, cam, testTexNum);
@@ -257,6 +261,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	boxQuaternion = XMQuaternionIdentity();//単位クオータニオンの生成
 	quaternion2 = XMQuaternionIdentity();//任意軸(1,0,0)方向に90度回転
 
+
+	bool isTexture = false;
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -326,6 +332,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
 		}
 
+
+		if (input->Trigger(DIK_1))
+		{
+			isTexture = !isTexture;
+		}
 		if (EQ.IsEnd())
 		{
 			//boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
@@ -399,8 +410,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		cam.Update();
 #pragma endregion
 		//bill.Draw(obC);
-		box.Draw(obC, Pipe3D->GetPipeLine(), test);
+		//box.Draw(obC, Pipe3D->GetPipeLine(), test);
 
+		box.modelDraw(triangle.GetModel(), Pipe3D->GetPipeLine(), isTexture, test);
 		for (int i = 0; i < 100; i++)
 		{
 			floor[i].Draw(obC, Pipe3D->GetPipeLine(), grid);

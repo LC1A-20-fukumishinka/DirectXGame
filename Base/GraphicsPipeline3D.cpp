@@ -1,10 +1,10 @@
-#include "GraphicsPipeline.h"
+#include "GraphicsPipeline3D.h"
 #include <d3dcompiler.h>
 #include "MyDirectX.h"
 using namespace PipeClass;
 
 
-GraphicsPipeline::GraphicsPipeline()
+GraphicsPipeline3D::GraphicsPipeline3D()
 {
 	ID3D12Device *device = MyDirectX::GetInstance()->GetDevice();
 	HRESULT result;
@@ -164,18 +164,18 @@ GraphicsPipeline::GraphicsPipeline()
 #pragma endregion
 
 }
-GraphicsPipeline::~GraphicsPipeline()
+GraphicsPipeline3D::~GraphicsPipeline3D()
 {
 }
 
-const PipelineSet &GraphicsPipeline::GetPipeLine()
+const PipelineSet &GraphicsPipeline3D::GetPipeLine()
 {
 	return pipelineSet;
 }
 
-GraphicsPipeline *GraphicsPipeline::GetInstance()
+GraphicsPipeline3D *GraphicsPipeline3D::GetInstance()
 {
-	static GraphicsPipeline instance;
+	static GraphicsPipeline3D instance;
 	return &instance;
 }
 
