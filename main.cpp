@@ -132,9 +132,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
-	SpriteCommon sCommon;
 
-	sCommon.Init();
 	//定数バッファ処理
 #pragma region ViewMatrix
 
@@ -181,9 +179,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 //	blenddesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;	//1.0f - ソースのアルファ値
 //#pragma endregion
 #pragma endregion
-	sCommon.SpriteLoadTexture(0, L"Resources/texture.png");
+	int spriteTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/texture.png");
 	Sprite sprite;
-	sprite.Init(window_width, window_height, 0, sCommon);
+	sprite.Init(spriteTex);
 
 
 	//デバッグテキスト
@@ -192,8 +190,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DebugText debugText;
 	////デバッグテキスト用のテクスチャ番号を指定
 	//デバッグテクスト用のテクスチャ読み込み
-	DebugText::LoadDebugTextTexture(sCommon);
-	debugText.Initialize(myDirectX->GetDevice(), window_width, window_height, sCommon);
 
 	Object3DCommon obC;
 
@@ -366,7 +362,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//bill.Update(obC, cam);
 		//box.Update(obC, cam);
-		SpriteCommonBeginDraw(sCommon);
 
 		if (input->Key(DIK_A))
 		{
@@ -376,19 +371,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 			sprite.position.x++;
 		}
-		sprite.SpriteUpdate(sCommon);
+		sprite.SpriteUpdate();
 
-		sprite.SpriteDraw(sCommon);
+		sprite.SpriteDraw();
 
 
+		debugText.Print("Hello,DirectX!!", 200, 100);
 
-		debugText.Print(sCommon, "Hello,DirectX!!", 200, 100);
+		debugText.Print("abcdefghijklmnopqrstuvwxyz", 200, 200, 2.0f);
 
-		debugText.Print(sCommon, "abcdefghijklmnopqrstuvwxyz", 200, 200, 2.0f);
+		debugText.DrawAll();
 
-		debugText.DrawAll(myDirectX->GetCommandList(), sCommon, myDirectX->GetDevice());
-		myDirectX->GetCommandList()->ClearDepthStencilView(myDirectX->GetDsvH(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
+		//深度地リセット
+		DepthReset();
 
 		//コマンドリストに追加
 

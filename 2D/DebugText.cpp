@@ -1,20 +1,23 @@
 #include "DebugText.h"
-
+#include "TextureMgr.h"
 DebugText::DebugText()
 {
 	spriteIndex = 0;
-}
+	debugTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/debugfont.png");
 
-void DebugText::Initialize(ID3D12Device *dev, int window_width, int window_height,const SpriteCommon &spriteCommon)
-{
 	//全てのスプライトデータについて
 	for (int i = 0; i < _countof(sprites); i++)
 	{
 		//スプライトを生成する
-		sprites[i].Init(window_width, window_height, debugTextTexNumber, spriteCommon, { 0,0 });
+		sprites[i].Init(debugTex, { 0,0 });
 	}
 }
-void DebugText::Print(const SpriteCommon &spriteCommon, const std::string &text, float x, float y, float scale)
+
+void DebugText::Initialize(ID3D12Device *dev)
+{
+
+}
+void DebugText::Print( const std::string &text, float x, float y, float scale)
 {
 	//全ての文字について
 	for (int i = 0; i < text.size(); i++)
@@ -44,28 +47,23 @@ void DebugText::Print(const SpriteCommon &spriteCommon, const std::string &text,
 		sprites[spriteIndex].texSize = { fontWidth, fontHeight };
 		sprites[spriteIndex].size = { fontWidth * scale, fontHeight * scale };
 		//頂点バッファ転送
-		sprites[spriteIndex].SpriteTransferVertexBuffer(spriteCommon);
+		sprites[spriteIndex].SpriteTransferVertexBuffer();
 		//更新
-		sprites[spriteIndex].SpriteUpdate(spriteCommon);
+		sprites[spriteIndex].SpriteUpdate();
 		//文字を一つ進める
 		spriteIndex++;
 	}
 
 }
-void DebugText::DrawAll(ID3D12GraphicsCommandList *cmdList, const SpriteCommon &spriteCommon, ID3D12Device *dev)
+void DebugText::DrawAll()
 {
 	//全ての文字のスプライトについて
 	for (int i = 0; i < spriteIndex; i++)
 	{
 		//スプライト描画
-		sprites[i].SpriteDraw(spriteCommon);
+		sprites[i].SpriteDraw();
 	}
 
 	spriteIndex = 0;
 }
 
-void DebugText::LoadDebugTextTexture(SpriteCommon &spriteCommon)
-{
-	//デバッグテクスト用のテクスチャ読み込み
-	spriteCommon.SpriteLoadTexture(DebugText::debugTextTexNumber, L"Resources/debugfont.png");
-}

@@ -1,5 +1,6 @@
 #include "Sprite.h"
-
+#include "TextureMgr.h"
+#include "MyDirectX.h"
 Sprite::Sprite()
 {
 	anchorpoint = { 0.5f, 0.5f };
@@ -16,10 +17,19 @@ Sprite::Sprite()
 	isInvisible = false;
 }
 
-void Sprite::Init(int window_width, int window_height, UINT texNumber, const SpriteCommon &spriteCommon, DirectX::XMFLOAT2 anchorpoint, bool isFlipX, bool isFlipY)
+void Sprite::Init(UINT texNumber, DirectX::XMFLOAT2 anchorpoint, bool isFlipX, bool isFlipY)
 {
 	HRESULT result = S_FALSE;
 	MyDirectX *myD = MyDirectX::GetInstance();
+
+	SpriteCommon::Instance();
+	this->texNumber = texNumber;
+
+	if (!TextureMgr::Instance()->CheckHandle(texNumber))
+	{
+		assert(0);
+		return;
+	}
 
 	enum { LB, LT, RB, RT };
 	anchorpoint = anchorpoint;
@@ -38,10 +48,9 @@ void Sprite::Init(int window_width, int window_height, UINT texNumber, const Spr
 		{},//右上
 	};
 
-	this->texNumber = texNumber;
 
-	//切り取りサイズを画像のサイズに合わせて変更
-	D3D12_RESOURCE_DESC resDesc = spriteCommon.texBuff[texNumber]->GetDesc();
+	////切り取りサイズを画像のサイズに合わせて変更
+	D3D12_RESOURCE_DESC resDesc = TextureMgr::Instance()->GetTexBuff(texNumber)->GetDesc();
 	texLeftTop = { 0, 0 };
 	texSize = { (float)resDesc.Width , (float)resDesc.Height };
 
@@ -56,7 +65,7 @@ void Sprite::Init(int window_width, int window_height, UINT texNumber, const Spr
 		IID_PPV_ARGS(&vertBuff)
 	);
 
-	SpriteTransferVertexBuffer(spriteCommon);
+	SpriteTransferVertexBuffer();
 
 	//頂点バッファビューの作成
 	vBView.BufferLocation = vertBuff->GetGPUVirtualAddress();
@@ -76,16 +85,21 @@ void Sprite::Init(int window_width, int window_height, UINT texNumber, const Spr
 	ConstBufferData *constMap = nullptr;
 	result = constBuff->Map(0, nullptr, (void **)&constMap);
 	constMap->color = DirectX::XMFLOAT4(1, 1, 1, 1);//色指定(RGBA)
-	constMap->mat = DirectX::XMMatrixOrthographicOffCenterLH(
-		0.0f, window_width, window_height, 0.0f, 0.0f, 1.0f);	//平行透視投影
+	constMap->mat = SpriteCommon::Instance()->matProjection;	//平行透視投影
 	constBuff->Unmap(0, nullptr);
 
 
 }
 
 //頂点バッファ系の設定
-void Sprite::SpriteTransferVertexBuffer(const SpriteCommon &spriteCommon)
+void Sprite::SpriteTransferVertexBuffer()
 {
+
+	if (!TextureMgr::Instance()->CheckHandle(texNumber))
+	{
+		assert(0);
+		return;
+	}
 	HRESULT result = S_FALSE;
 	enum { LB, LT, RB, RT };
 
@@ -120,23 +134,21 @@ void Sprite::SpriteTransferVertexBuffer(const SpriteCommon &spriteCommon)
 	vertices[RB].pos = { right,bottom,  0.0f };//右下
 	vertices[RT].pos = { right, top,  0.0f };//右上
 
-	//指定番号の画像が読み込み済みなら
-	if (spriteCommon.texBuff[texNumber])
-	{
+
 		//テクスチャ情報取得
-		D3D12_RESOURCE_DESC resDesc =
-			spriteCommon.texBuff[texNumber]->GetDesc();
+	D3D12_RESOURCE_DESC resDesc =TextureMgr::Instance()->GetTexBuff(texNumber)->GetDesc();
 
-		float tex_left = texLeftTop.x / resDesc.Width;
-		float tex_right = (texLeftTop.x + texSize.x) / resDesc.Width;
-		float tex_top = texLeftTop.y / resDesc.Height;
-		float tex_bottom = (texLeftTop.y + texSize.y) / resDesc.Height;
 
-		vertices[LB].uv = { tex_left, tex_bottom };
-		vertices[LT].uv = { tex_left, tex_top };
-		vertices[RB].uv = { tex_right, tex_bottom };
-		vertices[RT].uv = { tex_right, tex_top };
-	}
+	float tex_left = texLeftTop.x / resDesc.Width;
+	float tex_right = (texLeftTop.x + texSize.x) / resDesc.Width;
+	float tex_top = texLeftTop.y / resDesc.Height;
+	float tex_bottom = (texLeftTop.y + texSize.y) / resDesc.Height;
+
+	vertices[LB].uv = { tex_left, tex_bottom };
+	vertices[LT].uv = { tex_left, tex_top };
+	vertices[RB].uv = { tex_right, tex_bottom };
+	vertices[RT].uv = { tex_right, tex_top };
+
 
 	//バッファへのデータ転送
 	VertexPosUv *vertMap = nullptr;
@@ -145,28 +157,31 @@ void Sprite::SpriteTransferVertexBuffer(const SpriteCommon &spriteCommon)
 	vertBuff->Unmap(0, nullptr);
 }
 
-void SpriteCommonBeginDraw(const SpriteCommon &spriteCommon)
-{
-	MyDirectX *myD = MyDirectX::GetInstance();
-	//パイプランステートの設定
-	myD->GetCommandList()->SetPipelineState(spriteCommon.pipelineSet.pipelineState.Get());
-	//ルートシグネチャの設定
-	myD->GetCommandList()->SetGraphicsRootSignature(spriteCommon.pipelineSet.rootSignature.Get());
-	//プリミティブ形状を設定
-	myD->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	//デスクリプタヒープの配列
-	ID3D12DescriptorHeap *ppHeaps[] = { spriteCommon.descHeap.Get() };
-	myD->GetCommandList()->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-
-}
-
-void Sprite::SpriteDraw(const SpriteCommon &spriteCommon)
+void Sprite::SpriteDraw()
 {
 
 	//描画フラグがtrueじゃなかったら早期リターン
 	if (isInvisible) return;
+
+	if (!TextureMgr::Instance()->CheckHandle(texNumber))
+	{
+		assert(0);
+		return;
+	}
+
 	MyDirectX *myD = MyDirectX::GetInstance();
+	//パイプランステートの設定
+	myD->GetCommandList()->SetPipelineState(SpriteCommon::Instance()->pipelineSet.pipelineState.Get());
+	//ルートシグネチャの設定
+	myD->GetCommandList()->SetGraphicsRootSignature(SpriteCommon::Instance()->pipelineSet.rootSignature.Get());
+	//プリミティブ形状を設定
+	myD->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	//デスクリプタヒープの配列
+	ID3D12DescriptorHeap *ppHeaps[] = { TextureMgr::Instance()->GetDescriptorHeap() };
+	myD->GetCommandList()->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
 
 	//頂点バッファをセット
 	myD->GetCommandList()->IASetVertexBuffers(0, 1, &vBView);
@@ -176,7 +191,7 @@ void Sprite::SpriteDraw(const SpriteCommon &spriteCommon)
 	//シェーダーリソースビューをセット
 	myD->GetCommandList()->SetGraphicsRootDescriptorTable(1,
 		CD3DX12_GPU_DESCRIPTOR_HANDLE(
-			spriteCommon.descHeap->GetGPUDescriptorHandleForHeapStart(),
+			TextureMgr::Instance()->GetDescriptorHeap()->GetGPUDescriptorHandleForHeapStart(),
 			texNumber,
 			myD->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
 		)
@@ -187,7 +202,7 @@ void Sprite::SpriteDraw(const SpriteCommon &spriteCommon)
 }
 
 //定数バッファ系の設定(色とアフィン変換)
-void Sprite::SpriteUpdate(const SpriteCommon &spriteCommon)
+void Sprite::SpriteUpdate()
 {
 	//ワールド行列の更新
 	matWorld = DirectX::XMMatrixIdentity();
@@ -199,7 +214,7 @@ void Sprite::SpriteUpdate(const SpriteCommon &spriteCommon)
 	//定数バッファの転送
 	ConstBufferData *constMap = nullptr;
 	HRESULT result = constBuff->Map(0, nullptr, (void **)&constMap);
-	constMap->mat = matWorld * spriteCommon.matProjection;
+	constMap->mat = matWorld * SpriteCommon::Instance()->matProjection;
 	constMap->color = color;
 	constBuff->Unmap(0, nullptr);
 

@@ -13,10 +13,9 @@ public:
 	//ここにメンバ関数の宣言を記述
 	DebugText();
 
-	void Initialize(ID3D12Device *dev, int window_width, int window_height, const SpriteCommon &spriteCommon);
-	void Print(const SpriteCommon &spriteCommon, const std::string &text, float x, float y, float scale = 1.0f);
-	void DrawAll(ID3D12GraphicsCommandList *cmdList, const SpriteCommon &spriteCommon, ID3D12Device *dev);
-	static void LoadDebugTextTexture(SpriteCommon &spriteCommon);
+	void Initialize(ID3D12Device *dev);
+	void Print( const std::string &text, float x, float y, float scale = 1.0f);
+	void DrawAll();
 private:
 	//ここにメンバ変数の定義を記述
 
@@ -24,5 +23,8 @@ private:
 	Sprite sprites[maxCharCount];
 	//スプライト配列の添え字番号
 	int spriteIndex;
+
+	//テクスチャー番号
+	int debugTex;
 
 };

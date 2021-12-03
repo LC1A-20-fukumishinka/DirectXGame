@@ -3,20 +3,19 @@
 #include <DirectXMath.h>
 #include "SpriteCommon.h"
 
-
 class Sprite
 {
 public:
 	Sprite();
 
-	void Init(int window_width, int window_height, UINT texnumber, const SpriteCommon &spriteCommon, DirectX::XMFLOAT2 anchorpoint = { 0.5f, 0.5f }, bool isFlipX = false, bool isFlipY = false);
+	void Init( UINT texnumber, DirectX::XMFLOAT2 anchorpoint = { 0.5f, 0.5f }, bool isFlipX = false, bool isFlipY = false);
 
-	void SpriteTransferVertexBuffer(const SpriteCommon &spriteCommon);
+	void SpriteTransferVertexBuffer();
 
 	//スプライトの描画コマンド
-	void SpriteDraw(const SpriteCommon &spriteCommon);
+	void SpriteDraw();
 	//スプライト情報の更新(行列計算や、色変更など)
-	void SpriteUpdate(const SpriteCommon &spriteCommon);
+	void SpriteUpdate();
 
 
 	//座標
@@ -57,8 +56,4 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff;				//頂点バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff;				//定数バッファ
 	D3D12_VERTEX_BUFFER_VIEW vBView{};			//頂点バッファビュー
-
 };
-
-//スプライトコモンのコマンド(spriteDrawの前に必要)
-void SpriteCommonBeginDraw(const SpriteCommon &spriteCommon);

@@ -2,11 +2,15 @@
 #include "../Base/MyDirectX.h"
 #include<DirectXMath.h>
 
-
-
 class SpriteCommon
 {
+private:
+	SpriteCommon();
+	~SpriteCommon();
 public:
+	SpriteCommon(const SpriteCommon &obj) = delete;
+
+	SpriteCommon operator=(const SpriteCommon &obj) = delete;
 	struct PipelineSet
 	{
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
@@ -21,13 +25,13 @@ public:
 	//射影行列
 	DirectX::XMMATRIX matProjection{};
 
+
+	static SpriteCommon *Instance();
 	//デスクリプタヒープ
 	Microsoft::WRL::ComPtr <ID3D12DescriptorHeap> descHeap;
 	//テクスチャーバッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> texBuff[spriteSRVCount];
 
-	void Init();
-	void SpriteLoadTexture(UINT texnumber, const wchar_t *filename);
 private:
 
 	MyDirectX *myDirectX;
