@@ -12,16 +12,6 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 Model::Model()
 {
-	ID3D12Device *device = MyDirectX::GetInstance()->GetDevice();
-	// 定数バッファの生成
-	HRESULT result = device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&model.constBuffB1));
-
 		model.textureHandle = -1;
 }
 
@@ -54,6 +44,16 @@ if (FAILED(result)) {
 	return;
 }
 
+// 頂点バッファへのデータ転送
+VertexPosNormalUv *vertMap = nullptr;
+result = model.vertBuff->Map(0, nullptr, (void **)&vertMap);
+if (SUCCEEDED(result)) {
+	//memcpy(vertMap, vertices, sizeof(vertices));
+	std::copy(model.vertices.begin(), model.vertices.end(), vertMap);
+	model.vertBuff->Unmap(0, nullptr);
+}
+
+
 // インデックスバッファ生成
 result = device->CreateCommittedResource(
 	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -66,15 +66,6 @@ result = device->CreateCommittedResource(
 if (FAILED(result)) {
 	assert(0);
 	return;
-}
-
-// 頂点バッファへのデータ転送
-VertexPosNormalUv *vertMap = nullptr;
-result = model.vertBuff->Map(0, nullptr, (void **)&vertMap);
-if (SUCCEEDED(result)) {
-	//memcpy(vertMap, vertices, sizeof(vertices));
-	std::copy(model.vertices.begin(), model.vertices.end(), vertMap);
-	model.vertBuff->Unmap(0, nullptr);
 }
 
 // インデックスバッファへのデータ転送
@@ -90,6 +81,26 @@ if (SUCCEEDED(result)) {
 	std::copy(model.indices.begin(), model.indices.end(), indexMap);
 	model.indexBuff->Unmap(0, nullptr);
 }
+
+
+
+// 定数バッファの生成
+result = device->CreateCommittedResource(
+	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
+	D3D12_HEAP_FLAG_NONE,
+	&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
+	D3D12_RESOURCE_STATE_GENERIC_READ,
+	nullptr,
+	IID_PPV_ARGS(&model.constBuffB1));
+
+//定数バッファへデータ転送
+ConstBufferDataB1 *constMap = nullptr;
+result = model.constBuffB1->Map(0, nullptr, (void**) &constMap);
+constMap->ambient = model.material.ambient;
+constMap->diffuse = model.material.diffuse;
+constMap->specular = model.material.specular;
+constMap->alpha = model.material.alpha;
+model.constBuffB1->Unmap(0, nullptr);
 
 // 頂点バッファビューの作成
 model.vbView.BufferLocation = model.vertBuff->GetGPUVirtualAddress();

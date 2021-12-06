@@ -26,14 +26,6 @@ public:
 
 	void Init(const Object3DCommon &object3DCommon,const Camera &camera, UINT texNumber, Object3D *parent = nullptr);
 
-	//void Object3DTranceferVertexBuffer(const Object3DCommon &objCommon);
-
-	//void Objecte3DDraw();
-
-	//void Object3DUpdate();
-
-	//void DrawObject3D(ID3D12DescriptorHeap *descHeap, D3D12_VERTEX_BUFFER_VIEW &vbView, D3D12_INDEX_BUFFER_VIEW &iBView, UINT numIndices);
-
 	DirectX::XMMATRIX GetMatWorld();
 
 	void Update(const Camera &camera);
@@ -100,5 +92,5 @@ private:
 	//void CornTransferIndexBufferVertexBuffer(const Object3DCommon &object3DCommon);
 };
 
-//オブジェクト3Dのコマンド(Object3DDrawの前に必要)
-//void Object3DCommonBeginDraw(const Object3DCommon &Object3DCommon, const SpriteCommon &spriteCommon);
+//深度値リセット
+void DepthReset();

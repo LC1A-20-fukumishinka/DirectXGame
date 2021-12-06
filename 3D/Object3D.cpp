@@ -196,7 +196,7 @@ void Object3D::modelDraw(const ModelObject &model, PipeClass::PipelineSet pipeli
 	//定数バッファビュー
 	myD->GetCommandList()->SetGraphicsRootConstantBufferView(0, constBuff->GetGPUVirtualAddress());
 
-
+	myD->GetCommandList()->SetGraphicsRootConstantBufferView(1, model.constBuffB1->GetGPUVirtualAddress());
 
 	if(isSetTexture)
 	{
@@ -205,7 +205,7 @@ void Object3D::modelDraw(const ModelObject &model, PipeClass::PipelineSet pipeli
 			assert(0);
 			return;
 		}
-		myD->GetCommandList()->SetGraphicsRootDescriptorTable(1,
+		myD->GetCommandList()->SetGraphicsRootDescriptorTable(2,
 			CD3DX12_GPU_DESCRIPTOR_HANDLE(
 				descHeap->GetGPUDescriptorHandleForHeapStart(),
 				textureNumber,
@@ -220,7 +220,7 @@ void Object3D::modelDraw(const ModelObject &model, PipeClass::PipelineSet pipeli
 			assert(0);
 			return;
 		}
-		myD->GetCommandList()->SetGraphicsRootDescriptorTable(1,
+		myD->GetCommandList()->SetGraphicsRootDescriptorTable(2,
 			CD3DX12_GPU_DESCRIPTOR_HANDLE(
 				descHeap->GetGPUDescriptorHandleForHeapStart(),
 				model.textureHandle,
@@ -242,4 +242,10 @@ void Object3D::SetParent(Object3D *parent)
 {
 	if (parent == nullptr) return;
 	this->parent = parent;
+}
+
+void DepthReset()
+{
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	myDirectX->GetCommandList()->ClearDepthStencilView(myDirectX->GetDsvH(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }

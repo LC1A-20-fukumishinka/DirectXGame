@@ -20,6 +20,7 @@
 #include "IGraphicsPipeline.h"
 #include "TextureMgr.h"
 #include "Model.h"
+#include "ModelPipeline.h"
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -126,6 +127,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//DirectInputの初期化処理ここから
 
 	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 #pragma region DirectInput
 		Input * input = Input::GetInstance();
 
@@ -203,7 +205,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int grid = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/gridWall.png");
 	Model triangle;
 
-	triangle.CreateModel("skydome");
 	//BillBoard bill;
 
 	//bill.Init(obC, cam, testTexNum);
@@ -244,11 +245,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	floor[0].scale = { 10,10,10 };
 	floor[0].rotation = { 0 , 0, 0 };
 	floor[0].position = { -50, -50, 100 };
+
+
 	Object3D box;
 	box.Init(obC, cam, 0);
 	box.type = Object3D::Box;
-	box.scale = { 10, 10, 10 };
-	box.position = { 0,0,0 };
+	triangle.CreateModel("skydome");
+	box.scale = { 1.0f, 1.0f, 1.0f };
+	box.position = { 0,-10,0 };
 
 
 
@@ -305,27 +309,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			quaternion2 = XMQuaternionIdentity();
 			if (input->Trigger(DIK_RIGHT))
 			{
-				//box.rotation.y++;
-				quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 0, 0, 1, 0 }, XMConvertToRadians(-90));//任意軸(0,0,1)方向に90度回転
+				box.rotation.y++;
+				//quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 0, 0, 1, 0 }, XMConvertToRadians(-90));//任意軸(0,0,1)方向に90度回転
 			}
 			if (input->Trigger(DIK_LEFT))
 			{
-				//box.rotation.y--;
-				quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 0, 0, 1, 0 }, XMConvertToRadians(90));//任意軸(0,0,1)方向に90度回転
+				box.rotation.y--;
+				//quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 0, 0, 1, 0 }, XMConvertToRadians(90));//任意軸(0,0,1)方向に90度回転
 
 			}
 			if (input->Trigger(DIK_UP))
 			{
-				//box.rotation.x++;
-				quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 1, 0, 0, 0 }, XMConvertToRadians(90));//任意軸(0,0,1)方向に90度回転
+				box.rotation.x++;
+				//quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 1, 0, 0, 0 }, XMConvertToRadians(90));//任意軸(0,0,1)方向に90度回転
 
 			}
 			if (input->Trigger(DIK_DOWN))
 			{
-				//box.rotation.x--;
-				quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 1, 0, 0, 0 }, XMConvertToRadians(-90));//任意軸(0,0,1)方向に90度回転
+				box.rotation.x--;
+				//quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 1, 0, 0, 0 }, XMConvertToRadians(-90));//任意軸(0,0,1)方向に90度回転
 			}
-			//boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
+			boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
 		}
 
 
@@ -336,19 +340,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		if (EQ.IsEnd())
 		{
 			//boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
-			box.matWorld = XMMatrixRotationQuaternion(boxQuaternion);
+			//box.matWorld = XMMatrixRotationQuaternion(boxQuaternion);
 		}
 		else
 		{
-			float rate = static_cast<float>(EQ.Linear());
-			XMVECTOR tmpQ = XMQuaternionMultiply(boxQuaternion, quaternion2);
-			XMVECTOR rateQ = XMQuaternionSlerp(boxQuaternion, tmpQ, rate);
-			box.matWorld = XMMatrixRotationQuaternion(rateQ);
-			if (EQ.IsEnd())
-			{
-				//EQ.Reset();
-				boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
-			}
+			//float rate = static_cast<float>(EQ.Linear());
+			//XMVECTOR tmpQ = XMQuaternionMultiply(boxQuaternion, quaternion2);
+			//XMVECTOR rateQ = XMQuaternionSlerp(boxQuaternion, tmpQ, rate);
+			//box.matWorld = XMMatrixRotationQuaternion(rateQ);
+			//if (EQ.IsEnd())
+			//{
+			//	//EQ.Reset();
+			//	boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
+			//}
 
 		}
 		box.SetConstBuffer(cam);
@@ -360,8 +364,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 
-		//bill.Update(obC, cam);
-		//box.Update(obC, cam);
+		box.Update( cam);
 
 		if (input->Key(DIK_A))
 		{
@@ -373,17 +376,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		sprite.SpriteUpdate();
 
-		sprite.SpriteDraw();
 
-
-		debugText.Print("Hello,DirectX!!", 200, 100);
-
-		debugText.Print("abcdefghijklmnopqrstuvwxyz", 200, 200, 2.0f);
-
-		debugText.DrawAll();
-
-		//深度地リセット
-		DepthReset();
 
 		//コマンドリストに追加
 
@@ -404,16 +397,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		cam.Update();
 #pragma endregion
+
+		//描画コマンド
+
+		//sprite.SpriteDraw();
+
+
+		//debugText.Print("Hello,DirectX!!", 200, 100);
+
+		//debugText.Print("abcdefghijklmnopqrstuvwxyz", 200, 200, 2.0f);
+
+		//debugText.DrawAll();
+
+		//深度地リセット
+		DepthReset();
 		//bill.Draw(obC);
 		//box.Draw(obC, Pipe3D->GetPipeLine(), test);
 
-		box.modelDraw(triangle.GetModel(), Pipe3D->GetPipeLine(), isTexture, test);
-		for (int i = 0; i < 100; i++)
-		{
-			floor[i].Draw(obC, Pipe3D->GetPipeLine(), grid);
-		}
+		box.modelDraw(triangle.GetModel(), model3D->GetPipeLine(), isTexture, test);
+		//for (int i = 0; i < 100; i++)
+		//{
+		//	floor[i].Draw(obC, Pipe3D->GetPipeLine(), grid);
+		//}
 
-		//描画コマンド
 		//④描画コマンドここまで
 
 	//⑤リソースバリアを戻す
