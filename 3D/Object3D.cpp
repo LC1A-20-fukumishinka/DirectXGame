@@ -5,7 +5,6 @@ using namespace DirectX;
 
 Object3D::Object3D()
 {
-	texNumber = 0;
 	scale = { 1, 1 , 1 };
 	rotation = { 0.0f ,0.0f ,0.0f };
 	position = { 0.0f ,0.0f ,0.0f };
@@ -18,9 +17,8 @@ Object3D::Object3D()
 	
 }
 
-void Object3D::Init(const Object3DCommon &object3DCommon, const Camera &camera, UINT texNumber, Object3D *parent)
+void Object3D::Init( const Camera &camera, Object3D *parent)
 {
-	this->texNumber = texNumber;
 	this->parent = parent;
 
 	HRESULT result = S_FALSE;
@@ -87,7 +85,7 @@ void Object3D::Update(const Camera &camera)
 
 	HRESULT result = constBuff->Map(0, nullptr, (void **)&constMap);
 	constMap->color = XMFLOAT4(1, 1, 1, 1);//FŽw’è(RGBA)
-	constMap->mat = matWorld * camera.matView * camera.matProjection;	//•½s“§Ž‹“Š‰e
+	constMap->mat = matWorld * camera.matView * camera.matProjection;	//“§Ž‹“Š‰e
 	constBuff->Unmap(0, nullptr);
 
 }
@@ -102,7 +100,7 @@ void Object3D::SetConstBuffer( const Camera &camera)
 
 	HRESULT result = constBuff->Map(0, nullptr, (void **)&constMap);
 	constMap->color = XMFLOAT4(1, 1, 1, 1);//FŽw’è(RGBA)
-	constMap->mat = matWorld * camera.matView * camera.matProjection;	//•½s“§Ž‹“Š‰e
+	constMap->mat = matWorld * camera.matView * camera.matProjection;	//“§Ž‹“Š‰e
 	constBuff->Unmap(0, nullptr);
 
 }

@@ -24,7 +24,7 @@ public:
 	};
 	Object3D();
 
-	void Init(const Object3DCommon &object3DCommon,const Camera &camera, UINT texNumber, Object3D *parent = nullptr);
+	void Init(const Camera &camera, Object3D *parent = nullptr);
 
 	DirectX::XMMATRIX GetMatWorld();
 

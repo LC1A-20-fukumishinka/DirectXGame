@@ -203,7 +203,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	int test = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/texture.png");
 	int grid = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/gridWall.png");
-	Model triangle;
 
 	//BillBoard bill;
 
@@ -218,7 +217,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//10の位(行)
 	for (int i = 0; i < 10; i++)
 	{
-		floor[i * 10].Init(obC, cam, gridTexNum);
+		floor[i * 10].Init( cam);
 		floor[i * 10].type = Object3D::Plane;
 		//先頭の0番目のオブジェクトが基準になるので飛ばす
 		if (i > 0)
@@ -233,7 +232,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 			int num = i * 10 + j;
 
-			floor[num].Init(obC, cam, gridTexNum);
+			floor[num].Init( cam);
 			floor[num].type = Object3D::Plane;
 			//一つ左のオブジェクトを親に
 			floor[num].SetParent(&floor[num - 1]);
@@ -247,13 +246,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	floor[0].position = { -50, -50, 100 };
 
 
-	Object3D box;
-	box.Init(obC, cam, 0);
-	box.type = Object3D::Box;
-	triangle.CreateModel("skydome");
-	box.scale = { 1.0f, 1.0f, 1.0f };
-	box.position = { 0,-10,0 };
 
+
+
+	Model triangle;
+	triangle.CreateModel("triangle_mat");
+	Model dome;
+	dome.CreateModel("skydome");
+	Object3D box;
+
+	box.scale = { 0.1f, 0.1f, 0.1f };
+	box.position = { -10,0,0 };
+	box.Init(cam);
+	box.type = Object3D::Box;
+
+
+	Object3D DrawTriangle;
+	DrawTriangle.Init(cam);
+	DrawTriangle.scale = { 100.0f, 100.0f, 100.0f };
+	DrawTriangle.position = { 10, 0,0 };
 
 
 	XMVECTOR boxQuaternion, quaternion2;
@@ -299,7 +310,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//描画ここから
 
-		if (input->Trigger(DIK_RIGHT) || input->Trigger(DIK_LEFT) || input->Trigger(DIK_UP) || input->Trigger(DIK_DOWN))
+		if (input->Key(DIK_RIGHT) || input->Key(DIK_LEFT) || input->Key(DIK_UP) || input->Key(DIK_DOWN))
 		{
 			if (EQ.IsEnd())
 			{
@@ -307,24 +318,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 			quaternion2 = XMQuaternionIdentity();
-			if (input->Trigger(DIK_RIGHT))
+			if (input->Key(DIK_RIGHT))
 			{
 				box.rotation.y++;
 				//quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 0, 0, 1, 0 }, XMConvertToRadians(-90));//任意軸(0,0,1)方向に90度回転
 			}
-			if (input->Trigger(DIK_LEFT))
+			if (input->Key(DIK_LEFT))
 			{
 				box.rotation.y--;
 				//quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 0, 0, 1, 0 }, XMConvertToRadians(90));//任意軸(0,0,1)方向に90度回転
 
 			}
-			if (input->Trigger(DIK_UP))
+			if (input->Key(DIK_UP))
 			{
 				box.rotation.x++;
 				//quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 1, 0, 0, 0 }, XMConvertToRadians(90));//任意軸(0,0,1)方向に90度回転
 
 			}
-			if (input->Trigger(DIK_DOWN))
+			if (input->Key(DIK_DOWN))
 			{
 				box.rotation.x--;
 				//quaternion2 = XMQuaternionRotationAxis(XMVECTOR{ 1, 0, 0, 0 }, XMConvertToRadians(-90));//任意軸(0,0,1)方向に90度回転
@@ -339,32 +350,32 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		if (EQ.IsEnd())
 		{
-			//boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
-			//box.matWorld = XMMatrixRotationQuaternion(boxQuaternion);
+			boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
+			box.matWorld = XMMatrixRotationQuaternion(boxQuaternion);
 		}
 		else
 		{
-			//float rate = static_cast<float>(EQ.Linear());
-			//XMVECTOR tmpQ = XMQuaternionMultiply(boxQuaternion, quaternion2);
-			//XMVECTOR rateQ = XMQuaternionSlerp(boxQuaternion, tmpQ, rate);
-			//box.matWorld = XMMatrixRotationQuaternion(rateQ);
-			//if (EQ.IsEnd())
-			//{
-			//	//EQ.Reset();
-			//	boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
-			//}
+			float rate = static_cast<float>(EQ.Linear());
+			XMVECTOR tmpQ = XMQuaternionMultiply(boxQuaternion, quaternion2);
+			XMVECTOR rateQ = XMQuaternionSlerp(boxQuaternion, tmpQ, rate);
+			box.matWorld = XMMatrixRotationQuaternion(rateQ);
+			if (EQ.IsEnd())
+			{
+				//EQ.Reset();
+				boxQuaternion = XMQuaternionMultiply(boxQuaternion, quaternion2);
+			}
 
 		}
-		box.SetConstBuffer(cam);
+		//box.SetConstBuffer(cam);
+		box.Update( cam);
 
-
+		DrawTriangle.Update(cam);
 		for (int i = 0; i < 100; i++)
 		{
 			floor[i].Update( cam);
 		}
 
 
-		box.Update( cam);
 
 		if (input->Key(DIK_A))
 		{
@@ -414,7 +425,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//bill.Draw(obC);
 		//box.Draw(obC, Pipe3D->GetPipeLine(), test);
 
-		box.modelDraw(triangle.GetModel(), model3D->GetPipeLine(), isTexture, test);
+		box.modelDraw(dome.GetModel(), model3D->GetPipeLine(), isTexture, test);
+		DrawTriangle.modelDraw(triangle.GetModel(), model3D->GetPipeLine());
 		//for (int i = 0; i < 100; i++)
 		//{
 		//	floor[i].Draw(obC, Pipe3D->GetPipeLine(), grid);
