@@ -35,6 +35,7 @@ using namespace Microsoft::WRL;
 /*
 	‘f“G‚ÈƒRƒƒ“ƒg
 	aaaaaaaaaa
+	Šæ’£‚Á‚Ä‚¢‚±‚¤I
 */
 
 
