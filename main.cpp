@@ -36,6 +36,7 @@ using namespace Microsoft::WRL;
 	素敵なコメント
 	aaaaaaaaaa
 	頑張っていこう！
+	こんにちは！
 */
 
 
