@@ -60,7 +60,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -72,13 +72,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 	//DirectInputの初期化処理ここから
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
+	Input *input = Input::GetInstance();
 
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
@@ -105,8 +105,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	box.scale = { 10.0f, 10.0f, 10.0f };
 	box.position = { -10,0,0 };
 	box.Init(cam);
-	box.type = Object3D::Box;
-
 
 	Object3D dome;
 	dome.Init(cam);
@@ -131,12 +129,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 		//更新処理
-		if (input->Key(DIK_SPACE))
+		if (input->Button(XINPUT_GAMEPAD_A))
 		{
 			alarm.SoundPlayWave();
 		}
-
 		cam.Update();
+
 		box.Update(cam);
 
 		dome.Update(cam);
@@ -150,10 +148,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//深度地リセット
 		DepthReset();
 
+
 		debugText.Print("Hello,DirectX!!", 200, 100);
 
 		debugText.Print("abcdefghijklmnopqrstuvwxyz", 200, 200, 2.0f);
-
 		debugText.DrawAll();
 		//④描画コマンドここまで
 

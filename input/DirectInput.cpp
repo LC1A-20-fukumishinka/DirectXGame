@@ -1,5 +1,7 @@
 #include "DirectInput.h"
 
+#pragma comment(lib, "Xinput.lib")
+
 Input::Input()
 {
 }
@@ -15,7 +17,7 @@ void Input::Init(WNDCLASSEX &w, HWND &hwnd)
 		key[i] = 0;
 		oldkey[i] = 0;
 	}
-
+	int a = XINPUT_GAMEPAD_A;
 	result = DirectInput8Create(
 		w.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void **)&dinput, nullptr);
 
@@ -40,6 +42,13 @@ void Input::Update()
 
 	result = devkeyboard->GetDeviceState(sizeof(key), key);//ëSïîÇÃÉLÅ[ì¸óÕÇÃèÛë‘ÇéÊìæÇ∑ÇÈ
 
+
+
+	ZeroMemory(&padState, sizeof(XINPUT_STATE));
+
+	dwResult = XInputGetState(static_cast<DWORD>(0), &padState);
+
+
 }
 
 bool Input::Key(int KeyCode)
@@ -48,16 +57,86 @@ bool Input::Key(int KeyCode)
 	return false;
 }
 
-bool Input::Trigger(int KeyCode)
+bool Input::KeyTrigger(int KeyCode)
 {
 	if ((key[KeyCode] == 0x80) && (oldkey[KeyCode] == 0x00))return true;
 	return false;
 }
 
-bool Input::Release(int KeyCode)
+bool Input::KeyRelease(int KeyCode)
 {
 	if ((key[KeyCode] == 0x00) && (oldkey[KeyCode] == 0x80))return true;
 	return false;
+}
+
+bool Input::Button(WORD bitmask)
+{
+	if (dwResult == ERROR_SUCCESS)
+	{
+		bool isButton = padState.Gamepad.wButtons & bitmask;;
+		return isButton;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+DirectX::XMFLOAT2 Input::LStick()
+{
+	if ((padState.Gamepad.sThumbLX <  XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+		padState.Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) &&
+		(padState.Gamepad.sThumbLY <  XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+			padState.Gamepad.sThumbLY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))
+	{
+		lStick = { 0, 0 };
+	}
+	else
+	{
+		float stickMax = 32767;
+		lStick = { padState.Gamepad.sThumbLX / stickMax , padState.Gamepad.sThumbLY / stickMax };
+	}
+
+	return lStick;
+}
+
+DirectX::XMFLOAT2 Input::RStick()
+{
+	if ((padState.Gamepad.sThumbRX <  XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+		padState.Gamepad.sThumbRX > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) &&
+		(padState.Gamepad.sThumbRY <  XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+			padState.Gamepad.sThumbRY > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))
+	{
+		rStick = { 0, 0 };
+	}
+	else
+	{
+		float stickMax = 32767;
+		rStick = { padState.Gamepad.sThumbRX / stickMax , padState.Gamepad.sThumbRY / stickMax };
+	}
+
+	return rStick;
+}
+
+float Input::LTrigger()
+{
+	if (padState.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+	{
+		float TriggerInput = padState.Gamepad.bLeftTrigger/ 255.0f;
+		return TriggerInput;
+	}
+	return 0.0f;
+}
+
+float Input::RTrigger()
+{
+	if (padState.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+	{
+		float TriggerInput = padState.Gamepad.bRightTrigger / 255.0f;
+		return TriggerInput;
+	}
+	return 0.0f;
+
 }
 
 Input *Input::GetInstance()

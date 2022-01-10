@@ -41,3 +41,12 @@ struct Ray
 	//•ûŒü
 	DirectX::XMVECTOR dir = { 1.0f, 0.0f ,0.0f ,0.0f };
 };
+
+struct Box
+{
+	//ã(Top), ¶(Left), ‹ß(Near)
+	DirectX::XMVECTOR TLN;
+
+	//‰º(Bottom), ‰E(Right), ‰“(Near)
+	DirectX::XMVECTOR BRF;
+};
