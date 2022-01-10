@@ -39,7 +39,6 @@ using namespace Microsoft::WRL;
 	‚±‚ñ‚É‚¿‚ÍI
 */
 
-
 struct Vertex
 {
 	XMFLOAT3 pos;	//xyzÀ•W
