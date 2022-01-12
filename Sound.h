@@ -11,6 +11,9 @@ class Sound
 {
 private://サブクラス
 #pragma region Sound
+
+
+public:
 	//チャンクヘッダ
 	struct ChunkHeader
 	{
@@ -39,12 +42,10 @@ private://サブクラス
 		//バッファのサイズ
 		unsigned int bufferSize;
 	};
-
-
 public://静的メンバ関数
 	static bool StaticInitialize();
 	static void xAudioDelete();
-
+	static void CreateSourceVoice(IXAudio2SourceVoice *&pSourceVoice, const int soundIndex);
 
 public://静的メンバ変数
 
@@ -55,12 +56,16 @@ public://静的メンバ変数
 
 public://メンバ変数
 	//音声データ読み込み
-	SoundData SoundLoadWave(const char *filename);
+	static int SoundLoadWave(const char *filename);
 	//音声データ解放
-	void SoundUnload();
+	static void SoundUnload();
 
 	//音声再生
-	void SoundPlayWave();
+	static void Play(IXAudio2SourceVoice *pSourceVoice, const int soundIndex);
+
+	static void PlayLoop(IXAudio2SourceVoice *pSourceVoice, const int soundIndex);
+
+	static void Stop(IXAudio2SourceVoice *pSourceVoice);
 private:
-	SoundData data;
+	static std::vector<SoundData> soundData;
 };

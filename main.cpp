@@ -67,8 +67,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region sound(xAudioInstance)
 
 	Sound::StaticInitialize();
-	Sound alarm;
-	alarm.SoundLoadWave("Resources/Alarm01.wav");
+	int alarm = Sound::SoundLoadWave("Resources/Alarm01.wav");
+
+	IXAudio2SourceVoice *voice;
+	Sound::CreateSourceVoice(voice, alarm);
+
 #pragma endregion
 
 	//DirectX‰Šú‰»ˆ— ‚±‚±‚Ü‚Å
@@ -129,9 +132,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 		//XVˆ—
-		if (input->Button(XINPUT_GAMEPAD_A))
+		if (input->Button(XINPUT_GAMEPAD_A) ||input->Key(DIK_A))
 		{
-			alarm.SoundPlayWave();
+			Sound::Play(voice, alarm);
 		}
 		cam.Update();
 
