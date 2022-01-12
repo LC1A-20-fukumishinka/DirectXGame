@@ -133,7 +133,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 		//XVˆ—
-		if (input->Button(XINPUT_GAMEPAD_A) ||input->KeyTrigger(DIK_A))
+		if (input->Button(XINPUT_GAMEPAD_A) ||input->Key(DIK_A))
 		{
 			Sound::Play(voice, alarm);
 		}
