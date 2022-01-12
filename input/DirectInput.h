@@ -21,6 +21,8 @@ public:
 	bool KeyRelease(int KeyCode);
 
 	bool Button(WORD bitmask);
+	bool ButtonTrigger(WORD bitmask);
+	bool ButtonRelease(WORD bitmask);
 	DirectX::XMFLOAT2 LStick();
 	DirectX::XMFLOAT2 RStick();
 	float LTrigger();
@@ -36,6 +38,7 @@ private:
 	HRESULT result;
 	DWORD dwResult;
 	XINPUT_STATE padState;
+	XINPUT_STATE oldState;
 	DirectX::XMFLOAT2 lStick;
 	DirectX::XMFLOAT2 rStick;
 };

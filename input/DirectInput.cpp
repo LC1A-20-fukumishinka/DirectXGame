@@ -44,6 +44,7 @@ void Input::Update()
 
 
 
+	oldState = padState;
 	ZeroMemory(&padState, sizeof(XINPUT_STATE));
 
 	dwResult = XInputGetState(static_cast<DWORD>(0), &padState);
@@ -75,6 +76,34 @@ bool Input::Button(WORD bitmask)
 	{
 		bool isButton = padState.Gamepad.wButtons & bitmask;;
 		return isButton;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Input::ButtonTrigger(WORD bitmask)
+{
+	if (dwResult == ERROR_SUCCESS)
+	{
+		bool isButton = padState.Gamepad.wButtons & bitmask;
+		bool isOldButton = oldState.Gamepad.wButtons & bitmask;
+		return (isButton && !isOldButton);
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Input::ButtonRelease(WORD bitmask)
+{
+	if (dwResult == ERROR_SUCCESS)
+	{
+		bool isButton = padState.Gamepad.wButtons & bitmask;
+		bool isOldButton = oldState.Gamepad.wButtons & bitmask;
+		return (!isButton && isOldButton);
 	}
 	else
 	{
