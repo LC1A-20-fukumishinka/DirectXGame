@@ -62,4 +62,6 @@ public:
 	/// <param name="inter">Œğ·‚µ‚Ä‚¢‚é‚©</param>
 	/// <returns></returns>
 	static bool CheckRay2Sphere(const Ray &ray, const Sphere &sphere, float *distance = nullptr, DirectX::XMVECTOR *inter = nullptr);
+
+	static bool CheckBoundingBox(const Box &box1, const Box &box2);
 };

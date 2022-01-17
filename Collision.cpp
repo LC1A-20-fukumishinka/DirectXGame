@@ -252,3 +252,17 @@ bool Collision::CheckRay2Sphere(const Ray &ray, const Sphere &sphere, float *dis
 	}
 	return true;
 }
+
+bool Collision::CheckBoundingBox(const Box &box1, const Box &box2)
+{
+	if (box1.TLN.m128_f32[0] <= box2.BRF.m128_f32[0] &&
+		box2.TLN.m128_f32[0] <= box1.BRF.m128_f32[0] &&
+		box1.TLN.m128_f32[1] >= box2.BRF.m128_f32[1] &&
+		box2.TLN.m128_f32[1] >= box1.BRF.m128_f32[1] &&
+		box1.TLN.m128_f32[2] <= box2.BRF.m128_f32[2] &&
+		box2.TLN.m128_f32[2] <= box1.BRF.m128_f32[2])
+	{
+		return true;
+	}
+	return false;
+}
