@@ -12,7 +12,7 @@ void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, con
 	}
 	else
 	{
-		enemy.Generate(cam);
+		enemy.Generate(cam, { 0,0,0 });
 	}
 }
 
