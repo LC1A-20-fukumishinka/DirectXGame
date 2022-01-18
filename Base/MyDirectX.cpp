@@ -126,6 +126,11 @@ void MyDirectX::PostDraw()
 	cmdQueue->ExecuteCommandLists(1, cmdLists);
 #pragma endregion
 
+#pragma region Screenflip
+	//バッファをフリップ(裏表の入れ替え)
+	swapchain->Present(1, 0);
+#pragma endregion
+
 #pragma region ExecuteCommandWait
 	cmdQueue->Signal(fence.Get(), ++fenceVal);
 	if (fence->GetCompletedValue() != fenceVal)
@@ -142,10 +147,6 @@ void MyDirectX::PostDraw()
 	cmdList->Reset(cmdAllocator.Get(), nullptr);//再びコマンドリストをためる準備
 #pragma endregion
 
-#pragma region Screenflip
-		//バッファをフリップ(裏表の入れ替え)
-	swapchain->Present(1, 0);
-#pragma endregion
 
 }
 
