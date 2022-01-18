@@ -22,6 +22,7 @@
 #include "Model.h"
 #include "ModelPipeline.h"
 #include "EnemyMgr.h"
+#include "Player.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -62,7 +63,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -74,20 +75,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 	//DirectInputの初期化処理ここから
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
 
 	Camera cam;
-	cam.Init(XMFLOAT3(0, 100, 0), XMFLOAT3(0, 0, 0), {0,0,0}, { 0,0,1 });
+	cam.Init(XMFLOAT3(0, 50, -90), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
 	float angle = 0.0f;	//カメラの回転角
 
 	DebugText debugText;
@@ -120,6 +121,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	sphere.center = { 20,10,0 };
 	sphere.radius = 5.0f;
 
+	Player player;
+	player.Init(cam);
+
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -140,10 +144,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//更新処理
 		if (input->Button(XINPUT_GAMEPAD_A))
 		{
-			alarm.SoundPlayWave();
+			//alarm.SoundPlayWave();
 		}
 		cam.Update();
 
+		XMFLOAT3 enemyPos = { 50,0,50 };
+		player.Update(cam, enemyPos);
+		box.position = enemyPos;
 		box.Update(cam);
 
 		dome.Update(cam);
@@ -157,6 +164,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
 
 		EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
+
+		player.Draw(model3D->GetPipeLine());
 
 		//深度地リセット
 		DepthReset();
