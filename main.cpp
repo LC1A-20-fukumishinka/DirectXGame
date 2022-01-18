@@ -21,6 +21,8 @@
 #include "TextureMgr.h"
 #include "Model.h"
 #include "ModelPipeline.h"
+#include "EnemyMgr.h"
+
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -83,8 +85,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
+
 	Camera cam;
-	cam.Init(XMFLOAT3(0, 0, -100), XMFLOAT3(0, 0, 0));
+	cam.Init(XMFLOAT3(0, 100, 0), XMFLOAT3(0, 0, 0), {0,0,0}, { 0,0,1 });
 	float angle = 0.0f;	//カメラの回転角
 
 	DebugText debugText;
@@ -103,7 +106,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Object3D box;
 
 	box.scale = { 10.0f, 10.0f, 10.0f };
-	box.position = { -10,0,0 };
+	box.position = { 20,10,0 };
 	box.Init(cam);
 
 	Object3D dome;
@@ -111,6 +114,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	dome.scale = { 3.0f, 3.0f, 3.0f };
 	dome.position = { 10, 0,0 };
 	bool isTexture = false;
+
+	//仮
+	Sphere sphere;
+	sphere.center = { 20,10,0 };
+	sphere.radius = 5.0f;
+
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -139,11 +148,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		dome.Update(cam);
 
+		EnemyMgr::Instance()->Update(XMFLOAT3(10, 0, -10), sphere, cam);
+
 		//描画
 		myDirectX->PreDraw();
 
 		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
-		dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
+		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
+
+		EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
 
 		//深度地リセット
 		DepthReset();
