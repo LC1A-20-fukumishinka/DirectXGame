@@ -21,11 +21,10 @@
 #include "TextureMgr.h"
 #include "Model.h"
 #include "ModelPipeline.h"
-//#include "EnemyMgr.h"
-#include "Wall.h"
 #include "EnemyMgr.h"
+#include "Wall.h"
 #include "Player.h"
-
+#include <vector>
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -65,7 +64,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPIèâä˙âªèàóù
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -74,20 +73,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sound::StaticInitialize();
 	int alarm = Sound::SoundLoadWave("Resources/Alarm01.wav");
 
-	IXAudio2SourceVoice* voice;
+	IXAudio2SourceVoice *voice;
 	Sound::CreateSourceVoice(voice, alarm);
 
 #pragma endregion
 
 	//DirectXèâä˙âªèàóù Ç±Ç±Ç‹Ç≈
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
-	//DirectInputÇÃèâä˙âªèàóùÇ±Ç±Ç©ÇÁ
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
-
+	Input *input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -97,11 +95,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	float angle = 0.0f;	//ÉJÉÅÉâÇÃâÒì]äp
 
 	DebugText debugText;
-
-#pragma region gpipeline
-#pragma region DebugText
-
-
 	//ÉÇÉfÉãê∂ê¨
 	Model boxModel;
 	Model domeModel;
@@ -127,10 +120,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	sphere.radius = 20.0f;
 
 	Wall::SetModel(boxModel);
-	Wall wall;
-	wall.Init(cam, { 0.0f,0.0f ,0.0f }, { 10, 10, 10 }, { 2.5f, 10, 2.5f });
+
+
 	Player player;
 	player.Init(cam);
+
+
+
+	Object3D floor;
+	floor.scale = { 1000.0f, 2.0f, 300.0f };
+	floor.position = { 0.0f, -20.0f, 0.0f };
+	floor.color = { 3.0f,2.0f ,2.0f ,1.0f };
+	floor.Init(cam);
+
+
+	std::vector<Wall> walls;
+	Wall wall;
+	wall.Init(cam, { 0.0f,floor.position.y ,0.0f }, { 10, 500, 10 }, { 2.5f, 10, 2.5f });
+
+	//wall
+	std::vector<Wall> outWall;
+	outWall.resize(4);
+	outWall[0].Init(cam, { -(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
+	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 10, 10 }, { floor.scale.x / 2 , 10, 10.0f / 2 });
+	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
+	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2, 10, 10.0f / 2 });
 
 	EnemyMgr::Instance()->Init(cam);
 
@@ -160,11 +174,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		XMFLOAT3 moveSpeed = { input->LStick().x , 0.0f, input->LStick().y };
 
-		XMFLOAT3 push = wall.PushBack(box.position, { box.scale.x / 4, 0.0f, box.scale.z / 4 }, moveSpeed);
-		moveSpeed = { push.x + moveSpeed.x,push.y + moveSpeed.y ,push.z + moveSpeed.z };
 		box.Update(cam);
 		XMFLOAT3 enemyPos = { 0,0,50 };
 		player.Input(cam);
+
+		XMFLOAT3 playerSpeed = player.GetVec3();
+		XMFLOAT3 push = wall.PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z}, playerSpeed);
+		playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
+		player.SetVec3(playerSpeed);
+
+		for (int i = 0; i < outWall.size(); i++)
+		{
+			playerSpeed = player.GetVec3();
+			push = outWall[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
+			playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
+			player.SetVec3(playerSpeed);
+
+		}
 		XMFLOAT3 pos = player.GetPos();
 		player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 		box.position = enemyPos;
@@ -173,10 +199,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		box.position = { box.position.x + moveSpeed.x,box.position.y + moveSpeed.y ,box.position.z + moveSpeed.z };
 
 		dome.Update(cam);
-		wall.Update();
+		floor.Update(cam);
 
 		Sphere pSphere;
-		XMFLOAT3 pos2 = player.GetPos();
 		pSphere.center = XMLoadFloat3(&pos);
 		pSphere.radius = 20;
 		EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam);
@@ -193,17 +218,32 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		int hp = player.GetHP();
 		bool isdead = player.IsDead();
 
+		wall.Update();
+
+		for (int i = 0; i < outWall.size(); i++)
+		{
+			outWall[i].Update();
+		}
 		//ï`âÊ
 		myDirectX->PreDraw();
 
-		//bool isHit = player.isHit;
+		if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+		floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
+
+		player.Draw(model3D->GetPipeLine());
+		for (int i = 0; i < outWall.size(); i++)
+		{
+			outWall[i].Draw();
+		}
+		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+		bool isHit = player.IsHit();
 		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
 
 		EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
 
 		wall.Draw();
-		player.Draw(model3D->GetPipeLine());
+
 
 		//ê[ìxínÉäÉZÉbÉg
 		DepthReset();

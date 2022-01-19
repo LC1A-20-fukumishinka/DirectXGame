@@ -139,7 +139,7 @@ void Model::LoadModel(const std::string &directoryPath, const std::string &model
 	string line;
 	while (getline(file, line))
 	{
-		//1行分の文字列をストリームに変換して解析しやすくする
+		//1行分の文字列をストリームに変換して解析しやすくする4
 		std::istringstream line_stream(line);
 
 		//半角スペース区切り出行の先頭文字列を取得
