@@ -124,13 +124,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//‰¼
 	Sphere sphere;
 	sphere.center = { 20,10,0 };
-	sphere.radius = 5.0f;
+	sphere.radius = 20.0f;
 
 	Wall::SetModel(boxModel);
 	Wall wall;
 	wall.Init(cam, { 0.0f,0.0f ,0.0f }, { 10, 10, 10 }, { 2.5f, 10, 2.5f });
 	Player player;
 	player.Init(cam);
+
+	EnemyMgr::Instance()->Init(cam);
 
 #pragma endregion
 	//if (FAILED(result))
@@ -173,18 +175,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		dome.Update(cam);
 		wall.Update();
 
-		EnemyMgr::Instance()->Update(XMFLOAT3(10, 0, -10), sphere, cam);
 		Sphere pSphere;
 		XMFLOAT3 pos2 = player.GetPos();
 		pSphere.center = XMLoadFloat3(&pos);
 		pSphere.radius = 20;
+		EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam);
 		for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
 			if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
 			{
 				player.Damaged();
 			}
 		}
-		if (player.IsHit()) { EnemyMgr::Instance()->DeadNearEnemy(); }
+		if (player.IsHit())
+		{ 
+			EnemyMgr::Instance()->DeadNearEnemy();
+		}
 		int hp = player.GetHP();
 		bool isdead = player.IsDead();
 

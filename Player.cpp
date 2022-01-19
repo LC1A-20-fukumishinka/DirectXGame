@@ -148,6 +148,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		isHit = false;
 		if (input->KeyTrigger(DIK_SPACE) && attackDelay == 0) { attackFlag = true; }
 		else if (attackDelay > 0) { attackDelay--; }
+		isHit = false;
 	}
 
 	//UŒ‚’†
@@ -190,8 +191,10 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		float r = 20 + 20;
 
 		//‰~~‰~
-		if (attackAngle < ATTACK_ANGLE && diff < r) { isHit = true; }
-		else { isHit = false; }
+		if (attackAngle < ATTACK_ANGLE && diff < r)
+		{ isHit = true; }
+		else
+		{ isHit = false; }
 
 		attackDelay = ATTACK_DELAY;
 		attackFlag = false;

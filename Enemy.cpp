@@ -34,7 +34,7 @@ void Enemy::Init(const Camera& cam)
 
 void Enemy::Generate(const Camera& cam, const XMFLOAT3& generatePos)
 {
-	Init(cam);
+	//Init(cam);
 	isAlive = true;
 	this->enemyData.position = generatePos;
 }
