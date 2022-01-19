@@ -4,12 +4,17 @@ Player::Player()
 {
 	pos = { 0,0,0 };
 	direction = { 0,0,0 };
+	vec3 = { 0,0,0 };
 	hp = MAX_HP;
 	stopTimeCount = 0;
 	stopTImeDelay = STOP_TIME_DELAY;
 	attackCount = 0;
+	attackDelay = 0;
+	angle = 0;
 	attackFlag = false;
 	stopTimeFlag = false;
+	isHit = false;
+	isDead = false;
 
 	model.CreateModel("player");
 	obj.scale = { 10.0f,10.0f,10.0f };
@@ -24,13 +29,17 @@ void Player::Init(const Camera& camera)
 {
 	pos = { 0,0,0 };
 	direction = { 0,0,0 };
+	vec3 = { 0,0,0 };
 	hp = MAX_HP;
 	stopTimeCount = 0;
 	stopTImeDelay = STOP_TIME_DELAY;
 	attackCount = 0;
+	attackDelay = 0;
 	angle = 0;
 	attackFlag = false;
 	stopTimeFlag = false;
+	isHit = false;
+	isDead = false;
 
 	obj.Init(camera);
 	obj.rotation = { 0, angle + 90.0f, 0 };
@@ -186,8 +195,6 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		attackDelay = ATTACK_DELAY;
 		attackFlag = false;
 	}
-
-	if (input->KeyTrigger(DIK_R)) { isHit = false; }
 }
 
 void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
