@@ -30,13 +30,17 @@ void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet)
 	}
 }
 
-void EnemyMgr::CheckEnemyAttackToPlayer(int HP)
+void EnemyMgr::CheckEnemyAttackToPlayer(int HP, const Sphere& playerSphere)
 {
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
 		if (enemy[i].isAttack)
 		{
-			
+			//³–ÊƒŒƒC•ûŒü‚É“G‚ª‚¢‚½‚ç
+			if (Collision::CheckRay2Sphere(enemy[i].forwardRay, playerSphere))
+			{
+				HP--;
+			}
 		}
 	}
 }

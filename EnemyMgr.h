@@ -31,7 +31,7 @@ public:
 	void Draw(const PipeClass::PipelineSet& pipelineSet);
 
 	//“G‚ÌUŒ‚‚ÆƒvƒŒƒCƒ„[‚Ì”»’è
-	void CheckEnemyAttackToPlayer(int HP);
+	void CheckEnemyAttackToPlayer(int HP, const Sphere& playerSphere);
 
 	XMFLOAT3 GetEnemyPos(int num) { return enemy[num].enemyData.position; }
 
