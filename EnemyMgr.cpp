@@ -49,6 +49,7 @@ void EnemyMgr::CheckEnemyAttackToPlayer(int HP, const Sphere& playerSphere)
 
 XMFLOAT3 EnemyMgr::GetNearEnemyPos(const XMFLOAT3& playerPos)
 {
+	saveDistance = 10000.0f;
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
 		//¶‘¶‚µ‚Ä‚é“G‚¾‚¯ŒvŽZ‚·‚é
