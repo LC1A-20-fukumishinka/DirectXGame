@@ -55,6 +55,7 @@ public:
 	XMFLOAT3 GetVec3() { return vec3; }									//方向ベクトルを返す
 	void SetVec3(XMFLOAT3 vec3) { this->vec3 = vec3; }					//方向ベクトルをセット
 	void Damaged() { if (hp > 0) { hp--; } else { isDead = true; } }	//HPを減らす
+	int GetHP() { return hp; }											//HPを返す
 	//float GetSpeed() { return MOVE_SPEED; }
 	bool GetAttackFlag() { return attackFlag; }							//攻撃しているかを返す
 	bool GetStopTimeFlag() { return stopTimeFlag; }						//時間を止めているか止めていないかを返す

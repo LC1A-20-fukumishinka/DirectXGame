@@ -181,6 +181,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
 			if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere)) { player.Damaged(); }
 		}
+		int hp = player.GetHP();
+		bool isdead = player.IsDead();
 
 		//•`‰æ
 		myDirectX->PreDraw();
