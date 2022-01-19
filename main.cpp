@@ -161,7 +161,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		XMFLOAT3 push = wall.PushBack(box.position, { box.scale.x / 4, 0.0f, box.scale.z / 4 }, moveSpeed);
 		moveSpeed = { push.x + moveSpeed.x,push.y + moveSpeed.y ,push.z + moveSpeed.z };
 			box.Update(cam);
-		XMFLOAT3 enemyPos = { 50,0,50 };
+		XMFLOAT3 enemyPos = { 0,0,50 };
+		player.Input(cam);
 		player.Update(cam, enemyPos);
 		box.position = enemyPos;
 		box.Update(cam);
