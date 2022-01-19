@@ -3,8 +3,6 @@
 EnemyMgr::EnemyMgr()
 {
 	enemyModel.CreateModel("Enemy");
-	savePos = {};
-	saveDistance = 10000.0f;
 }
 
 void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam)
@@ -48,9 +46,16 @@ void EnemyMgr::CheckEnemyAttackToPlayer(int HP, const Sphere& playerSphere)
 	}
 }
 
+void EnemyMgr::DeadNearEnemy()
+{
+	enemy[saveNum].Dead();
+}
+
 XMFLOAT3 EnemyMgr::GetNearEnemyPos(const XMFLOAT3& playerPos)
 {
-	saveDistance = 10000.0f;
+	XMFLOAT3 savePos = {};
+	float saveDistance = 10000.0f;
+
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
 		//¶‘¶‚µ‚Ä‚é“G‚¾‚¯ŒvŽZ‚·‚é
@@ -63,6 +68,7 @@ XMFLOAT3 EnemyMgr::GetNearEnemyPos(const XMFLOAT3& playerPos)
 			//Å­‚ðXV‚·‚é
 			saveDistance = distance;
 			savePos = GetEnemyPos(i);
+			saveNum = i;
 		}
 	}
 	return savePos;
