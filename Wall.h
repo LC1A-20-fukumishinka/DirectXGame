@@ -8,7 +8,7 @@ class Wall
 public:
 	Wall();
 	~Wall();
-	void Init(Camera cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT3 collisionScale);
+	void Init(Camera &cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT3 collisionScale);
 	void Update();
 	void Draw();
 	void Finalize();

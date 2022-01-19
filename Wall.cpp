@@ -18,7 +18,7 @@ Wall::~Wall()
 {
 }
 
-void Wall::Init(Camera cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT3 collisionScale)
+void Wall::Init(Camera &cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT3 collisionScale)
 {
 	this->cam = &cam;
 	wallObj.position = pos;

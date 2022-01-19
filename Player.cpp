@@ -11,7 +11,7 @@ Player::Player()
 	attackFlag = false;
 	stopTimeFlag = false;
 
-	model.CreateModel("chr_sword");
+	model.CreateModel("player");
 	obj.scale = { 10.0f,10.0f,10.0f };
 	obj.rotation = { 0, angle + 90.0f, 0 };
 }

@@ -21,9 +21,8 @@
 #include "TextureMgr.h"
 #include "Model.h"
 #include "ModelPipeline.h"
-//#include "EnemyMgr.h"
-#include "Wall.h"
 #include "EnemyMgr.h"
+#include "Wall.h"
 #include "Player.h"
 
 using namespace DirectX;
@@ -65,7 +64,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI‰Šú‰»ˆ—
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -80,13 +79,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX‰Šú‰»ˆ— ‚±‚±‚Ü‚Å
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 	//DirectInput‚Ì‰Šú‰»ˆ—‚±‚±‚©‚ç
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
+	Input *input = Input::GetInstance();
 
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
@@ -132,6 +131,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Player player;
 	player.Init(cam);
 
+	Object3D floor;
+	floor.scale = { 1000.0f, 2.0f, 1000.0f };
+	floor.position = { 0.0f, -1.0f, 0.0f };
+	floor.color = {1.0f,0.3f ,0.3f ,1.0f };
+	floor.Init(cam);
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -160,13 +164,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		XMFLOAT3 push = wall.PushBack(box.position, { box.scale.x / 4, 0.0f, box.scale.z / 4 }, moveSpeed);
 		moveSpeed = { push.x + moveSpeed.x,push.y + moveSpeed.y ,push.z + moveSpeed.z };
-			box.Update(cam);
-		XMFLOAT3 enemyPos = { 50,0,50 };
-		player.Update(cam, enemyPos);
-		box.position = enemyPos;
 		box.Update(cam);
-
-		box.position = { box.position .x + moveSpeed.x,box.position.y + moveSpeed.y ,box.position.z + moveSpeed.z };
+		floor.Update(cam);
+		player.Update(cam, { 0,0,0 });
 
 		dome.Update(cam);
 		wall.Update();
@@ -175,7 +175,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//•`‰æ
 		myDirectX->PreDraw();
-
+		floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
 
