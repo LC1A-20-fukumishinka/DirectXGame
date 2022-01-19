@@ -59,6 +59,13 @@ struct ConstBufferData
 const int window_width = 1280;
 const int window_height = 720;
 
+enum Scenes
+{
+	title,
+	game,
+	clear
+};
+
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 	//WindowsAPI初期化処理
@@ -91,7 +98,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	Camera cam;
-	cam.Init(XMFLOAT3(0, 50, -90), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
+	cam.Init(XMFLOAT3(-450, 250, 0), XMFLOAT3(-350, 0, 0), { 0,0,0 }, { 0,0,1 });
 	float angle = 0.0f;	//カメラの回転角
 
 	DebugText debugText;
@@ -136,8 +143,56 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	std::vector<Wall> walls;
 	Wall wall;
-	wall.Init(cam, { 0.0f,floor.position.y ,0.0f }, { 10, 500, 10 }, { 2.5f, 10, 2.5f });
+	DirectX::XMFLOAT3 pillarScale = { 10, 500, 10 };
+	DirectX::XMFLOAT3 LPillarScale = { 50, 500, 50 };
+	DirectX::XMFLOAT3 wideWallScale = { 200, 500, 10 };
+	DirectX::XMFLOAT3 heightWallScale = { 10, 500, 100 };
+	DirectX::XMFLOAT3 LHeightWallScale = { 80, 500, 150 };
+	DirectX::XMFLOAT3 LWidthWallScale = { 150, 500, 100 };
 
+
+	wall.Init(cam, { 0.0f,floor.position.y ,0.0f }, pillarScale, { pillarScale.x / 4, 10, pillarScale.z / 4 });
+	walls.push_back(wall);
+
+	//入口奥
+	wall.Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	walls.push_back(wall);
+	wall.Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	walls.push_back(wall);
+
+	//入口手前
+	wall.Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	walls.push_back(wall);
+	wall.Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	walls.push_back(wall);
+
+	//入り口側中央柱
+	wall.Init(cam, { -180,floor.position.y ,0 }, LHeightWallScale, { LHeightWallScale.x / 2, 10, LHeightWallScale.z / 2 });
+	walls.push_back(wall);
+
+	//出口側二本柱
+	wall.Init(cam, { +200,floor.position.y ,-80 }, LPillarScale, { LPillarScale.x / 2, 10, LPillarScale.z / 2 });
+	walls.push_back(wall);
+	wall.Init(cam, { +200,floor.position.y ,+80 }, LPillarScale, { LPillarScale.x / 2, 10, LPillarScale.z / 2 });
+	walls.push_back(wall);
+
+	//中間通路壁
+	wall.Init(cam, { 0,floor.position.y ,floor.scale.z / 2 - 50 }, LWidthWallScale, { LWidthWallScale.x / 2, 10, LWidthWallScale.z / 2 });
+	walls.push_back(wall);
+	wall.Init(cam, { 0,floor.position.y ,-floor.scale.z / 2 + 50 }, LWidthWallScale, { LWidthWallScale.x / 2, 10, LWidthWallScale.z / 2 });
+	walls.push_back(wall);
+
+	//出口奥
+	wall.Init(cam, { floor.scale.x / 2 - 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	walls.push_back(wall);
+	wall.Init(cam, { floor.scale.x / 2 - 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	walls.push_back(wall);
+
+	//出口手前
+	wall.Init(cam, { +floor.scale.x / 2 - 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	walls.push_back(wall);
+	wall.Init(cam, { +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	walls.push_back(wall);
 	//wall
 	std::vector<Wall> outWall;
 	outWall.resize(4);
@@ -148,6 +203,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	EnemyMgr::Instance()->Init(cam);
 
+	Scenes nowScene = title;
+	std::vector<XMFLOAT3> enemyGeneratePos;
+	enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, 105 });
+	enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, -105 });
+	enemyGeneratePos.push_back(XMFLOAT3{ -105, 0, 0 });
+	enemyGeneratePos.push_back(XMFLOAT3{ 45, 0, 30 });
+	enemyGeneratePos.push_back(XMFLOAT3{ 45, 0, -30 });
+	enemyGeneratePos.push_back(XMFLOAT3{ 130, 0, 0 });
+	enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, -120 });
+	enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 0 });
+	enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 120 });
+
+	EnemyMgr::Instance()->Generate(enemyGeneratePos, cam);
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -163,87 +231,138 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 		// DirectX毎フレーム処理 ここから
 		input->Update();
-
+		if (input->KeyTrigger(DIK_RETURN))
+		{
+			int a = 0;
+		}
 
 		//更新処理
 		if (input->Button(XINPUT_GAMEPAD_A))
 		{
 			Sound::Play(voice, alarm);
 		}
+
 		cam.Update();
-
-		XMFLOAT3 moveSpeed = { input->LStick().x , 0.0f, input->LStick().y };
-
-		box.Update(cam);
-		XMFLOAT3 enemyPos = { 0,0,50 };
-		player.Input(cam);
-
-		XMFLOAT3 playerSpeed = player.GetVec3();
-		XMFLOAT3 push = wall.PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z}, playerSpeed);
-		playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
-		player.SetVec3(playerSpeed);
-
-		for (int i = 0; i < outWall.size(); i++)
+		switch (nowScene)
 		{
-			playerSpeed = player.GetVec3();
-			push = outWall[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
-			playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
-			player.SetVec3(playerSpeed);
-
-		}
-		XMFLOAT3 pos = player.GetPos();
-		player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
-		box.position = enemyPos;
-		box.Update(cam);
-
-		box.position = { box.position.x + moveSpeed.x,box.position.y + moveSpeed.y ,box.position.z + moveSpeed.z };
-
-		dome.Update(cam);
-		floor.Update(cam);
-
-		Sphere pSphere;
-		pSphere.center = XMLoadFloat3(&pos);
-		pSphere.radius = 20;
-		EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam);
-		for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
-			if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
+		case title:
+			if (input->KeyTrigger(DIK_SPACE))
 			{
-				player.Damaged();
+				nowScene = game;
+				cam.Init(XMFLOAT3(-450, 250, 0), XMFLOAT3(-350, 0, 0), { 0,0,0 }, { 0,0,1 });
+				player.Init(cam);
+				EnemyMgr::Instance()->Generate(enemyGeneratePos, cam);
+
 			}
-		}
-		if (player.IsHit())
-		{ 
-			EnemyMgr::Instance()->DeadNearEnemy();
-		}
-		int hp = player.GetHP();
-		bool isdead = player.IsDead();
+			break;
+		case game:
+			XMFLOAT3 moveSpeed = { input->LStick().x , 0.0f, input->LStick().y };
 
-		wall.Update();
+			box.Update(cam);
+			XMFLOAT3 enemyPos = { 0,0,50 };
+			player.Input(cam);
 
-		for (int i = 0; i < outWall.size(); i++)
-		{
-			outWall[i].Update();
+			for (int i = 0; i < walls.size(); i++)
+			{
+				XMFLOAT3 playerSpeed = player.GetVec3();
+				XMFLOAT3 push = walls[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
+				playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
+				player.SetVec3(playerSpeed);
+			}
+			for (int i = 0; i < outWall.size(); i++)
+			{
+				XMFLOAT3 playerSpeed = player.GetVec3();
+				XMFLOAT3 push = outWall[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
+				playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
+				player.SetVec3(playerSpeed);
+
+			}
+			XMFLOAT3 pos = player.GetPos();
+			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
+			box.position = enemyPos;
+			box.Update(cam);
+
+			box.position = { box.position.x + moveSpeed.x,box.position.y + moveSpeed.y ,box.position.z + moveSpeed.z };
+
+			dome.Update(cam);
+			floor.Update(cam);
+
+			{
+				Sphere pSphere;
+				pSphere.center = XMLoadFloat3(&pos);
+				pSphere.radius = 20;
+				EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam);
+				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
+					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
+					{
+						player.Damaged();
+					}
+				}
+			}
+			if (player.IsHit())
+			{
+				EnemyMgr::Instance()->DeadNearEnemy();
+			}
+			{int hp = player.GetHP(); }
+
+			{bool isdead = player.IsDead(); }
+			for (int i = 0; i < walls.size(); i++)
+			{
+				walls[i].Update();
+			}
+			for (int i = 0; i < outWall.size(); i++)
+			{
+				outWall[i].Update();
+			}
+
+			if (player.GetPos().x >= 480)
+			{
+				nowScene = clear;
+			}
+			break;
+		case clear:
+			if (input->KeyTrigger(DIK_SPACE))
+			{
+				nowScene = title;
+			}
+			break;
+		default:
+			break;
 		}
 		//描画
 		myDirectX->PreDraw();
-
-		if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
-		floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
-
-		player.Draw(model3D->GetPipeLine());
-		for (int i = 0; i < outWall.size(); i++)
+		switch (nowScene)
 		{
-			outWall[i].Draw();
+		case title:
+		debugText.Print("title", window_width/2-40, window_height / 2, 5);
+			break;
+		case game:
+			if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+			floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
+
+			player.Draw(model3D->GetPipeLine());
+			for (int i = 0; i < outWall.size(); i++)
+			{
+				outWall[i].Draw();
+			}
+			box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+			{bool isHit = player.IsHit();}
+			box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+			//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
+
+			EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
+
+			for (int i = 0; i < walls.size(); i++)
+			{
+				walls[i].Draw();
+			}
+			break;
+		case clear:
+			debugText.Print("clear", window_width / 2 - 40, window_height / 2, 5);
+			break;
+		default:
+			break;
 		}
-		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
-		bool isHit = player.IsHit();
-		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
-		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
-
-		EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
-
-		wall.Draw();
-
 
 		//深度地リセット
 		DepthReset();
