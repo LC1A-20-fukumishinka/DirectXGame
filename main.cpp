@@ -129,17 +129,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	Object3D floor;
 	floor.scale = { 1000.0f, 2.0f, 300.0f };
-	floor.position = { 0.0f, -10.0f, 0.0f };
+	floor.position = { 0.0f, -20.0f, 0.0f };
 	floor.color = { 3.0f,2.0f ,2.0f ,1.0f };
 	floor.Init(cam);
 
-	std::vector<Wall> outWall;
 
 	std::vector<Wall> walls;
 	Wall wall;
 	wall.Init(cam, { 0.0f,floor.position.y ,0.0f }, { 10, 500, 10 }, { 2.5f, 10, 2.5f });
 
 	//wall
+	std::vector<Wall> outWall;
 	outWall.resize(4);
 	outWall[0].Init(cam, { -(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
 	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 10, 10 }, { floor.scale.x / 2 , 10, 10.0f / 2 });
@@ -200,10 +200,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		dome.Update(cam);
 		floor.Update(cam);
-		wall.Update();
 
 		Sphere pSphere;
-		XMFLOAT3 pos2 = player.GetPos();
 		pSphere.center = XMLoadFloat3(&pos);
 		pSphere.radius = 20;
 		EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam);
@@ -219,12 +217,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		int hp = player.GetHP();
 		bool isdead = player.IsDead();
+
+		wall.Update();
+
 		for (int i = 0; i < outWall.size(); i++)
 		{
 			outWall[i].Update();
 		}
-		EnemyMgr::Instance()->Update(XMFLOAT3(10, 0, -10), sphere, cam);
-
 		//•`‰æ
 		myDirectX->PreDraw();
 
