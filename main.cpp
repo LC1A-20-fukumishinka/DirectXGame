@@ -61,9 +61,10 @@ const int window_height = 720;
 
 enum Scenes
 {
-	title,
-	game,
-	clear
+	TITLE,
+	GAME,
+	CLEAR,
+	GAMEOVER
 };
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
@@ -203,7 +204,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	EnemyMgr::Instance()->Init(cam);
 
-	Scenes nowScene = title;
+	Scenes nowScene = TITLE;
 	std::vector<XMFLOAT3> enemyGeneratePos;
 	enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, 105 });
 	enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, -105 });
@@ -245,17 +246,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		cam.Update();
 		switch (nowScene)
 		{
-		case title:
+		case TITLE:
 			if (input->KeyTrigger(DIK_SPACE))
 			{
-				nowScene = game;
+				nowScene = GAME;
 				cam.Init(XMFLOAT3(-450, 250, 0), XMFLOAT3(-350, 0, 0), { 0,0,0 }, { 0,0,1 });
 				player.Init(cam);
 				EnemyMgr::Instance()->Generate(enemyGeneratePos, cam);
 
 			}
 			break;
-		case game:
+		case GAME:
 			XMFLOAT3 moveSpeed = { input->LStick().x , 0.0f, input->LStick().y };
 
 			box.Update(cam);
@@ -291,6 +292,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				pSphere.center = XMLoadFloat3(&pos);
 				pSphere.radius = 20;
 				EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam, player.GetStopTimeFlag());
+				EnemyMgr::Instance()->UpdateData(cam);
+
 				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
 					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
 					{
@@ -317,13 +320,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (player.GetPos().x >= 480)
 			{
-				nowScene = clear;
+				nowScene = CLEAR;
+			}
+
+			if (player.IsDead())
+			{
+				nowScene = GAMEOVER;
 			}
 			break;
-		case clear:
+		case CLEAR:
 			if (input->KeyTrigger(DIK_SPACE))
 			{
-				nowScene = title;
+				nowScene = TITLE;
+			}
+			break;
+		case GAMEOVER:
+			if (input->KeyTrigger(DIK_SPACE))
+			{
+				nowScene = TITLE;
 			}
 			break;
 		default:
@@ -333,10 +347,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		myDirectX->PreDraw();
 		switch (nowScene)
 		{
-		case title:
+		case TITLE:
 			debugText.Print("title", window_width / 2 - 40, window_height / 2, 5);
 			break;
-		case game:
+		case GAME:
 			if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 
@@ -357,8 +371,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				walls[i].Draw();
 			}
 			break;
-		case clear:
+		case CLEAR:
 			debugText.Print("clear", window_width / 2 - 40, window_height / 2, 5);
+			break;
+		case GAMEOVER:
+			debugText.Print("game over", window_width / 2 - 50, window_height / 2, 5);
 			break;
 		default:
 			break;
