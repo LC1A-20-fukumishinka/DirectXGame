@@ -167,7 +167,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		box.Update(cam);
 		XMFLOAT3 enemyPos = { 0,0,50 };
 		player.Input(cam);
-		player.Update(cam, enemyPos);
+		XMFLOAT3 pos = player.GetPos();
+		player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 		box.position = enemyPos;
 		box.Update(cam);
 
@@ -184,6 +185,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		if (!player.isHit) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 		floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+		bool isHit = player.isHit;
+		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
 
 		EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
@@ -195,9 +198,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		DepthReset();
 
 
-		debugText.Print("Hello,DirectX!!", 200, 100);
+		//.Print("Hello,DirectX!!", 200, 100);
 
-		debugText.Print("abcdefghijklmnopqrstuvwxyz", 200, 200, 2.0f);
+		//debugText.Print("abcdefghijklmnopqrstuvwxyz", 200, 200, 2.0f);
 		debugText.DrawAll();
 		//‡C•`‰æƒRƒ}ƒ“ƒh‚±‚±‚Ü‚Å
 
