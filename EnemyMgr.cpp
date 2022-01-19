@@ -2,6 +2,8 @@
 
 EnemyMgr::EnemyMgr()
 {
+	savePos = {};
+	saveDistance = 10000.0f;
 }
 
 void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam)
