@@ -71,7 +71,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI‰Šú‰»ˆ—
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -80,19 +80,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sound::StaticInitialize();
 	int alarm = Sound::SoundLoadWave("Resources/Alarm01.wav");
 
-	IXAudio2SourceVoice* voice;
+	IXAudio2SourceVoice *voice;
 	Sound::CreateSourceVoice(voice, alarm);
 
 #pragma endregion
 
 	//DirectX‰Šú‰»ˆ— ‚±‚±‚Ü‚Å
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
+	Input *input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -286,27 +286,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			dome.Update(cam);
 			floor.Update(cam);
-
-		Sphere pSphere;
-		pSphere.center = XMLoadFloat3(&pos);
-		pSphere.radius = 20;
-		EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam, false);
-		for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
-			if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
 			{
-				player.Damaged();
+				Sphere pSphere;
+				pSphere.center = XMLoadFloat3(&pos);
+				pSphere.radius = 20;
+				EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam, player.GetStopTimeFlag());
+				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
+					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
+					{
+						player.Damaged();
+					}
+				}
 			}
-		}
-		if (player.IsHit())
-		{
-			EnemyMgr::Instance()->DeadNearEnemy();
-		}
-		int hp = player.GetHP();
-		bool isdead = player.IsDead();
+			if (player.IsHit())
+			{
+				EnemyMgr::Instance()->DeadNearEnemy();
+			}
 
-		wall.Update();
 
-			{bool isdead = player.IsDead(); }
+			wall.Update();
+
 			for (int i = 0; i < walls.size(); i++)
 			{
 				walls[i].Update();
@@ -335,22 +334,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		switch (nowScene)
 		{
 		case title:
-		debugText.Print("title", window_width/2-40, window_height / 2, 5);
+			debugText.Print("title", window_width / 2 - 40, window_height / 2, 5);
 			break;
 		case game:
 			if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 
-		player.Draw(model3D->GetPipeLine());
-		for (int i = 0; i < outWall.size(); i++)
-		{
-			outWall[i].Draw();
-		}
-		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
-		bool isHit = player.IsHit();
-		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
-		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
-		EnemyMgr::Instance()->enemy->enemyBullet.Draw(model3D->GetPipeLine(), boxModel.GetModel());
+			player.Draw(model3D->GetPipeLine());
+			for (int i = 0; i < outWall.size(); i++)
+			{
+				outWall[i].Draw();
+			}
+			box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+			box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+			//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
+			EnemyMgr::Instance()->enemy->enemyBullet.Draw(model3D->GetPipeLine(), boxModel.GetModel());
 
 			EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
 
