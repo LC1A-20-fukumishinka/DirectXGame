@@ -10,11 +10,13 @@ Player::Player()
 	stopTImeDelay = STOP_TIME_DELAY;
 	attackCount = 0;
 	attackDelay = 0;
+	drawCount = 0;
 	angle = 0;
 	attackFlag = false;
 	stopTimeFlag = false;
 	isHit = false;
 	isDead = false;
+	isDamaged = false;
 
 	model.CreateModel("player");
 	obj.scale = { 10.0f,10.0f,10.0f };
@@ -35,11 +37,13 @@ void Player::Init(const Camera& camera)
 	stopTImeDelay = STOP_TIME_DELAY;
 	attackCount = 0;
 	attackDelay = 0;
+	drawCount = 0;
 	angle = 0;
 	attackFlag = false;
 	stopTimeFlag = false;
 	isHit = false;
 	isDead = false;
+	isDamaged = false;
 
 	obj.Init(camera);
 	obj.rotation = { 0, angle + 90.0f, 0 };
@@ -49,20 +53,6 @@ void Player::Input(Camera& camera)
 {
 	/*---キー操作用---*/
 	/*移動*/
-	if (input->Key(DIK_D) || input->Key(DIK_A))
-	{
-		if (input->Key(DIK_D))
-		{
-			angle += MOVE_ANGLE;
-		}
-		if (input->Key(DIK_A))
-		{
-			angle -= MOVE_ANGLE;
-		}
-
-		obj.rotation = { 0, angle + 90.0f, 0 };
-	}
-
 	if (input->Key(DIK_D) || input->Key(DIK_A))
 	{
 		if (input->Key(DIK_D))
@@ -145,6 +135,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	//攻撃前
 	if (!attackFlag)
 	{
+		isHit = false;
 		if (input->KeyTrigger(DIK_SPACE) && attackDelay == 0) { attackFlag = true; }
 		else if (attackDelay > 0) { attackDelay--; }
 		isHit = false;
@@ -181,7 +172,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		//float attackAngle = dot;
 
 		//2点間の距離
-		float diff = sqrt(
+		float diff = sqrtf(
 			(enemyPos.x - obj.position.x) * (enemyPos.x - obj.position.x) +
 			(enemyPos.y - obj.position.y) * (enemyPos.y - obj.position.y) +
 			(enemyPos.z - obj.position.z) * (enemyPos.z - obj.position.z));
@@ -191,9 +182,13 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 
 		//円×円
 		if (attackAngle < ATTACK_ANGLE && diff < r)
-		{ isHit = true; }
+		{
+			isHit = true;
+		}
 		else
-		{ isHit = false; }
+		{
+			isHit = false;
+		}
 
 		attackDelay = ATTACK_DELAY;
 		attackFlag = false;
@@ -203,7 +198,18 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
 {
 	//適当なモデルで代用する
-	if (hp > 0) { obj.modelDraw(model.GetModel(), pipelineSet); }
+	if (IsDead()) return;
+
+	if (isDamaged)
+	{
+		if (drawCount % 3 == 0) { obj.color = { 1.0f,1.0f,1.0f,0.3f }; }
+		else { obj.color = { 1.0f,1.0f,1.0f,1.0f }; }
+
+		if (drawCount < 30) { drawCount++; }
+		else { obj.color = { 1.0f,1.0f,1.0f,1.0f }; isDamaged = false; drawCount = 0; }
+	}
+
+	obj.modelDraw(model.GetModel(), pipelineSet);
 }
 
 void Player::Finalize()
