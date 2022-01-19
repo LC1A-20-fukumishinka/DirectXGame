@@ -6,6 +6,14 @@ EnemyMgr::EnemyMgr()
 	saveNum = 0;
 }
 
+void EnemyMgr::Init(const Camera& cam)
+{
+	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
+	{
+		enemy[i].Init(cam);
+	}
+}
+
 void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam)
 {
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)

@@ -23,7 +23,7 @@ public:
 	Enemy enemy[MAX_ENEMY_COUNT];
 	
 	//‰Šú‰»ˆ—
-	void Init();
+	void Init(const Camera& cam);
 
 	//XVˆ—
 	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam);
