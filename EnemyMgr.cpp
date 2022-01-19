@@ -16,6 +16,7 @@ void EnemyMgr::Init(const Camera& cam)
 
 void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam, const bool& isStop)
 {
+	if (isStop)return;
 
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
