@@ -175,12 +175,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		EnemyMgr::Instance()->Update(XMFLOAT3(10, 0, -10), sphere, cam);
 		Sphere pSphere;
-		XMFLOAT3 pos = player.GetPos();
+		XMFLOAT3 pos2 = player.GetPos();
 		pSphere.center = XMLoadFloat3(&pos);
 		pSphere.radius = 20;
 		for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
-			if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere)) { player.Damaged(); }
+			if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
+			{
+				player.Damaged();
+			}
 		}
+		if (player.IsHit()) { EnemyMgr::Instance()->DeadNearEnemy(); }
 		int hp = player.GetHP();
 		bool isdead = player.IsDead();
 
