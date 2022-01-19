@@ -10,9 +10,8 @@ public:
 	static const int MAX_ENEMY_COUNT = 100;
 
 	/*---- メンバ変数 ----*/
-	XMFLOAT3 savePos;
-	float saveDistance;
 	Model enemyModel;		//モデル
+	int saveNum;			//近い敵の配列番号を保存するための変数
 
 	//コンストラクタ
 	friend Singleton<EnemyMgr>;
@@ -34,6 +33,9 @@ public:
 
 	//敵の攻撃とプレイヤーの判定
 	void CheckEnemyAttackToPlayer(int HP, const Sphere& playerSphere);
+
+	//プレイヤーから一番近い敵が死ぬ処理
+	void DeadNearEnemy();
 
 	XMFLOAT3 GetEnemyPos(int num) { return enemy[num].enemyData.position; }
 
