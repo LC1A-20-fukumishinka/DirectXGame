@@ -39,6 +39,9 @@ private:
 	bool stopTimeFlag;								//ŽžŠÔŽ~‚ß‚Ä‚¢‚é‚©
 
 public:
+	bool isHit = false;
+
+public:
 	Player();
 	~Player();
 	void Init(const Camera& camera);

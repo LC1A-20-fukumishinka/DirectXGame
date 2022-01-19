@@ -11,7 +11,7 @@ Player::Player()
 	attackFlag = false;
 	stopTimeFlag = false;
 
-	model.CreateModel("chr_sword");
+	model.CreateModel("player");
 	obj.scale = { 10.0f,10.0f,10.0f };
 	obj.rotation = { 0, angle + 90.0f, 0 };
 }
@@ -180,12 +180,13 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		float r = 20 + 20;
 
 		//â~Å~â~
-		if (attackAngle < ATTACK_ANGLE) { hp = 0; }
-		else { hp = 1; }
+		if (attackAngle < ATTACK_ANGLE && diff < r) { isHit = true; }
 
 		attackDelay = ATTACK_DELAY;
 		attackFlag = false;
 	}
+
+	if (input->KeyTrigger(DIK_R)) { isHit = false; }
 }
 
 void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
