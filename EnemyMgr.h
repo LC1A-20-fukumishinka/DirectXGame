@@ -32,7 +32,7 @@ public:
 	void Draw(const PipeClass::PipelineSet& pipelineSet);
 
 	//敵の攻撃とプレイヤーの判定
-	void CheckEnemyAttackToPlayer(int HP, const Sphere& playerSphere);
+	bool CheckEnemyAttackToPlayer(int num, const Sphere& playerSphere);
 
 	//プレイヤーから一番近い敵が死ぬ処理
 	void DeadNearEnemy();

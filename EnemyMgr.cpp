@@ -3,6 +3,7 @@
 EnemyMgr::EnemyMgr()
 {
 	enemyModel.CreateModel("Enemy");
+	saveNum = 0;
 }
 
 void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam)
@@ -31,19 +32,16 @@ void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet)
 	}
 }
 
-void EnemyMgr::CheckEnemyAttackToPlayer(int HP, const Sphere& playerSphere)
+bool EnemyMgr::CheckEnemyAttackToPlayer(int num,const Sphere& playerSphere)
 {
-	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
+	if (!enemy[num].isAttack)return false;
+	//³–ÊƒŒƒC•ûŒü‚É“G‚ª‚¢‚½‚ç
+	if (Collision::CheckRay2Sphere(enemy[num].forwardRay, playerSphere))
 	{
-		if (enemy[i].isAttack)
-		{
-			//³–ÊƒŒƒC•ûŒü‚É“G‚ª‚¢‚½‚ç
-			if (Collision::CheckRay2Sphere(enemy[i].forwardRay, playerSphere))
-			{
-				HP--;
-			}
-		}
+		return true;
 	}
+
+	return false;
 }
 
 void EnemyMgr::DeadNearEnemy()
