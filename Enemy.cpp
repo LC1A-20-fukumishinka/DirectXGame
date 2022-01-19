@@ -18,7 +18,6 @@ Enemy::Enemy()
 
 void Enemy::Init(const Camera& cam)
 {
-	enemyModel.CreateModel("enemy");
 	status = STATUS_SEARCH;
 	forwardVec = { 0,0,1 };
 	enemyData.scale = { 10.0f, 10.0f, 10.0f };

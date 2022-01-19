@@ -162,11 +162,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		XMFLOAT3 moveSpeed = { input->LStick().x , 0.0f, input->LStick().y };
 
-		XMFLOAT3 push = wall.PushBack(box.position, { box.scale.x / 4, 0.0f, box.scale.z / 4 }, moveSpeed);
-		moveSpeed = { push.x + moveSpeed.x,push.y + moveSpeed.y ,push.z + moveSpeed.z };
+		//moveSpeed = { push.x + moveSpeed.x,push.y + moveSpeed.y ,push.z + moveSpeed.z };
 		box.Update(cam);
 		XMFLOAT3 enemyPos = { 0,0,50 };
 		player.Input(cam);
+
+		XMFLOAT3 playerSpeed = player.GetVec3();
+		XMFLOAT3 push = wall.PushBack(player.GetPos(), { box.scale.x / 4, 0.0f, box.scale.z / 4 }, playerSpeed);
+		playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
+		player.SetVec3(playerSpeed);
+
 		XMFLOAT3 pos = player.GetPos();
 		player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 		box.position = enemyPos;
@@ -175,6 +180,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		box.position = { box.position.x + moveSpeed.x,box.position.y + moveSpeed.y ,box.position.z + moveSpeed.z };
 
 		dome.Update(cam);
+		floor.Update(cam);
 		wall.Update();
 
 		EnemyMgr::Instance()->Update(XMFLOAT3(10, 0, -10), sphere, cam);
