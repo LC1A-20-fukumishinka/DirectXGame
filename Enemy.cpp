@@ -98,11 +98,11 @@ void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const 
 	forwardTriangle.p2 = XMLoadFloat3(&p2);
 }
 
-void Enemy::Draw(const PipeClass::PipelineSet& pipelineSet)
+void Enemy::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model)
 {
 	if (isAlive)
 	{
-		enemyData.modelDraw(enemyModel.GetModel(), pipelineSet);
+		enemyData.modelDraw(model, pipelineSet);
 	}
 }
 

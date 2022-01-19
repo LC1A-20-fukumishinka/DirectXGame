@@ -73,7 +73,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sound::StaticInitialize();
 	int alarm = Sound::SoundLoadWave("Resources/Alarm01.wav");
 
-	IXAudio2SourceVoice *voice;
+	IXAudio2SourceVoice* voice;
 	Sound::CreateSourceVoice(voice, alarm);
 
 #pragma endregion
@@ -164,14 +164,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		XMFLOAT3 push = wall.PushBack(box.position, { box.scale.x / 4, 0.0f, box.scale.z / 4 }, moveSpeed);
 		moveSpeed = { push.x + moveSpeed.x,push.y + moveSpeed.y ,push.z + moveSpeed.z };
-			box.Update(cam);
+		box.Update(cam);
 		XMFLOAT3 enemyPos = { 0,0,50 };
 		player.Input(cam);
 		player.Update(cam, enemyPos);
 		box.position = enemyPos;
 		box.Update(cam);
 
-		box.position = { box.position .x + moveSpeed.x,box.position.y + moveSpeed.y ,box.position.z + moveSpeed.z };
+		box.position = { box.position.x + moveSpeed.x,box.position.y + moveSpeed.y ,box.position.z + moveSpeed.z };
 
 		dome.Update(cam);
 		wall.Update();
@@ -180,6 +180,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//•`‰æ
 		myDirectX->PreDraw();
+
+		if (!player.isHit) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 		floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
