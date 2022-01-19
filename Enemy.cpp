@@ -1,5 +1,5 @@
 #include"Enemy.h"
-
+#include "DirectInput.h"
 Enemy::Enemy()
 {
 	status = STATUS_SEARCH;
@@ -30,6 +30,7 @@ void Enemy::Init(const Camera& cam)
 	isAlive = false;
 	searchDelayTimer = SEARCH_DELAY_TIMER_END;
 	HP = 100;
+	enemyBullet.Init(cam);
 }
 
 void Enemy::Generate(const Camera& cam, const XMFLOAT3& generatePos)
@@ -46,6 +47,9 @@ void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const 
 
 	//更新処理
 	enemyData.Update(cam);
+
+	//弾の更新
+	enemyBullet.Update(cam);
 
 	//ステータスによって処理を分ける
 	switch (status)
@@ -64,11 +68,12 @@ void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const 
 	}
 
 	//正面ベクトルの更新
-	XMMATRIX matRot = XMMatrixIdentity();
+	matRot = XMMatrixIdentity();
 	matRot *= XMMatrixRotationZ(XMConvertToRadians(enemyData.rotation.z));
 	matRot *= XMMatrixRotationX(XMConvertToRadians(enemyData.rotation.x));
 	matRot *= XMMatrixRotationY(XMConvertToRadians(enemyData.rotation.y));
 	UpdateForwardVec(forwardVec, matRot);
+
 
 	//レイの更新処理
 	//座標
@@ -111,44 +116,45 @@ void Enemy::Searching(const Sphere& playerSphere)
 
 	if (searchTimer >= MAX_SEARCH_TIMER)
 	{
-		rotateStatus = GetRand(0, 4);
+		//rotateStatus = GetRand(0, 4);
+		rotateStatus = 0;
 		searchTimer = 0;
 	}
 
 	switch (rotateStatus)
 	{
 	case ROTATE_STATUS_RIGHT:
-		enemyData.rotation.y += XM_PI / 9.0f;
+		enemyData.rotation.y += XM_PI / 5.0f;
 		break;
 	case ROTATE_STATUS_LEFT:
-		enemyData.rotation.y -= XM_PI / 9.0f;
+		enemyData.rotation.y -= XM_PI / 5.0f;
 		break;
 	case ROTATE_STATUS_STOP:
 		break;
 	default:
-		enemyData.rotation.y += XM_PI / 9.0f;
+		enemyData.rotation.y += XM_PI / 5.0f;
 		break;
 	}
 
 	//searchDelayTimer++;
 
-	////正面レイ方向に敵がいたら
-	//if (Collision::CheckRay2Sphere(forwardRay, playerSphere) && searchDelayTimer >= SEARCH_DELAY_TIMER_END)
-	//{
-	//	//ステータスをターゲティングにする
-	//	status = STATUS_TARGET;
-	//	searchTimer = 30;
-	//	searchDelayTimer = 0;
-	//}
-
-	
-	if (Collision::CheckSphere2Triangle(playerSphere, forwardTriangle))
+	//正面レイ方向に敵がいたら
+	if (Collision::CheckRay2Sphere(forwardRay, playerSphere))
 	{
 		//ステータスをターゲティングにする
 		status = STATUS_TARGET;
 		searchTimer = 30;
 		searchDelayTimer = 0;
 	}
+
+	
+	//if (Collision::CheckSphere2Triangle(playerSphere, forwardTriangle))
+	//{
+	//	//ステータスをターゲティングにする
+	//	status = STATUS_TARGET;
+	//	searchTimer = 30;
+	//	searchDelayTimer = 0;
+	//}
 }
 
 void Enemy::Targeting(const XMFLOAT3& playerPos)
@@ -156,6 +162,21 @@ void Enemy::Targeting(const XMFLOAT3& playerPos)
 	XMFLOAT3 buff = XMFLOAT3(enemyData.position.x - playerPos.x, enemyData.position.y - playerPos.y, enemyData.position.z - playerPos.z);
 	//正面ベクトルをプレイヤーの方向に向ける
 	forwardVec = Normalize3D(buff);
+
+	//向いている方向
+	XMFLOAT3 distance = {};
+	UpdateForwardVec(distance, matRot);
+
+	float angle = Cross2D({ forwardVec.x,forwardVec.z }, { distance.x,distance.z });
+
+	if (angle < 0)
+	{
+		enemyData.rotation.y += XM_PI / 2.0f;
+	}
+	else
+	{
+		enemyData.rotation.y -= XM_PI / 2.0f;
+	}
 
 	//タイマーを進める
 	targetingTimer++;
@@ -167,6 +188,8 @@ void Enemy::Targeting(const XMFLOAT3& playerPos)
 		prevPlayerPos = playerPos;
 
 		isAttack = true;
+
+		enemyBullet.Generate(enemyData.position, forwardVec);
 
 		//ステータスを攻撃にする
 		status = STATUS_ATTACK;

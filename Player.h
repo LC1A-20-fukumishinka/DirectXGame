@@ -34,11 +34,13 @@ private:
 	int stopTImeDelay;								//時間停止のCT
 	int attackCount;								//攻撃のクールタイム
 	int attackDelay;								//攻撃のCT
+	int drawCount;
 	float angle;									//移動する角度
 	bool attackFlag;								//攻撃しているか
 	bool stopTimeFlag;								//時間止めているか
 	bool isHit;
 	bool isDead;
+	bool isDamaged;
 
 public:
 	Player();
@@ -54,7 +56,14 @@ public:
 	XMFLOAT3 GetDirection() { return direction; }						//向いてる方向を返す
 	XMFLOAT3 GetVec3() { return vec3; }									//方向ベクトルを返す
 	void SetVec3(XMFLOAT3 vec3) { this->vec3 = vec3; }					//方向ベクトルをセット
-	void Damaged() { if (hp > 0) { hp--; } else { isDead = true; } }	//HPを減らす
+
+	void Damaged()
+	{
+		isDamaged = true;
+		if (hp > 0) { hp--; }
+		else { isDead = true; }
+	}	//HPを減らす
+
 	int GetHP() { return hp; }											//HPを返す
 	//float GetSpeed() { return MOVE_SPEED; }
 	bool GetAttackFlag() { return attackFlag; }							//攻撃しているかを返す

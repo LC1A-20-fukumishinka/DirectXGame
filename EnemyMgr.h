@@ -26,7 +26,7 @@ public:
 	void Init(const Camera& cam);
 
 	//XVˆ—
-	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam);
+	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam, const bool& isStop);
 
 	//•`‰æˆ—
 	void Draw(const PipeClass::PipelineSet& pipelineSet);
