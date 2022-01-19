@@ -3,7 +3,7 @@
 #include"Object3D.h"
 #include<DirectXMath.h>
 #include"Collision.h"
-
+#include"EnemyBullet.h"
 //using XMFLOAT3 = DirectX::XMFLOAT3;
 //using XMMATRIX = DirectX::XMMATRIX;
 //using XMVECTOR = DirectX::XMVECTOR;
@@ -44,7 +44,8 @@ public:
 	Object3D enemyData;		//データ
 	XMFLOAT3 forwardVec;	//正面ベクトル
 	int status;				//Enemyの状態
-	XMMATRIX matRot;
+	XMMATRIX matRot;		//回転行列
+	EnemyBullet enemyBullet;//敵の弾
 	//当たり判定用
 	Ray forwardRay;			//正面側のレイ
 	Sphere sphere;			//食らい判定用の球

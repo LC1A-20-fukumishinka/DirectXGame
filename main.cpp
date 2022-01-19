@@ -216,7 +216,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		Sphere pSphere;
 		pSphere.center = XMLoadFloat3(&pos);
 		pSphere.radius = 20;
-		EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam);
+		EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam, false);
 		for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
 			if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
 			{
@@ -251,6 +251,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		bool isHit = player.IsHit();
 		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
+		EnemyMgr::Instance()->enemy->enemyBullet.Draw(model3D->GetPipeLine(), boxModel.GetModel());
 
 		EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
 
