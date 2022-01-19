@@ -21,7 +21,10 @@
 #include "TextureMgr.h"
 #include "Model.h"
 #include "ModelPipeline.h"
+//#include "EnemyMgr.h"
+#include "Wall.h"
 #include "EnemyMgr.h"
+#include "Player.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -40,7 +43,6 @@ using namespace Microsoft::WRL;
 	頑張っていこう！
 	こんにちは！
 */
-
 
 struct Vertex
 {
@@ -63,7 +65,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -78,20 +80,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 	//DirectInputの初期化処理ここから
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
 
 	Camera cam;
-	cam.Init(XMFLOAT3(0, 100, 0), XMFLOAT3(0, 0, 0), {0,0,0}, { 0,0,1 });
+	cam.Init(XMFLOAT3(0, 50, -90), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
 	float angle = 0.0f;	//カメラの回転角
 
 	DebugText debugText;
@@ -124,6 +126,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	sphere.center = { 20,10,0 };
 	sphere.radius = 5.0f;
 
+	Wall::SetModel(boxModel);
+	Wall wall;
+	wall.Init(cam, { 0.0f,0.0f ,0.0f }, { 10, 10, 10 }, { 2.5f, 10, 2.5f });
+	Player player;
+	player.Init(cam);
+
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -142,15 +150,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 		//更新処理
-		if (input->Button(XINPUT_GAMEPAD_A) ||input->Key(DIK_A))
+		if (input->Button(XINPUT_GAMEPAD_A))
 		{
 			Sound::Play(voice, alarm);
 		}
 		cam.Update();
 
+		XMFLOAT3 moveSpeed = { input->LStick().x , 0.0f, input->LStick().y };
+
+		XMFLOAT3 push = wall.PushBack(box.position, { box.scale.x / 4, 0.0f, box.scale.z / 4 }, moveSpeed);
+		moveSpeed = { push.x + moveSpeed.x,push.y + moveSpeed.y ,push.z + moveSpeed.z };
+			box.Update(cam);
+		XMFLOAT3 enemyPos = { 50,0,50 };
+		player.Update(cam, enemyPos);
+		box.position = enemyPos;
 		box.Update(cam);
 
+		box.position = { box.position .x + moveSpeed.x,box.position.y + moveSpeed.y ,box.position.z + moveSpeed.z };
+
 		dome.Update(cam);
+		wall.Update();
 
 		EnemyMgr::Instance()->Update(XMFLOAT3(10, 0, -10), sphere, cam);
 
@@ -161,6 +180,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
 
 		EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
+
+		wall.Draw();
+		player.Draw(model3D->GetPipeLine());
 
 		//深度地リセット
 		DepthReset();
