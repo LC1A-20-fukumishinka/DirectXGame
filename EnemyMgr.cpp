@@ -31,6 +31,16 @@ void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, con
 	}
 }
 
+void EnemyMgr::UpdateData(const Camera& cam)
+{
+	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
+	{
+		//XVˆ—
+		enemy[i].enemyData.Update(cam);
+		enemy[i].enemyBullet.bulletData.Update(cam);
+	}
+}
+
 void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet)
 {
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)

@@ -34,8 +34,6 @@ void EnemyBullet::Update(const Camera& cam)
 	{
 		Dead();
 	}
-	//更新処理
-	bulletData.Update(cam);
 
 	//座標を更新
 	bulletData.position.x -= forwardVec.x * BULLET_SPEED;
