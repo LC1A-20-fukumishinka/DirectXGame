@@ -148,6 +148,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	EnemyMgr::Instance()->Init(cam);
 
+	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
+	int stopGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/stop.png");
+
+	Sprite spriteStart;
+	spriteStart.Init(startGH);
+
+	Sprite spriteStop;
+	spriteStop.Init(stopGH);
+
+	spriteStart.position = { window_width / 2,window_height / 2,0 };
+	spriteStop.position = { window_width / 2,window_height / 2,0 };
+
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -243,6 +255,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
 
 		wall.Draw();
+
+		//画像処理
+		spriteStart.SpriteUpdate();
+		spriteStop.SpriteUpdate();
+
+		spriteStart.SpriteDraw();
+		spriteStop.SpriteDraw();
 
 
 		//深度地リセット
