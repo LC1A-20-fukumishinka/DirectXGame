@@ -2,6 +2,7 @@
 
 EnemyMgr::EnemyMgr()
 {
+	enemyModel.CreateModel("Enemy");
 	savePos = {};
 	saveDistance = 10000.0f;
 }
@@ -27,7 +28,7 @@ void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet)
 	{
 		if (enemy[i].isAlive)
 		{
-			enemy[i].Draw(pipelineSet);
+			enemy[i].Draw(pipelineSet, enemyModel.GetModel());
 		}
 	}
 }

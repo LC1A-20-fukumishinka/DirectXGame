@@ -1,6 +1,7 @@
 #pragma once
 #include"Enemy.h"
 #include"Singleton.h"
+#include<vector>
 
 class EnemyMgr:public Singleton<EnemyMgr>
 {
@@ -11,11 +12,12 @@ public:
 	/*---- メンバ変数 ----*/
 	XMFLOAT3 savePos;
 	float saveDistance;
+	Model enemyModel;		//モデル
 
 	//コンストラクタ
 	friend Singleton<EnemyMgr>;
 	EnemyMgr();
-	
+
 	//お試し
 	//Enemy enemy;
 
