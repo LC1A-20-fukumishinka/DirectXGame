@@ -56,7 +56,9 @@ public:
 	bool GetAttackFlag() { return attackFlag; }		//UŒ‚‚µ‚Ä‚¢‚é‚©‚ğ•Ô‚·
 	bool GetStopTimeFlag() { return stopTimeFlag; }	//ŠÔ‚ğ~‚ß‚Ä‚¢‚é‚©~‚ß‚Ä‚¢‚È‚¢‚©‚ğ•Ô‚·
 	float GetSpeed() { return MOVE_SPEED; }
-	XMFLOAT3 GetVec3();
+	XMFLOAT3 GetVec3() { return vec3; }
+	bool GetIsHit() { return isHit; }
+	void SetVec3(XMFLOAT3 vec3) { this->vec3 = vec3; }
 	void Damaged() { if (hp > 0) hp--; }			//HP‚ğŒ¸‚ç‚·
 
 private:

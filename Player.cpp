@@ -181,6 +181,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 
 		//â~Å~â~
 		if (attackAngle < ATTACK_ANGLE && diff < r) { isHit = true; }
+		else { isHit = false; }
 
 		attackDelay = ATTACK_DELAY;
 		attackFlag = false;

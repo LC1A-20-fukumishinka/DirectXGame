@@ -7,7 +7,7 @@ class EnemyMgr:public Singleton<EnemyMgr>
 {
 public:
 	/*---- ƒƒ“ƒo’è” ----*/
-	static const int MAX_ENEMY_COUNT = 100;
+	static const int MAX_ENEMY_COUNT = 5;
 
 	/*---- ƒƒ“ƒo•Ï” ----*/
 	Model enemyModel;		//ƒ‚ƒfƒ‹

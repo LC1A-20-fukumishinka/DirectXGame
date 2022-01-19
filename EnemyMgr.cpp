@@ -15,7 +15,7 @@ void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, con
 		}
 		else
 		{
-			enemy[i].Generate(cam, { 0,0,0 });
+			enemy[i].Generate(cam, { playerPos.x + GetRand(-100,100),playerPos.y,playerPos.z + GetRand(-100,100) });
 		}
 	}
 }
