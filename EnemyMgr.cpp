@@ -53,7 +53,7 @@ void EnemyMgr::DeadNearEnemy()
 
 XMFLOAT3 EnemyMgr::GetNearEnemyPos(const XMFLOAT3& playerPos)
 {
-	XMFLOAT3 savePos;
+	XMFLOAT3 savePos = {};
 	float saveDistance = 10000.0f;
 
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
