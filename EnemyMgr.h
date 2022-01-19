@@ -28,6 +28,8 @@ public:
 	//XVˆ—
 	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam, const bool& isStop);
 
+	void UpdateData(const Camera& cam);
+
 	//•`‰æˆ—
 	void Draw(const PipeClass::PipelineSet& pipelineSet);
 
