@@ -96,6 +96,9 @@ public:
 	//正面ベクトル更新
 	void UpdateForwardVec(XMFLOAT3& forwardVec, XMMATRIX& matRot);
 
+	//死亡
+	void Dead();
+
 };
 
 inline float Dot3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {

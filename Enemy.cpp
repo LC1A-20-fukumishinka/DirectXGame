@@ -202,3 +202,8 @@ void Enemy::UpdateForwardVec(XMFLOAT3& forwardVec, XMMATRIX& matRot)
 	//正面ベクトルを更新する
 	XMStoreFloat3(&forwardVec, honraiForwardVector);
 }
+
+void Enemy::Dead()
+{
+	isAlive = false;
+}
