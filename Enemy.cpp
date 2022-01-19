@@ -30,6 +30,7 @@ void Enemy::Init(const Camera& cam)
 	isAlive = false;
 	searchDelayTimer = SEARCH_DELAY_TIMER_END;
 	HP = 100;
+	enemyBullet.Init(cam);
 }
 
 void Enemy::Generate(const Camera& cam, const XMFLOAT3& generatePos)
@@ -46,6 +47,9 @@ void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const 
 
 	//更新処理
 	enemyData.Update(cam);
+
+	//弾の更新
+	enemyBullet.Update(cam);
 
 	//ステータスによって処理を分ける
 	switch (status)
@@ -184,6 +188,8 @@ void Enemy::Targeting(const XMFLOAT3& playerPos)
 		prevPlayerPos = playerPos;
 
 		isAttack = true;
+
+		enemyBullet.Generate(enemyData.position, forwardVec);
 
 		//ステータスを攻撃にする
 		status = STATUS_ATTACK;
