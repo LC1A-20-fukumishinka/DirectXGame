@@ -41,8 +41,7 @@ private:
 public:
 	/*---- メンバ変数 ----*/
 
-	Model enemyModel;			//モデル
-	Object3D enemyData;			//データ
+	Object3D enemyData;		//データ
 	XMFLOAT3 forwardVec;	//正面ベクトル
 	int status;				//Enemyの状態
 	//当たり判定用
@@ -82,7 +81,7 @@ public:
 	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam);
 
 	//描画処理
-	void Draw(const PipeClass::PipelineSet& pipelineSet);
+	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);
 
 	//索敵
 	void Searching(const Sphere& playerSphere);
