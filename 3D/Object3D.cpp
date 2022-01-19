@@ -40,7 +40,7 @@ void Object3D::Init( const Camera &camera, Object3D *parent)
 
 	ConstBufferData *constMap = nullptr;
 	result = constBuff->Map(0, nullptr, (void **)&constMap);
-	constMap->color = XMFLOAT4(1, 1, 1, 1);//色指定(RGBA)
+	constMap->color = color;//色指定(RGBA)
 	constMap->mat = matWorld * camera.matView * camera.matProjection;	//平行透視投影
 	constBuff->Unmap(0, nullptr);
 
@@ -84,7 +84,7 @@ void Object3D::Update(const Camera &camera)
 	ConstBufferData *constMap = nullptr;
 
 	HRESULT result = constBuff->Map(0, nullptr, (void **)&constMap);
-	constMap->color = XMFLOAT4(1, 1, 1, 1);//色指定(RGBA)
+	constMap->color = color;//色指定(RGBA)
 	constMap->mat = matWorld * camera.matView * camera.matProjection;	//透視投影
 	constBuff->Unmap(0, nullptr);
 
@@ -99,7 +99,7 @@ void Object3D::SetConstBuffer( const Camera &camera)
 	matWorld = matScale * matWorld;
 
 	HRESULT result = constBuff->Map(0, nullptr, (void **)&constMap);
-	constMap->color = XMFLOAT4(1, 1, 1, 1);//色指定(RGBA)
+	constMap->color = color;//色指定(RGBA)
 	constMap->mat = matWorld * camera.matView * camera.matProjection;	//透視投影
 	constBuff->Unmap(0, nullptr);
 
