@@ -11,7 +11,7 @@ Player::Player()
 	attackFlag = false;
 	stopTimeFlag = false;
 
-	model.CreateModel("chr_sword");
+	model.CreateModel("player");
 	obj.scale = { 10.0f,10.0f,10.0f };
 	obj.rotation = { 0, angle + 90.0f, 0 };
 }
@@ -36,12 +36,24 @@ void Player::Init(const Camera& camera)
 	obj.rotation = { 0, angle + 90.0f, 0 };
 }
 
-void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
+void Player::Input(Camera& camera)
 {
-	obj.Update(camera);
-
 	/*---ÉLÅ[ëÄçÏóp---*/
 	/*à⁄ìÆ*/
+	if (input->Key(DIK_D) || input->Key(DIK_A))
+	{
+		if (input->Key(DIK_D))
+		{
+			angle += MOVE_ANGLE;
+		}
+		if (input->Key(DIK_A))
+		{
+			angle -= MOVE_ANGLE;
+		}
+
+		obj.rotation = { 0, angle + 90.0f, 0 };
+	}
+
 	if (input->Key(DIK_D) || input->Key(DIK_A))
 	{
 		if (input->Key(DIK_D))
@@ -60,28 +72,35 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	{
 		float rotY = angle;
 		ConvertToRadian(rotY);
+		vec3.x = cosf(-rotY);
+		vec3.z = sinf(-rotY);
 
 		if (input->Key(DIK_W))
 		{
-			pos.x += cosf(-rotY) * MOVE_SPEED;
-			pos.z += sinf(-rotY) * MOVE_SPEED;
-
-			camera.eye.x += cosf(-rotY) * MOVE_SPEED;
-			camera.eye.z += sinf(-rotY) * MOVE_SPEED;
+			vec3.x *= MOVE_SPEED;
+			vec3.z *= MOVE_SPEED;
 		}
 		if (input->Key(DIK_S))
 		{
-			pos.x -= cosf(-rotY) * MOVE_SPEED;
-			pos.z -= sinf(-rotY) * MOVE_SPEED;
-
-			camera.eye.x -= cosf(-rotY) * MOVE_SPEED;
-			camera.eye.z -= sinf(-rotY) * MOVE_SPEED;
+			vec3.x *= -MOVE_SPEED;
+			vec3.z *= -MOVE_SPEED;
 		}
-
-		obj.position = pos;
-		camera.target = pos;
 	}
+	else { vec3 = { 0.0f,0.0f,0.0f }; }
+}
 
+void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
+{
+	pos.x += vec3.x;
+	pos.z += vec3.z;
+	camera.eye.x += vec3.x;
+	camera.eye.z += vec3.z;
+	camera.target = pos;
+	obj.position = pos;
+
+	obj.Update(camera);
+
+	/*---ÉLÅ[ëÄçÏóp---*/
 	/*éûä‘í‚é~*/
 
 	//éûä‘í‚é~äO
@@ -127,7 +146,8 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		//îªíË
 		//ìGÇ÷ÇÃï˚å¸ÉxÉNÉgÉã
 		XMFLOAT3 vec = { 0,0,0 };
-		vec.x = enemyPos.x - obj.position.x;
+		//vec.x = enemyPos.x - obj.position.x;
+		vec.x = obj.position.x - enemyPos.x;
 		vec.z = enemyPos.z - obj.position.z;
 		XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
 
@@ -135,16 +155,20 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		XMFLOAT3 myVec = { 0,0,0 };
 		float rad = angle;
 		ConvertToRadian(rad);
-		myVec.x = cos(rad);
-		myVec.z = sin(rad);
+		myVec.x = cosf(rad);
+		myVec.z = sinf(rad);
 
+		//åvéZ
 		float dot = vec.x * myVec.x + vec.z * myVec.z;
 		float absA = sqrtf(vec.x * vec.x + vec.z * vec.z);
 		float absB = sqrtf(myVec.x * myVec.x + myVec.z * myVec.z);
 		float cosTheta = dot / (absA * absB);
-		float theta = acosf(cosTheta);
+		float theta = acosf(-cosTheta);
+
 		ConvertToDegree(theta);
+		//ConvertToDegree(dot);
 		float attackAngle = theta;
+		//float attackAngle = dot;
 
 		//2ì_ä‘ÇÃãóó£
 		float diff = sqrt(
@@ -153,14 +177,16 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 			(enemyPos.z - obj.position.z) * (enemyPos.z - obj.position.z));
 
 		//îºåaÇÃçáåv
-		//float r = r1 + r2;
+		float r = 20 + 20;
 
 		//â~Å~â~
-		if (attackAngle < ATTACK_ANGLE) { hp = 0; };
+		if (attackAngle < ATTACK_ANGLE && diff < r) { isHit = true; }
 
 		attackDelay = ATTACK_DELAY;
 		attackFlag = false;
 	}
+
+	if (input->KeyTrigger(DIK_R)) { isHit = false; }
 }
 
 void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
