@@ -117,7 +117,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//‰¼
 	Sphere sphere;
 	sphere.center = { 20,10,0 };
-	sphere.radius = 5.0f;
+	sphere.radius = 20.0f;
 
 	Wall::SetModel(boxModel);
 
@@ -146,6 +146,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
 	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2, 10, 10.0f / 2 });
 
+	EnemyMgr::Instance()->Init(cam);
+
+#pragma endregion
+	//if (FAILED(result))
+	//{
+	//	return result;
+	//}
+#pragma endregion
 	//•`‰æ‰Šú‰»ˆ— ‚±‚±‚Ü‚Å
 	while (Win->loopBreak()) //ƒQ[ƒ€ƒ‹[ƒv
 	{
@@ -193,6 +201,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		dome.Update(cam);
 		floor.Update(cam);
 		wall.Update();
+
+		Sphere pSphere;
+		XMFLOAT3 pos2 = player.GetPos();
+		pSphere.center = XMLoadFloat3(&pos);
+		pSphere.radius = 20;
+		EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam);
+		for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
+			if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
+			{
+				player.Damaged();
+			}
+		}
+		if (player.IsHit())
+		{ 
+			EnemyMgr::Instance()->DeadNearEnemy();
+		}
+		int hp = player.GetHP();
+		bool isdead = player.IsDead();
 		for (int i = 0; i < outWall.size(); i++)
 		{
 			outWall[i].Update();
@@ -202,7 +228,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		//•`‰æ
 		myDirectX->PreDraw();
 
-		if (!player.isHit) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+		if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 		floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 
 		player.Draw(model3D->GetPipeLine());
@@ -211,7 +237,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			outWall[i].Draw();
 		}
 		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
-		bool isHit = player.isHit;
+		bool isHit = player.IsHit();
 		box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 		//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
 

@@ -23,7 +23,7 @@ public:
 	Enemy enemy[MAX_ENEMY_COUNT];
 	
 	//初期化処理
-	void Init();
+	void Init(const Camera& cam);
 
 	//更新処理
 	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam);
@@ -32,7 +32,7 @@ public:
 	void Draw(const PipeClass::PipelineSet& pipelineSet);
 
 	//敵の攻撃とプレイヤーの判定
-	void CheckEnemyAttackToPlayer(int HP, const Sphere& playerSphere);
+	bool CheckEnemyAttackToPlayer(int num, const Sphere& playerSphere);
 
 	//プレイヤーから一番近い敵が死ぬ処理
 	void DeadNearEnemy();
