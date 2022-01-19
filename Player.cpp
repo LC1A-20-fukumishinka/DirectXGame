@@ -138,13 +138,16 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		myVec.x = cos(rad);
 		myVec.z = sin(rad);
 
+		//åvéZ
 		float dot = vec.x * myVec.x + vec.z * myVec.z;
 		float absA = sqrtf(vec.x * vec.x + vec.z * vec.z);
 		float absB = sqrtf(myVec.x * myVec.x + myVec.z * myVec.z);
 		float cosTheta = dot / (absA * absB);
 		float theta = acosf(cosTheta);
 		ConvertToDegree(theta);
+		//ConvertToDegree(dot);
 		float attackAngle = theta;
+		//float attackAngle = dot;
 
 		//2ì_ä‘ÇÃãóó£
 		float diff = sqrt(
@@ -153,10 +156,10 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 			(enemyPos.z - obj.position.z) * (enemyPos.z - obj.position.z));
 
 		//îºåaÇÃçáåv
-		//float r = r1 + r2;
+		float r = 20 + 20;
 
 		//â~Å~â~
-		if (attackAngle < ATTACK_ANGLE) { hp = 0; };
+		if (attackAngle < ATTACK_ANGLE && diff < r) { hp = 0; }
 
 		attackDelay = ATTACK_DELAY;
 		attackFlag = false;

@@ -148,7 +148,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		cam.Update();
 
-		XMFLOAT3 enemyPos = { 50,0,50 };
+		XMFLOAT3 enemyPos = { 50,0,0 };
 		player.Update(cam, enemyPos);
 		box.position = enemyPos;
 		box.Update(cam);
