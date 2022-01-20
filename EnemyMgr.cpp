@@ -16,6 +16,7 @@ void EnemyMgr::Init(const Camera& cam)
 
 void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam, const bool& isStop)
 {
+	if (isStop)return;
 
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
@@ -25,8 +26,18 @@ void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, con
 		}
 		else
 		{
-			enemy[i].Generate(cam, { playerPos.x + GetRand(-100,100),playerPos.y,playerPos.z + GetRand(-100,100) });
+			//enemy[i].Generate(cam, { playerPos.x + GetRand(-100,100),playerPos.y,playerPos.z + GetRand(-100,100) });
 		}
+	}
+}
+
+void EnemyMgr::UpdateData(const Camera& cam)
+{
+	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
+	{
+		//更新処理
+		enemy[i].enemyData.Update(cam);
+		enemy[i].enemyBullet.bulletData.Update(cam);
 	}
 }
 
@@ -79,4 +90,19 @@ XMFLOAT3 EnemyMgr::GetNearEnemyPos(const XMFLOAT3& playerPos)
 		}
 	}
 	return savePos;
+}
+
+void EnemyMgr::Generate(std::vector<DirectX::XMFLOAT3> &generatePos, const Camera &cam)
+{
+//渡された敵の生成配列がマネージャークラスの最大値より大きかったら早期リターン
+	if(generatePos.size()>MAX_ENEMY_COUNT) return;
+
+	for (int i = 0; i < MAX_ENEMY_COUNT; i++)
+	{
+		enemy[i].Init(cam);
+	}
+	for (int i = 0; i < generatePos.size(); i++)
+	{
+		enemy[i].Generate(cam, generatePos[i]);
+	}
 }

@@ -23,7 +23,8 @@ void Wall::Init(Camera &cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, Dir
 	this->cam = &cam;
 	wallObj.position = pos;
 	wallObj.scale = scale;
-	wallObj.color.w = 0.5f;
+	//wallObj.color.w = 0.5f;
+	wallObj.color.w = 1.0f;
 	wallObj.Init(*this->cam);
 	this->collisionScale = collisionScale;
 }

@@ -7,7 +7,7 @@ class EnemyMgr:public Singleton<EnemyMgr>
 {
 public:
 	/*---- メンバ定数 ----*/
-	static const int MAX_ENEMY_COUNT = 1;
+	static const int MAX_ENEMY_COUNT = 20;
 
 	/*---- メンバ変数 ----*/
 	Model enemyModel;		//モデル
@@ -28,6 +28,8 @@ public:
 	//更新処理
 	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam, const bool& isStop);
 
+	void UpdateData(const Camera& cam);
+
 	//描画処理
 	void Draw(const PipeClass::PipelineSet& pipelineSet);
 
@@ -40,6 +42,12 @@ public:
 	XMFLOAT3 GetEnemyPos(int num) { return enemy[num].enemyData.position; }
 
 	XMFLOAT3 GetNearEnemyPos(const XMFLOAT3& playerPos);
+
+	/// <summary>
+	/// 敵をまとめて生成する
+	/// </summary>
+	/// <param name="generatePos">呼び出す敵の配列</param>
+	void Generate(std::vector<DirectX::XMFLOAT3> &generatePos, const Camera &cam);
 
 };
 

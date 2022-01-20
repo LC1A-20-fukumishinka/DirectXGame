@@ -29,7 +29,7 @@ Player::~Player()
 
 void Player::Init(const Camera& camera)
 {
-	pos = { 0,0,0 };
+	pos = {-450, 0, 0};
 	direction = { 0,0,0 };
 	vec3 = { 0,0,0 };
 	hp = MAX_HP;

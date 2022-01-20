@@ -45,9 +45,6 @@ void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const 
 	//生成済みじゃなかったら生成する
 	if (!isAlive)return;
 
-	//更新処理
-	enemyData.Update(cam);
-
 	//弾の更新
 	enemyBullet.Update(cam);
 
