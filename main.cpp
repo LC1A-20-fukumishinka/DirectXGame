@@ -25,6 +25,7 @@
 #include "Wall.h"
 #include "Player.h"
 #include <vector>
+#include "WallMgr.h"
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -194,6 +195,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	walls.push_back(wall);
 	wall.Init(cam, { +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
 	walls.push_back(wall);
+
+	WallMgr::Instance()->Init(walls);
 	//wall
 	std::vector<Wall> outWall;
 	outWall.resize(4);

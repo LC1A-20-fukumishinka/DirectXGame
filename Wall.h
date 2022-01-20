@@ -3,6 +3,9 @@
 #include "Object3D.h"
 #include "Model.h"
 #include "Camera.h"
+#include "Collision.h"
+#include "CollisionPrimitive.h"
+#include <vector>
 class Wall
 {
 public:
@@ -18,9 +21,18 @@ private://静的メンバ変数
 	static Model *wallModel;
 public:
 	static void SetModel(Model &model);
+	std::vector<Triangle> &GetFaces();
+	const DirectX::XMFLOAT3 &GetPos();
 private:
 	bool LineCollision(DirectX::XMFLOAT3 wallA, DirectX::XMFLOAT3 wallB, DirectX::XMFLOAT3 playerA, DirectX::XMFLOAT3 playerB);
 	float LineCross(DirectX::XMFLOAT3 wallLine, DirectX::XMFLOAT3 playerLine);
+
+	/// <summary>
+	/// 壁の▽面の生成
+	/// </summary>
+	/// <param name="pos">壁の中心座標</param>
+	/// <param name="scale">壁の描画拡大率</param>
+	void SetFace(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale);
 	/// <summary>
 	/// 壁からの押し戻しの量を返す
 	/// </summary>
@@ -31,4 +43,11 @@ private:
 	Object3D wallObj;
 	DirectX::XMFLOAT3 collisionScale;
 	Camera *cam;
+
+	//四角面*4
+	std::vector<Triangle> wallFaces;
+
+public:
+	Object3D wallObj;
+	Sphere sphere;
 };
