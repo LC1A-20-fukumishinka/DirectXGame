@@ -28,6 +28,10 @@ void Wall::Init(Camera &cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, Dir
 	wallObj.Init(*this->cam);
 	this->collisionScale = collisionScale;
 	sphere.radius = 20.0f;
+	SetFace(pos, scale);
+
+	wallFaces;
+	int i = 0;
 }
 
 void Wall::Update()
@@ -143,6 +147,11 @@ void Wall::SetFace(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale	)
 std::vector<Triangle> &Wall::GetFaces()
 {
 	return wallFaces;
+}
+
+const DirectX::XMFLOAT3 &Wall::GetPos()
+{
+	return wallObj.position;
 }
 
 DirectX::XMFLOAT3 Wall::PushBack(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 size, DirectX::XMFLOAT3 MoveSpeed)

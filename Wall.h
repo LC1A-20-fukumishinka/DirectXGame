@@ -22,7 +22,7 @@ private://Ã“Iƒƒ“ƒo•Ï”
 public:
 	static void SetModel(Model &model);
 	std::vector<Triangle> &GetFaces();
-
+	const DirectX::XMFLOAT3 &GetPos();
 private:
 	bool LineCollision(DirectX::XMFLOAT3 wallA, DirectX::XMFLOAT3 wallB, DirectX::XMFLOAT3 playerA, DirectX::XMFLOAT3 playerB);
 	float LineCross(DirectX::XMFLOAT3 wallLine, DirectX::XMFLOAT3 playerLine);
