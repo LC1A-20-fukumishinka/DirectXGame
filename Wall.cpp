@@ -27,11 +27,13 @@ void Wall::Init(Camera &cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, Dir
 	wallObj.color.w = 1.0f;
 	wallObj.Init(*this->cam);
 	this->collisionScale = collisionScale;
+	sphere.radius = 20.0f;
 }
 
 void Wall::Update()
 {
 	wallObj.Update(*this->cam);
+	sphere.center = DirectX::XMLoadFloat3(&wallObj.position);
 }
 
 void Wall::Draw()
