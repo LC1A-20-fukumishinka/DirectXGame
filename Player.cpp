@@ -47,6 +47,7 @@ void Player::Init(const Camera& camera)
 
 	obj.Init(camera);
 	obj.rotation = { 0, angle + 90.0f, 0 };
+	obj.color.w = 1.0f;
 }
 
 void Player::Input(Camera& camera)

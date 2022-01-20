@@ -61,10 +61,12 @@ public:
 	{
 		isDamaged = true;
 		if (hp > 0) { hp--; }
-		else { isDead = true; }
+		else if (hp <= 0) { isDead = true; }
 	}	//HP‚ðŒ¸‚ç‚·
 
 	int GetHP() { return hp; }											//HP‚ð•Ô‚·
+	int GetStopTimeCount() { return stopTimeCount; }
+	int GetStopTimeDelay() { return stopTImeDelay; }
 	//float GetSpeed() { return MOVE_SPEED; }
 	bool GetAttackFlag() { return attackFlag; }							//UŒ‚‚µ‚Ä‚¢‚é‚©‚ð•Ô‚·
 	bool GetStopTimeFlag() { return stopTimeFlag; }						//ŽžŠÔ‚ðŽ~‚ß‚Ä‚¢‚é‚©Ž~‚ß‚Ä‚¢‚È‚¢‚©‚ð•Ô‚·
