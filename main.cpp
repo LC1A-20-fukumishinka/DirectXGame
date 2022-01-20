@@ -72,7 +72,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -81,19 +81,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sound::StaticInitialize();
 	int alarm = Sound::SoundLoadWave("Resources/Alarm01.wav");
 
-	IXAudio2SourceVoice *voice;
+	IXAudio2SourceVoice* voice;
 	Sound::CreateSourceVoice(voice, alarm);
 
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -217,6 +217,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 120 });
 
 	EnemyMgr::Instance()->Generate(enemyGeneratePos, cam);
+
+	//画像初期化
+	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
+	int stopGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/stop.png");
+
+	Sprite spriteStart;
+	spriteStart.Init(startGH);
+
+	Sprite spriteStop;
+	spriteStop.Init(stopGH);
+
+	spriteStart.position = { window_width / 2,window_height / 2,0 };
+	spriteStop.position = { window_width / 2,window_height / 2,0 };
+
+	bool stopDraw = false;
+	bool startDraw = false;
+
+	spriteStart.color.w = 0.0f;
+	spriteStop.color.w = 0.0f;
+
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -232,6 +252,43 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 		// DirectX毎フレーム処理 ここから
 		input->Update();
+
+		//画像処理
+		int stopDelay = player.GetStopTimeDelay(); //CT 0~Delay
+		int stopCount = player.GetStopTimeCount(); //時間停止 0~60
+		bool isStop = player.GetStopTimeFlag(); //停止中か否か
+
+		if (!stopDraw && !isStop && input->KeyTrigger(DIK_E) && stopDelay == STOP_TIME_DELAY)
+		{
+			spriteStop.color.w = 0.7f;
+			spriteStop.size = { 100.0f,100.0f };
+			stopDraw = true;
+		}
+
+		if (!startDraw && isStop && stopCount >= STOP_TIME_COUNT - 1)
+		{
+			spriteStart.color.w = 0.7f;
+			spriteStart.size = { 100.0f,100.0f };
+			startDraw = true;
+		}
+
+		if (stopDraw && stopCount < 20) {
+			spriteStop.color.w -= stopCount / 100.0f;
+			spriteStop.size.x += stopCount;
+			spriteStop.size.y += stopCount;
+		}
+		else { stopDraw = false; }
+
+		if (startDraw && stopDelay < 20) {
+			spriteStart.color.w -= stopDelay / 100.0f;
+			spriteStop.size.x += stopDelay;
+			spriteStop.size.y += stopDelay;
+		}
+		else { startDraw = false; }
+
+		spriteStart.SpriteUpdate();
+		spriteStop.SpriteUpdate();
+
 		if (input->KeyTrigger(DIK_RETURN))
 		{
 			int a = 0;
@@ -380,6 +437,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		default:
 			break;
 		}
+
+		//画像描画
+		spriteStart.SpriteDraw();
+		spriteStop.SpriteDraw();
 
 		//深度地リセット
 		DepthReset();

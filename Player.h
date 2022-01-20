@@ -65,6 +65,8 @@ public:
 	}	//HP‚ğŒ¸‚ç‚·
 
 	int GetHP() { return hp; }											//HP‚ğ•Ô‚·
+	int GetStopTimeCount() { return stopTimeCount; }
+	int GetStopTimeDelay() { return stopTImeDelay; }
 	//float GetSpeed() { return MOVE_SPEED; }
 	bool GetAttackFlag() { return attackFlag; }							//UŒ‚‚µ‚Ä‚¢‚é‚©‚ğ•Ô‚·
 	bool GetStopTimeFlag() { return stopTimeFlag; }						//ŠÔ‚ğ~‚ß‚Ä‚¢‚é‚©~‚ß‚Ä‚¢‚È‚¢‚©‚ğ•Ô‚·
