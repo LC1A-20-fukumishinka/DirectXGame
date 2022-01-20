@@ -237,6 +237,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	spriteStart.color.w = 0.0f;
 	spriteStop.color.w = 0.0f;
 
+	bool damaged = false;
+
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -354,9 +356,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
 					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
 					{
-						player.Damaged();
+						if (!damaged) player.Damaged();
+						damaged = true;
 					}
 				}
+				damaged = false;
 			}
 			if (player.IsHit())
 			{

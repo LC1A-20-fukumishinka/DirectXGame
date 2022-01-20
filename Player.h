@@ -61,7 +61,7 @@ public:
 	{
 		isDamaged = true;
 		if (hp > 0) { hp--; }
-		else { isDead = true; }
+		else if (hp <= 0) { isDead = true; }
 	}	//HP‚ðŒ¸‚ç‚·
 
 	int GetHP() { return hp; }											//HP‚ð•Ô‚·

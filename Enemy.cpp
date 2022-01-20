@@ -28,6 +28,7 @@ void Enemy::Init(const Camera& cam)
 	targetingTimer = 0;
 	prevPlayerPos = {};
 	isAlive = false;
+	isAttack = false;
 	searchDelayTimer = SEARCH_DELAY_TIMER_END;
 	HP = 100;
 	enemyBullet.Init(cam);
