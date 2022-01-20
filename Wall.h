@@ -3,7 +3,6 @@
 #include "Object3D.h"
 #include "Model.h"
 #include "Camera.h"
-#include"Collision.h"
 class Wall
 {
 public:
@@ -29,9 +28,7 @@ private:
 	/// <param name="size">”¼Œa</param>
 	/// <param name="MoveSpeed"></param>
 	/// <returns></returns>
+	Object3D wallObj;
 	DirectX::XMFLOAT3 collisionScale;
 	Camera *cam;
-public:
-	Object3D wallObj;
-	Sphere sphere;
 };

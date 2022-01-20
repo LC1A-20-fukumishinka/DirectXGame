@@ -2,7 +2,6 @@
 #include"Enemy.h"
 #include"Singleton.h"
 #include<vector>
-#include"Wall.h"
 
 class EnemyMgr:public Singleton<EnemyMgr>
 {
@@ -35,7 +34,7 @@ public:
 	void Draw(const PipeClass::PipelineSet& pipelineSet);
 
 	//敵の攻撃とプレイヤーの判定
-	bool CheckEnemyAttackToPlayer(int num, const Sphere& playerSphere, std::vector<Wall>& walls);
+	bool CheckEnemyAttackToPlayer(int num, const Sphere& playerSphere);
 
 	//プレイヤーから一番近い敵が死ぬ処理
 	void DeadNearEnemy();
@@ -48,7 +47,7 @@ public:
 	/// 敵をまとめて生成する
 	/// </summary>
 	/// <param name="generatePos">呼び出す敵の配列</param>
-	void Generate(std::vector<DirectX::XMFLOAT3>& generatePos, const Camera& cam);
+	void Generate(std::vector<DirectX::XMFLOAT3> &generatePos, const Camera &cam);
 
 };
 
