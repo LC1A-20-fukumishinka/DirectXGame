@@ -247,7 +247,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	Sprite titleLogo;
-	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/Logo_big.png");
+	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/TitleGraph.png");
 	titleLogo.Init(titleTex);
 	XMFLOAT2 titleTexSize = titleLogo.texSize;
 	titleLogo.position = { window_width / 2, window_height / 2 , 0.0f };
@@ -309,7 +309,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		XMFLOAT3 vec3 = player.GetVec3();
 		float width = window_width;
 		float height = window_height;
-		hani.position = { width / 2 ,height / 2 ,0};
+		hani.position = { width / 2 ,height / 2 ,0 };
 		//hani.position = { 100,100,0 };
 
 		spriteStart.SpriteUpdate();
@@ -377,7 +377,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				Sphere pSphere;
 				pSphere.center = XMLoadFloat3(&pos);
-				pSphere.radius = 20;
+				pSphere.radius = 16;
 				EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam, player.GetStopTimeFlag());
 				EnemyMgr::Instance()->UpdateData(cam);
 
