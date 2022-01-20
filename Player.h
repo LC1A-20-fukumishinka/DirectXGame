@@ -50,6 +50,7 @@ public:
 	void Update(Camera& camera, const XMFLOAT3& enemyPos);
 	void Draw(const PipeClass::PipelineSet& pipelineSet);
 	void Finalize();
+	void PushBack(const XMFLOAT3& enemyPos);
 
 public:
 	XMFLOAT3 GetPos() { return pos; }									//ƒ|ƒWƒVƒ‡ƒ“‚ð•Ô‚·

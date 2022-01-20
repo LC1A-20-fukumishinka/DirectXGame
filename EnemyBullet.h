@@ -12,7 +12,7 @@ public:
 	/*---- ƒƒ“ƒo’è” ----*/
 	const float BULLET_SPEED = 40.0f;
 	const float BULLET_RADIUS = 5.0f;
-	const int MAX_DES_TIMER = 30;
+	const int MAX_DES_TIMER = 10;
 
 	/*---- ƒƒ“ƒo•Ï” ----*/
 	Object3D bulletData;			//’e‚Ìî•ñ

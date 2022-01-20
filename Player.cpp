@@ -112,7 +112,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		if (stopTImeDelay >= STOP_TIME_DELAY)
 		{
 			//éûä‘í‚é~éÛït
-			if (input->KeyTrigger(DIK_E))
+			if (input->KeyTrigger(DIK_RETURN))
 			{
 				stopTImeDelay = 0;
 				stopTimeFlag = true;
@@ -175,7 +175,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		//float attackAngle = dot;
 
 		//2ì_ä‘ÇÃãóó£
-		float diff = sqrtf(
+		float dist = sqrtf(
 			(enemyPos.x - obj.position.x) * (enemyPos.x - obj.position.x) +
 			(enemyPos.y - obj.position.y) * (enemyPos.y - obj.position.y) +
 			(enemyPos.z - obj.position.z) * (enemyPos.z - obj.position.z));
@@ -184,7 +184,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		float r = 15.0f + 16.0f;
 
 		//â~Å~â~
-		if (attackAngle < ATTACK_ANGLE && diff < r)
+		if (attackAngle < ATTACK_ANGLE && dist < r)
 		{
 			isHit = true;
 		}
@@ -217,4 +217,31 @@ void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
 
 void Player::Finalize()
 {
+}
+
+void Player::PushBack(const XMFLOAT3& enemyPos)
+{
+	//îºåa
+	float r = 13.0f + 14.0f;
+	//2ì_ä‘ÇÃãóó£
+	/*float dist = sqrtf(
+		(enemyPos.x - obj.position.x) * (enemyPos.x - obj.position.x) +
+		(enemyPos.y - obj.position.y) * (enemyPos.y - obj.position.y) +
+		(enemyPos.z - obj.position.z) * (enemyPos.z - obj.position.z));*/
+	float dist = sqrtf(
+		(enemyPos.x - pos.x) * (enemyPos.x - pos.x) +
+		(enemyPos.y - pos.y) * (enemyPos.y - pos.y) +
+		(enemyPos.z - pos.z) * (enemyPos.z - pos.z));
+	//èdÇ»Ç¡ÇΩèÍçá
+	if (dist < r)
+	{
+		//é©ã@Ç÷ÇÃï˚å¸ÉxÉNÉgÉã
+		XMFLOAT3 vec3 = { 0,0,0 };
+		vec3.x = obj.position.x - enemyPos.x;
+		vec3.z = obj.position.z - enemyPos.z;
+		XMStoreFloat3(&vec3, XMVector3Normalize(XMLoadFloat3(&vec3)));
+
+		pos.x = enemyPos.x + vec3.x * r;
+		pos.z = enemyPos.z + vec3.z * r;
+	}
 }
