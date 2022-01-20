@@ -111,10 +111,10 @@ void Sprite::SpriteTransferVertexBuffer()
 		{{}, {1.0f, 0.0f}},//右上
 	};
 
-	float left = (0.0f - anchorpoint.x) * size.x;
-	float right = (1.0f - anchorpoint.x) * size.x;
-	float top = (0.0f - anchorpoint.x) * size.y;
-	float bottom = (1.0f - anchorpoint.x) * size.y;
+	float left = (0.0f - anchorpoint.x);
+	float right = (1.0f - anchorpoint.x);
+	float top = (0.0f - anchorpoint.x);
+	float bottom = (1.0f - anchorpoint.x);
 
 	if (isFlipX)
 	{
@@ -136,7 +136,7 @@ void Sprite::SpriteTransferVertexBuffer()
 
 
 		//テクスチャ情報取得
-	D3D12_RESOURCE_DESC resDesc =TextureMgr::Instance()->GetTexBuff(texNumber)->GetDesc();
+	D3D12_RESOURCE_DESC resDesc = TextureMgr::Instance()->GetTexBuff(texNumber)->GetDesc();
 
 
 	float tex_left = texLeftTop.x / resDesc.Width;
@@ -206,6 +206,8 @@ void Sprite::SpriteUpdate()
 {
 	//ワールド行列の更新
 	matWorld = DirectX::XMMatrixIdentity();
+	matWorld *= DirectX::XMMatrixScaling(size.x, size.y, 1.0f);
+
 	//Z軸回転
 	matWorld *= DirectX::XMMatrixRotationZ(DirectX::XMConvertToRadians(rotation));
 	//平行移動

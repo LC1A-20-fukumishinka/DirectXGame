@@ -217,6 +217,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 120 });
 
 	EnemyMgr::Instance()->Generate(enemyGeneratePos, cam);
+
+	Sprite titleLogo;
+	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/Logo_big.png");
+	titleLogo.Init(titleTex);
+	XMFLOAT2 titleTexSize = titleLogo.texSize;
+	titleLogo.position = { window_width / 2, window_height / 2 , 0.0f};
+	titleLogo.size = { window_width, window_height };
+	titleLogo.SpriteUpdate();
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -247,6 +255,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		switch (nowScene)
 		{
 		case TITLE:
+			titleLogo.SpriteTransferVertexBuffer();
+
 			if (input->KeyTrigger(DIK_SPACE))
 			{
 				nowScene = GAME;
@@ -348,7 +358,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		switch (nowScene)
 		{
 		case TITLE:
-			debugText.Print("title", window_width / 2 - 40, window_height / 2, 5);
+			//debugText.Print("", window_width / 2 - 40, window_height / 2, 5);
+			titleLogo.SpriteDraw();
 			break;
 		case GAME:
 			if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
@@ -372,10 +383,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			break;
 		case CLEAR:
-			debugText.Print("clear", window_width / 2 - 40, window_height / 2, 5);
+			debugText.Print("clear", window_width / 2, window_height / 2, 5);
 			break;
 		case GAMEOVER:
-			debugText.Print("game over", window_width / 2 - 50, window_height / 2, 5);
+			debugText.Print("game over", window_width / 2, window_height / 2, 5);
 			break;
 		default:
 			break;
