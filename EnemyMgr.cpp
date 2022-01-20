@@ -52,21 +52,9 @@ void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet)
 	}
 }
 
-bool EnemyMgr::CheckEnemyAttackToPlayer(int num, const Sphere& playerSphere, std::vector<Wall>& walls)
+bool EnemyMgr::CheckEnemyAttackToPlayer(int num,const Sphere& playerSphere)
 {
 	if (!enemy[num].isAttack)return false;
-	//³–ÊƒŒƒC•ûŒü‚É•Ç‚ª‚ ‚Á‚½‚ç
-	for (int i = 0; i < walls.size(); i++)
-	{
-		XMFLOAT3 pos = { walls[i].wallObj.position.x,enemy[num].enemyData.position.y,walls[i].wallObj.position.z };
-		walls[i].sphere.center = XMLoadFloat3(&pos);
-		if (Collision::CheckRay2Sphere(enemy[num].forwardRay, walls[i].sphere))
-		{
-			enemy[num].enemyBullet.Dead();
-			return false;
-		}
-	}
-
 	//³–ÊƒŒƒC•ûŒü‚É“G‚ª‚¢‚½‚ç
 	if (Collision::CheckRay2Sphere(enemy[num].forwardRay, playerSphere))
 	{

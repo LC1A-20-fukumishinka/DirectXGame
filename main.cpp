@@ -365,7 +365,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				EnemyMgr::Instance()->UpdateData(cam);
 
 				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
-					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere, walls))
+					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere));
 					{
 						if (!damaged) player.Damaged();
 						damaged = true;
