@@ -291,8 +291,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		if (startDraw && stopDelay < 20) {
 			spriteStart.color.w -= stopDelay / 100.0f;
-			spriteStop.size.x += stopDelay;
-			spriteStop.size.y += stopDelay;
+			spriteStart.size.x += stopDelay;
+			spriteStart.size.y += stopDelay;
 		}
 		else { startDraw = false; }
 
