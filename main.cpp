@@ -100,7 +100,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	Camera cam;
-	cam.Init(XMFLOAT3(-450, 250, 0), XMFLOAT3(-350, 0, 0), { 0,0,0 }, { 0,0,1 });
+	cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
 	float angle = 0.0f;	//ƒJƒƒ‰‚Ì‰ñ“]Šp
 
 	DebugText debugText;
@@ -339,7 +339,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (input->KeyTrigger(DIK_SPACE))
 			{
 				nowScene = GAME;
-				cam.Init(XMFLOAT3(-450, 250, 0), XMFLOAT3(-350, 0, 0), { 0,0,0 }, { 0,0,1 });
+				cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
 				player.Init(cam);
 				EnemyMgr::Instance()->Init(cam);
 				EnemyMgr::Instance()->Generate(enemyGeneratePos, cam);
@@ -385,7 +385,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				EnemyMgr::Instance()->UpdateData(cam);
 
 				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
-					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere));
+					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
 					{
 						if (!damaged) player.Damaged();
 						damaged = true;

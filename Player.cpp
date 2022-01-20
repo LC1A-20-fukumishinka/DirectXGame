@@ -93,9 +93,11 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 {
 	pos.x += vec3.x;
 	pos.z += vec3.z;
-	camera.eye.x += vec3.x;
-	camera.eye.z += vec3.z;
-	camera.target = pos;
+
+	camera.position = pos;
+	//camera.eye.x += vec3.x;
+	//camera.eye.z += vec3.z;
+	//camera.target = pos;
 	obj.position = pos;
 
 	obj.Update(camera);
