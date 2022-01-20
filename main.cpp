@@ -274,7 +274,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		int stopCount = player.GetStopTimeCount(); //ŽžŠÔ’âŽ~ 0~60
 		bool isStop = player.GetStopTimeFlag(); //’âŽ~’†‚©”Û‚©
 
-		if (!stopDraw && !isStop && input->KeyTrigger(DIK_E) && stopDelay == STOP_TIME_DELAY)
+		if (!stopDraw && !isStop && input->KeyTrigger(DIK_RETURN) && stopDelay == STOP_TIME_DELAY)
 		{
 			spriteStop.color.w = 0.7f;
 			spriteStop.size = { 100.0f,100.0f };
@@ -366,6 +366,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			}
 			XMFLOAT3 pos = player.GetPos();
+			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			box.position = enemyPos;
 			box.Update(cam);
@@ -382,7 +383,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				EnemyMgr::Instance()->UpdateData(cam);
 
 				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
-					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere));
+					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
 					{
 						if (!damaged) player.Damaged();
 						damaged = true;
