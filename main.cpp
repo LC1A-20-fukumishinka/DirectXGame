@@ -321,6 +321,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				nowScene = GAME;
 				cam.Init(XMFLOAT3(-450, 250, 0), XMFLOAT3(-350, 0, 0), { 0,0,0 }, { 0,0,1 });
 				player.Init(cam);
+				EnemyMgr::Instance()->Init(cam);
 				EnemyMgr::Instance()->Generate(enemyGeneratePos, cam);
 
 			}
@@ -364,7 +365,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				EnemyMgr::Instance()->UpdateData(cam);
 
 				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
-					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
+					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere, walls))
 					{
 						if (!damaged) player.Damaged();
 						damaged = true;
@@ -434,7 +435,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
-			EnemyMgr::Instance()->enemy->enemyBullet.Draw(model3D->GetPipeLine(), boxModel.GetModel());
+			for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; ++i)
+			{
+				EnemyMgr::Instance()->enemy[i].enemyBullet.Draw(model3D->GetPipeLine(), boxModel.GetModel());
+			}
 
 			EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
 
