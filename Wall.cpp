@@ -27,6 +27,11 @@ void Wall::Init(Camera &cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, Dir
 	wallObj.color.w = 1.0f;
 	wallObj.Init(*this->cam);
 	this->collisionScale = collisionScale;
+	sphere.radius = 20.0f;
+	SetFace(pos, scale);
+
+	wallFaces;
+	int i = 0;
 }
 
 void Wall::Update()
@@ -71,6 +76,81 @@ float Wall::LineCross(DirectX::XMFLOAT3 wallLine, DirectX::XMFLOAT3 playerLine)
 {
 
 	return (wallLine.x * playerLine.z) - (wallLine.z * playerLine.x);
+}
+
+void Wall::SetFace(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale	)
+{
+	Triangle wallFace[8];
+	std::vector<Triangle> tmpWalls;
+	wallFace[0].p0 = { pos.x ,pos.y ,pos.z ,0 };
+	wallFace[0].p1 = { pos.x ,pos.y ,pos.z ,0 };
+	wallFace[0].p2 = { pos.x ,pos.y ,pos.z ,0 };
+	for (int i = 1; i < 8; i++)
+	{
+		wallFace[i] = wallFace[0];
+	}
+	XMVECTOR TLN, TRN, BLN, BRN, TLF, TRF, BLF, BRF;
+
+	XMVECTOR{ scale.x / 2, scale.y / 2, scale.z / 2, 0 };
+
+	TLN = XMVECTOR{ -scale.x / 2,  scale.y / 2, -scale.z / 2, 0 };
+	TRN = XMVECTOR{  scale.x / 2,  scale.y / 2, -scale.z / 2, 0 };
+	BLN = XMVECTOR{ -scale.x / 2, -scale.y / 2, -scale.z / 2, 0 };
+	BRN = XMVECTOR{  scale.x / 2, -scale.y / 2, -scale.z / 2, 0 };
+	TLF = XMVECTOR{ -scale.x / 2,  scale.y / 2,  scale.z / 2, 0 };
+	TRF = XMVECTOR{  scale.x / 2,  scale.y / 2,  scale.z / 2, 0 };
+	BLF = XMVECTOR{ -scale.x / 2, -scale.y / 2,  scale.z / 2, 0 };
+	BRF = XMVECTOR{  scale.x / 2, -scale.y / 2,  scale.z / 2, 0 };
+
+	//far–ÊF
+	wallFace[0].p0 += TLF;
+	wallFace[0].p1 += TRF;
+	wallFace[0].p2 += BLF;
+	wallFace[1].p0 += BLF;
+	wallFace[1].p1 += TRF;
+	wallFace[1].p2 += BRF;
+
+	//right–ÊR
+	wallFace[2].p0 += TRF;
+	wallFace[2].p1 += TRN;
+	wallFace[2].p2 += BRF;
+	wallFace[3].p0 += BRF;
+	wallFace[3].p1 += TRN;
+	wallFace[3].p2 += BRN;
+
+	//near–ÊN
+	wallFace[4].p0 += TRN;
+	wallFace[4].p1 += TLN;
+	wallFace[4].p2 += BRN;
+	wallFace[5].p0 += BRN;
+	wallFace[5].p1 += TLN;
+	wallFace[5].p2 += BLN;
+
+	//left–ÊL
+	wallFace[6].p0 += TLN;
+	wallFace[6].p1 += TLF;
+	wallFace[6].p2 += BLN;
+	wallFace[7].p0 += BLN;
+	wallFace[7].p1 += TLF;
+	wallFace[7].p2 += BLF;
+
+	for (int i = 0; i < 8; i++)
+	{
+		wallFace[i].ComputeNormal();
+		tmpWalls.push_back(wallFace[i]);
+	}
+
+	wallFaces = tmpWalls;
+}
+
+std::vector<Triangle> &Wall::GetFaces()
+{
+	return wallFaces;
+}
+
+const DirectX::XMFLOAT3 &Wall::GetPos()
+{
+	return wallObj.position;
 }
 
 DirectX::XMFLOAT3 Wall::PushBack(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 size, DirectX::XMFLOAT3 MoveSpeed)
