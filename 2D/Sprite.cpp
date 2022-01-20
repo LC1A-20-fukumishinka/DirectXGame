@@ -20,7 +20,7 @@ Sprite::Sprite()
 void Sprite::Init(UINT texNumber, DirectX::XMFLOAT2 anchorpoint, bool isFlipX, bool isFlipY)
 {
 	HRESULT result = S_FALSE;
-	MyDirectX *myD = MyDirectX::GetInstance();
+	MyDirectX* myD = MyDirectX::GetInstance();
 
 	SpriteCommon::Instance();
 	this->texNumber = texNumber;
@@ -32,7 +32,7 @@ void Sprite::Init(UINT texNumber, DirectX::XMFLOAT2 anchorpoint, bool isFlipX, b
 	}
 
 	enum { LB, LT, RB, RT };
-	anchorpoint = anchorpoint;
+	this->anchorpoint = anchorpoint;
 	this->isFlipX = isFlipX;
 	this->isFlipY = isFlipY;
 	position = { 0, 0, 0 };
@@ -82,8 +82,8 @@ void Sprite::Init(UINT texNumber, DirectX::XMFLOAT2 anchorpoint, bool isFlipX, b
 		IID_PPV_ARGS(&constBuff)
 	);
 
-	ConstBufferData *constMap = nullptr;
-	result = constBuff->Map(0, nullptr, (void **)&constMap);
+	ConstBufferData* constMap = nullptr;
+	result = constBuff->Map(0, nullptr, (void**)&constMap);
 	constMap->color = DirectX::XMFLOAT4(1, 1, 1, 1);//色指定(RGBA)
 	constMap->mat = SpriteCommon::Instance()->matProjection;	//平行透視投影
 	constBuff->Unmap(0, nullptr);
@@ -113,8 +113,8 @@ void Sprite::SpriteTransferVertexBuffer()
 
 	float left = (0.0f - anchorpoint.x);
 	float right = (1.0f - anchorpoint.x);
-	float top = (0.0f - anchorpoint.x);
-	float bottom = (1.0f - anchorpoint.x);
+	float top = (0.0f - anchorpoint.y);
+	float bottom = (1.0f - anchorpoint.y);
 
 	if (isFlipX)
 	{
@@ -151,8 +151,8 @@ void Sprite::SpriteTransferVertexBuffer()
 
 
 	//バッファへのデータ転送
-	VertexPosUv *vertMap = nullptr;
-	result = vertBuff->Map(0, nullptr, (void **)&vertMap);
+	VertexPosUv* vertMap = nullptr;
+	result = vertBuff->Map(0, nullptr, (void**)&vertMap);
 	memcpy(vertMap, vertices, sizeof(vertices));
 	vertBuff->Unmap(0, nullptr);
 }
@@ -170,7 +170,7 @@ void Sprite::SpriteDraw()
 		return;
 	}
 
-	MyDirectX *myD = MyDirectX::GetInstance();
+	MyDirectX* myD = MyDirectX::GetInstance();
 	//パイプランステートの設定
 	myD->GetCommandList()->SetPipelineState(SpriteCommon::Instance()->pipelineSet.pipelineState.Get());
 	//ルートシグネチャの設定
@@ -179,7 +179,7 @@ void Sprite::SpriteDraw()
 	myD->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	//デスクリプタヒープの配列
-	ID3D12DescriptorHeap *ppHeaps[] = { TextureMgr::Instance()->GetDescriptorHeap() };
+	ID3D12DescriptorHeap* ppHeaps[] = { TextureMgr::Instance()->GetDescriptorHeap() };
 	myD->GetCommandList()->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
 
@@ -214,8 +214,8 @@ void Sprite::SpriteUpdate()
 	matWorld *= DirectX::XMMatrixTranslation(position.x, position.y, position.z);
 
 	//定数バッファの転送
-	ConstBufferData *constMap = nullptr;
-	HRESULT result = constBuff->Map(0, nullptr, (void **)&constMap);
+	ConstBufferData* constMap = nullptr;
+	HRESULT result = constBuff->Map(0, nullptr, (void**)&constMap);
 	constMap->mat = matWorld * SpriteCommon::Instance()->matProjection;
 	constMap->color = color;
 	constBuff->Unmap(0, nullptr);

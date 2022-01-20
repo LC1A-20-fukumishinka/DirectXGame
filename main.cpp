@@ -221,6 +221,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//‰æ‘œ‰Šú‰»
 	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
 	int stopGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/stop.png");
+	int haniGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/hani.png");
 
 	Sprite spriteStart;
 	spriteStart.Init(startGH);
@@ -228,14 +229,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sprite spriteStop;
 	spriteStop.Init(stopGH);
 
+	Sprite hani;
+	hani.Init(haniGH, XMFLOAT2(0.5f, 1.0f));
+
 	spriteStart.position = { window_width / 2,window_height / 2,0 };
 	spriteStop.position = { window_width / 2,window_height / 2,0 };
+	hani.position = { window_width / 2,window_height / 2,0 };
 
 	bool stopDraw = false;
 	bool startDraw = false;
 
 	spriteStart.color.w = 0.0f;
 	spriteStop.color.w = 0.0f;
+	hani.color.w = 0.5f;
 
 	bool damaged = false;
 
@@ -244,7 +250,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/Logo_big.png");
 	titleLogo.Init(titleTex);
 	XMFLOAT2 titleTexSize = titleLogo.texSize;
-	titleLogo.position = { window_width / 2, window_height / 2 , 0.0f};
+	titleLogo.position = { window_width / 2, window_height / 2 , 0.0f };
 	titleLogo.size = { window_width, window_height };
 	titleLogo.SpriteUpdate();
 #pragma endregion
@@ -296,8 +302,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		else { startDraw = false; }
 
+		//”ÍˆÍ‚Ì‰æ‘œ
+		hani.anchorpoint = { 1.0,1.0 };
+		hani.rotation = player.GetAngle() + 90.0f;
+
+		XMFLOAT3 vec3 = player.GetVec3();
+		float width = window_width;
+		float height = window_height;
+		hani.position = { width / 2 ,height / 2 ,0};
+		//hani.position = { 100,100,0 };
+
 		spriteStart.SpriteUpdate();
 		spriteStop.SpriteUpdate();
+		hani.SpriteUpdate();
 
 		if (input->KeyTrigger(DIK_RETURN))
 		{
@@ -458,6 +475,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 		//‰æ‘œ•`‰æ
+		hani.SpriteDraw();
 		spriteStart.SpriteDraw();
 		spriteStop.SpriteDraw();
 

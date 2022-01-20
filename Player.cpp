@@ -29,7 +29,7 @@ Player::~Player()
 
 void Player::Init(const Camera& camera)
 {
-	pos = {-450, 0, 0};
+	pos = { -450, 0, 0 };
 	direction = { 0,0,0 };
 	vec3 = { 0,0,0 };
 	hp = MAX_HP;
@@ -179,7 +179,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 			(enemyPos.z - obj.position.z) * (enemyPos.z - obj.position.z));
 
 		//îºåaÇÃçáåv
-		float r = 20 + 20;
+		float r = 15.0f + 16.0f;
 
 		//â~Å~â~
 		if (attackAngle < ATTACK_ANGLE && diff < r)

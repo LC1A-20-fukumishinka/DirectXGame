@@ -10,10 +10,10 @@
 const int STOP_TIME_COUNT = 60;						//Å‘åŠÔ’â~—Ê
 const int STOP_TIME_DELAY = 30;						//UŒ‚‰Â”\‚Ü‚Å‚ÌƒN[ƒ‹ƒ^ƒCƒ€
 const int ATTACK_DELAY = 30;						//UŒ‚‚ÌÅ‘åCT
-const int MAX_HP = 3;								//HP
+const int MAX_HP = 30000000;								//HP
 const float MOVE_SPEED = 1.0f;						//“®‚­‘¬‚³
 const float MOVE_ANGLE = 3.0f;						//Œü‚«‚ğ•Ï‚¦‚é‘¬‚³
-const float ATTACK_ANGLE = 30;						//UŒ‚”ÍˆÍŠp“x
+const float ATTACK_ANGLE = 90;						//UŒ‚”ÍˆÍŠp“x
 
 using namespace DirectX;
 
@@ -67,7 +67,7 @@ public:
 	int GetHP() { return hp; }											//HP‚ğ•Ô‚·
 	int GetStopTimeCount() { return stopTimeCount; }
 	int GetStopTimeDelay() { return stopTImeDelay; }
-	//float GetSpeed() { return MOVE_SPEED; }
+	float GetAngle() { return angle; }
 	bool GetAttackFlag() { return attackFlag; }							//UŒ‚‚µ‚Ä‚¢‚é‚©‚ğ•Ô‚·
 	bool GetStopTimeFlag() { return stopTimeFlag; }						//ŠÔ‚ğ~‚ß‚Ä‚¢‚é‚©~‚ß‚Ä‚¢‚È‚¢‚©‚ğ•Ô‚·
 	bool IsHit() { return isHit; }										//“G‚ÉUŒ‚‚ª“–‚½‚Á‚½‚©
