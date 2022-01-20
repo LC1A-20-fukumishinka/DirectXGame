@@ -48,6 +48,5 @@ private:
 	std::vector<Triangle> wallFaces;
 
 public:
-	Object3D wallObj;
 	Sphere sphere;
 };
