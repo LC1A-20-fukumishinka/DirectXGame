@@ -4,6 +4,7 @@
 #include<DirectXMath.h>
 #include"Collision.h"
 #include"EnemyBullet.h"
+#include"WallMgr.h"
 //using XMFLOAT3 = DirectX::XMFLOAT3;
 //using XMMATRIX = DirectX::XMMATRIX;
 //using XMVECTOR = DirectX::XMVECTOR;
@@ -97,6 +98,9 @@ public:
 	//正面ベクトル更新
 	void UpdateForwardVec(XMFLOAT3& forwardVec, XMMATRIX& matRot);
 
+	//レイと壁の当たり判定
+	bool CheckRay2Walls(const Ray& ray, std::vector<Wall>& walls, const XMFLOAT3& playerPos);
+
 	//死亡
 	void Dead();
 
@@ -139,4 +143,9 @@ inline XMFLOAT3 AddXMFLOAT3(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
 
 inline XMFLOAT3 MulXMFLOAT3(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
 	return XMFLOAT3(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z);
+}
+
+//3D座標軸での二点間の距離を求める
+inline float Distance3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+	return sqrtf(powf(lhs.x - rhs.x, 2.0f) + powf(lhs.y - rhs.y, 2.0f) + powf(lhs.z - rhs.z, 2.0f));
 }

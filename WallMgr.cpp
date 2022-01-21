@@ -32,7 +32,7 @@ std::vector<Triangle> WallMgr::GetFaces()
 	return wallFaces;
 }
 
-const std::vector<Wall> &WallMgr::GetWalls()
+std::vector<Wall> &WallMgr::GetWalls()
 {
 	return walls;
 }

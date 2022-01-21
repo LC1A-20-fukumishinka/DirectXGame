@@ -51,7 +51,7 @@ public:
 
 };
 
-//3D座標軸での二点間の距離を求める
-inline float Distance3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
-	return sqrtf(powf(lhs.x - rhs.x, 2.0f) + powf(lhs.y - rhs.y, 2.0f) + powf(lhs.z - rhs.z, 2.0f));
-}
+////3D座標軸での二点間の距離を求める
+//inline float Distance3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+//	return sqrtf(powf(lhs.x - rhs.x, 2.0f) + powf(lhs.y - rhs.y, 2.0f) + powf(lhs.z - rhs.z, 2.0f));
+//}

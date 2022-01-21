@@ -136,8 +136,11 @@ void Enemy::Searching(const Sphere& playerSphere)
 
 	//searchDelayTimer++;
 
-	//正面レイ方向に敵がいたら
-	if (Collision::CheckRay2Sphere(forwardRay, playerSphere))
+
+	XMFLOAT3 playerPos = {};
+	XMStoreFloat3(&playerPos, playerSphere.center);
+	//正面レイ方向に壁がなく、敵がいたら
+	if (Collision::CheckRay2Sphere(forwardRay, playerSphere) && !CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
 	{
 		//ステータスをターゲティングにする
 		status = STATUS_TARGET;
@@ -174,6 +177,12 @@ void Enemy::Targeting(const XMFLOAT3& playerPos)
 	else
 	{
 		enemyData.rotation.y -= XM_PI / 2.0f;
+	}
+
+	//追尾中に壁に隠れられたらステータスを捜索に変える
+	if (CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
+	{
+		status = STATUS_SEARCH;
 	}
 
 	//タイマーを進める
@@ -221,6 +230,27 @@ void Enemy::UpdateForwardVec(XMFLOAT3& forwardVec, XMMATRIX& matRot)
 
 	//正面ベクトルを更新する
 	XMStoreFloat3(&forwardVec, honraiForwardVector);
+}
+
+bool Enemy::CheckRay2Walls(const Ray& ray, std::vector<Wall>& walls, const XMFLOAT3& playerPos)
+{
+	//正面レイ方向に壁があったら
+	//壁一つ一つ回す
+	for (int i = 0; i < walls.size(); ++i)
+	{
+		XMFLOAT3 wallPos = walls[i].GetPos();
+		if (Distance3D(enemyData.position, wallPos) > Distance3D(enemyData.position, playerPos)) continue;
+
+		//壁1つの三角形ぶん回す
+		for (int j = 0; j < walls[0].GetFaces().size(); ++j)
+		{
+			if (Collision::CheckRay2Triangle(forwardRay, walls[i].GetFaces()[j]))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 void Enemy::Dead()

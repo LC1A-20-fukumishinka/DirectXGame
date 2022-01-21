@@ -15,7 +15,7 @@ public:
 
 	std::vector<Triangle> GetFaces();
 
-	const std::vector<Wall> &GetWalls();
+	std::vector<Wall> &GetWalls();
 
 	std::vector<DirectX::XMFLOAT3> GetWallPos();
 private:
