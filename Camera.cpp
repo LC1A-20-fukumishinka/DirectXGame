@@ -68,9 +68,12 @@ DirectX::XMMATRIX Camera::GetMatBillboardY() const
 
 void Camera::MakeMatCamera()
 {
-	XMVECTOR eyePosition = XMLoadFloat3(&eye);
+	XMFLOAT3 tmpEye = {eye.x + position.x,eye.y + position.y ,eye.z + position.z };
+	XMVECTOR eyePosition = XMLoadFloat3(&tmpEye);
 	//íçéãì_ç¿ïW
-	XMVECTOR targetPosition = XMLoadFloat3(&target);
+
+	XMFLOAT3 tmpTarget = { target.x + position.x,target.y + position.y ,target.z + position.z };
+	XMVECTOR targetPosition = XMLoadFloat3(&tmpTarget);
 	//(âºÇÃ) è„ï˚å¸
 	XMVECTOR upVector = XMLoadFloat3(&up);
 
