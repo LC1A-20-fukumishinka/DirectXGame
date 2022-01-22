@@ -14,18 +14,11 @@ Object3D::Object3D()
 	color = { 1, 1, 1, 1 };
 	matWorld = XMMatrixIdentity();
 	this->type = Object3D::Corn;
-	
-}
-
-void Object3D::Init( const Camera &camera, Object3D *parent)
-{
-	this->parent = parent;
-
-	HRESULT result = S_FALSE;
-	MyDirectX *myD = MyDirectX::GetInstance();
 
 
 	//定数バッファの生成
+	HRESULT result = S_FALSE;
+	MyDirectX *myD = MyDirectX::GetInstance();
 	result = myD->GetDevice()->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
@@ -34,6 +27,17 @@ void Object3D::Init( const Camera &camera, Object3D *parent)
 		nullptr,
 		IID_PPV_ARGS(&constBuff)
 	);
+	
+}
+
+void Object3D::Init( const Camera &camera, Object3D *parent)
+{
+	this->parent = parent;
+
+	HRESULT result = S_FALSE;
+
+
+
 
 	//ワールド行列を設定する
 	matWorld = GetMatWorld();
