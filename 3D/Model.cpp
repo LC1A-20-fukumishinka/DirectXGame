@@ -12,7 +12,7 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 Model::Model()
 {
-		model.textureHandle = -1;
+	model.textureHandle = -1;
 }
 
 Model::~Model()
@@ -20,99 +20,99 @@ Model::~Model()
 }
 
 
-void Model::CreateModel( const std::string &modelname)
+void Model::CreateModel(const std::string &modelname)
 {
 	const string directoryPath = "Resources/" + modelname + "/";	//”Resouces/triangle_mat/”
 
-LoadModel(directoryPath, modelname);
+	LoadModel(directoryPath, modelname);
 
-UINT sizeVB = static_cast<UINT>(sizeof(VertexPosNormalUv) * model.vertices.size());
-UINT sizeIB = static_cast<UINT>(sizeof(unsigned short) * model.indices.size());
+	UINT sizeVB = static_cast<UINT>(sizeof(VertexPosNormalUv) * model.vertices.size());
+	UINT sizeIB = static_cast<UINT>(sizeof(unsigned short) * model.indices.size());
 
-ID3D12Device *device = MyDirectX::GetInstance()->GetDevice();
-// 頂点バッファ生成
-HRESULT result = device->CreateCommittedResource(
-	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-	D3D12_HEAP_FLAG_NONE,
-	//&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertices)),
-	&CD3DX12_RESOURCE_DESC::Buffer(sizeVB),
-	D3D12_RESOURCE_STATE_GENERIC_READ,
-	nullptr,
-	IID_PPV_ARGS(&model.vertBuff));
-if (FAILED(result)) {
-	assert(0);
-	return;
-}
+	ID3D12Device *device = MyDirectX::GetInstance()->GetDevice();
+	// 頂点バッファ生成
+	HRESULT result = device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE,
+		//&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertices)),
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeVB),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&model.vertBuff));
+	if (FAILED(result)) {
+		assert(0);
+		return;
+	}
 
-// 頂点バッファへのデータ転送
-VertexPosNormalUv *vertMap = nullptr;
-result = model.vertBuff->Map(0, nullptr, (void **)&vertMap);
-if (SUCCEEDED(result)) {
-	//memcpy(vertMap, vertices, sizeof(vertices));
-	std::copy(model.vertices.begin(), model.vertices.end(), vertMap);
-	model.vertBuff->Unmap(0, nullptr);
-}
-
-
-// インデックスバッファ生成
-result = device->CreateCommittedResource(
-	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-	D3D12_HEAP_FLAG_NONE,
-	//&CD3DX12_RESOURCE_DESC::Buffer(sizeof(indices)),
-	&CD3DX12_RESOURCE_DESC::Buffer(sizeIB),
-	D3D12_RESOURCE_STATE_GENERIC_READ,
-	nullptr,
-	IID_PPV_ARGS(&model.indexBuff));
-if (FAILED(result)) {
-	assert(0);
-	return;
-}
-
-// インデックスバッファへのデータ転送
-unsigned short *indexMap = nullptr;
-result = model.indexBuff->Map(0, nullptr, (void **)&indexMap);
-if (SUCCEEDED(result)) {
-
-	// 全インデックスに対して
-	//for (int i = 0; i < _countof(indices); i++)
-	//{
-	//	indexMap[i] = indices[i];	// インデックスをコピー
-	//}
-	std::copy(model.indices.begin(), model.indices.end(), indexMap);
-	model.indexBuff->Unmap(0, nullptr);
-}
+	// 頂点バッファへのデータ転送
+	VertexPosNormalUv *vertMap = nullptr;
+	result = model.vertBuff->Map(0, nullptr, (void **)&vertMap);
+	if (SUCCEEDED(result)) {
+		//memcpy(vertMap, vertices, sizeof(vertices));
+		std::copy(model.vertices.begin(), model.vertices.end(), vertMap);
+		model.vertBuff->Unmap(0, nullptr);
+	}
 
 
+	// インデックスバッファ生成
+	result = device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE,
+		//&CD3DX12_RESOURCE_DESC::Buffer(sizeof(indices)),
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeIB),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&model.indexBuff));
+	if (FAILED(result)) {
+		assert(0);
+		return;
+	}
 
-// 定数バッファの生成
-result = device->CreateCommittedResource(
-	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
-	D3D12_HEAP_FLAG_NONE,
-	&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
-	D3D12_RESOURCE_STATE_GENERIC_READ,
-	nullptr,
-	IID_PPV_ARGS(&model.constBuffB1));
+	// インデックスバッファへのデータ転送
+	unsigned short *indexMap = nullptr;
+	result = model.indexBuff->Map(0, nullptr, (void **)&indexMap);
+	if (SUCCEEDED(result)) {
 
-//定数バッファへデータ転送
-ConstBufferDataB1 *constMap = nullptr;
-result = model.constBuffB1->Map(0, nullptr, (void**) &constMap);
-constMap->ambient = model.material.ambient;
-constMap->diffuse = model.material.diffuse;
-constMap->specular = model.material.specular;
-constMap->alpha = model.material.alpha;
-model.constBuffB1->Unmap(0, nullptr);
+		// 全インデックスに対して
+		//for (int i = 0; i < _countof(indices); i++)
+		//{
+		//	indexMap[i] = indices[i];	// インデックスをコピー
+		//}
+		std::copy(model.indices.begin(), model.indices.end(), indexMap);
+		model.indexBuff->Unmap(0, nullptr);
+	}
 
-// 頂点バッファビューの作成
-model.vbView.BufferLocation = model.vertBuff->GetGPUVirtualAddress();
-//vbView.SizeInBytes = sizeof(vertices);
-model.vbView.SizeInBytes = sizeVB;
-model.vbView.StrideInBytes = sizeof(model.vertices[0]);
 
-// インデックスバッファビューの作成
-model.ibView.BufferLocation = model.indexBuff->GetGPUVirtualAddress();
-model.ibView.Format = DXGI_FORMAT_R16_UINT;
-//ibView.SizeInBytes = sizeof(indices);
-model.ibView.SizeInBytes = sizeIB;
+
+	// 定数バッファの生成
+	result = device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), 	// アップロード可能
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer((sizeof(ConstBufferDataB1) + 0xff) & ~0xff),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&model.constBuffB1));
+
+	//定数バッファへデータ転送
+	ConstBufferDataB1 *constMap = nullptr;
+	result = model.constBuffB1->Map(0, nullptr, (void **)&constMap);
+	constMap->ambient = model.material.ambient;
+	constMap->diffuse = model.material.diffuse;
+	constMap->specular = model.material.specular;
+	constMap->alpha = model.material.alpha;
+	model.constBuffB1->Unmap(0, nullptr);
+
+	// 頂点バッファビューの作成
+	model.vbView.BufferLocation = model.vertBuff->GetGPUVirtualAddress();
+	//vbView.SizeInBytes = sizeof(vertices);
+	model.vbView.SizeInBytes = sizeVB;
+	model.vbView.StrideInBytes = sizeof(model.vertices[0]);
+
+	// インデックスバッファビューの作成
+	model.ibView.BufferLocation = model.indexBuff->GetGPUVirtualAddress();
+	model.ibView.Format = DXGI_FORMAT_R16_UINT;
+	//ibView.SizeInBytes = sizeof(indices);
+	model.ibView.SizeInBytes = sizeIB;
 }
 
 
@@ -321,7 +321,7 @@ void Model::LoadTexture(const std::string &directoryPath, const std::string &fil
 	int iBufferSize = MultiByteToWideChar(CP_ACP, 0,
 		filepath.c_str(), -1, wfilepath, _countof(wfilepath));
 
-		model.textureHandle = TextureMgr::Instance()->SpriteLoadTexture(wfilepath);
+	model.textureHandle = TextureMgr::Instance()->SpriteLoadTexture(wfilepath);
 }
 
 ModelObject Model::GetModel()
