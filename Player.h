@@ -27,8 +27,7 @@ private:
 
 private:
 	XMFLOAT3 pos;									//ポジション
-	XMFLOAT3 direction;								//向いている方向
-	XMFLOAT3 vec3;
+	XMFLOAT3 vec3;									//向いている方向
 	int hp;											//ヒットポイント
 	int stopTimeCount;								//時間を止めている間のカウント
 	int stopTImeDelay;								//時間停止のCT
@@ -46,7 +45,7 @@ public:
 	Player();
 	~Player();
 	void Init(const Camera& camera);
-	void Input(Camera& camera);
+	void Input(const Camera& camera);
 	void Update(Camera& camera, const XMFLOAT3& enemyPos);
 	void Draw(const PipeClass::PipelineSet& pipelineSet);
 	void Finalize();
@@ -54,7 +53,7 @@ public:
 
 public:
 	XMFLOAT3 GetPos() { return pos; }									//ポジションを返す
-	XMFLOAT3 GetDirection() { return direction; }						//向いてる方向を返す
+	//XMFLOAT3 GetDirection() { return direction; }						//向いてる方向を返す
 	XMFLOAT3 GetVec3() { return vec3; }									//方向ベクトルを返す
 	void SetVec3(XMFLOAT3 vec3) { this->vec3 = vec3; }					//方向ベクトルをセット
 

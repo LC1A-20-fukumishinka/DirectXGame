@@ -369,6 +369,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			}
 			XMFLOAT3 pos = player.GetPos();
+			//_RPTN(_CRT_WARN, "playerPos : %f, %f, %f\n\n", pos.x, pos.y, pos.z);
 			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			box.position = enemyPos;

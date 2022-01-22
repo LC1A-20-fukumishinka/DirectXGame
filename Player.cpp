@@ -3,7 +3,7 @@
 Player::Player()
 {
 	pos = { 0,0,0 };
-	direction = { 0,0,0 };
+	//direction = { 0,0,0 };
 	vec3 = { 0,0,0 };
 	hp = MAX_HP;
 	stopTimeCount = 0;
@@ -30,7 +30,7 @@ Player::~Player()
 void Player::Init(const Camera& camera)
 {
 	pos = { -450, 0, 0 };
-	direction = { 0,0,0 };
+	//direction = { 0,0,0 };
 	vec3 = { 0,0,0 };
 	hp = MAX_HP;
 	stopTimeCount = 0;
@@ -50,8 +50,22 @@ void Player::Init(const Camera& camera)
 	obj.color.w = 1.0f;
 }
 
-void Player::Input(Camera& camera)
+void Player::Input(const Camera& camera)
 {
+	/*---コントローラー操作用---*/
+	XMFLOAT3 vec = { 0,0,0 };
+	vec.x = input->LStick().x;
+	vec.z = input->LStick().y;
+	XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
+	if (vec.x != 0 && vec.z != 0)
+	{
+		vec.x *= MOVE_SPEED;
+		vec.z *= MOVE_SPEED;
+		pos.x += vec.x;
+		pos.z += vec.z;
+	}
+
+
 	/*---キー操作用---*/
 	/*移動*/
 	if (input->Key(DIK_D) || input->Key(DIK_A))
