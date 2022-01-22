@@ -74,7 +74,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI‰Šú‰»ˆ—
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -83,19 +83,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sound::StaticInitialize();
 	int alarm = Sound::SoundLoadWave("Resources/Alarm01.wav");
 
-	IXAudio2SourceVoice* voice;
+	IXAudio2SourceVoice *voice;
 	Sound::CreateSourceVoice(voice, alarm);
 
 #pragma endregion
 
 	//DirectX‰Šú‰»ˆ— ‚±‚±‚Ü‚Å
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
+	Input *input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -107,7 +107,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	ParticleManager::StaticInitialize(&cam);
 #pragma endregion
 
-ParticleManager part;
+	ParticleManager part;
 
 
 
@@ -236,7 +236,7 @@ ParticleManager part;
 	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
 	int stopGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/stop.png");
 	int haniGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/hani.png");
-
+	int particleGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/effect1.png");
 	Sprite spriteStart;
 	spriteStart.Init(startGH);
 
@@ -283,10 +283,8 @@ ParticleManager part;
 		// DirectX–ˆƒtƒŒ[ƒ€ˆ— ‚±‚±‚©‚ç
 		input->Update();
 
-		float randX = ((float(rand()) / RAND_MAX) * 2)-1.0f;
-		float randZ = ((float(rand()) / RAND_MAX) * 2) - 1.0f;
 
-		part.Add(60, player.GetPos(), XMFLOAT3(randX, 0, randZ), XMFLOAT3(0, 0, 0), 5.0f, 0.0f);
+
 		//‰æ‘œˆ—
 		int stopDelay = player.GetStopTimeDelay(); //CT 0~Delay
 		int stopCount = player.GetStopTimeCount(); //ŠÔ’â~ 0~60
@@ -411,6 +409,16 @@ ParticleManager part;
 			}
 			if (player.IsHit())
 			{
+				for (int i = 0; i < 50; i++)
+				{
+					float randX = (((float)rand() / RAND_MAX) * 2) - 1.0f;
+					float randZ = (((float)rand() / RAND_MAX) * 2) - 1.0f;
+					float dot = sqrtf((randX * randX) + (randZ * randZ));
+					float power = ((float)rand() / RAND_MAX) * 3;
+					randX /= dot;
+					randZ /= dot;
+					part.Add(15, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()), XMFLOAT3(randX * power, 0, randZ * power), XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
+				}
 				EnemyMgr::Instance()->DeadNearEnemy();
 			}
 
@@ -424,7 +432,7 @@ ParticleManager part;
 				outWall[i].Update();
 			}
 
-			if (player.GetPos().x >= 480)
+			if (player.GetPos().x >= 400)
 			{
 				nowScene = CLEAR;
 			}
@@ -483,6 +491,9 @@ ParticleManager part;
 			{
 				walls[i].Draw();
 			}
+
+			part.Draw(particleGH);
+
 			break;
 		case CLEAR:
 			debugText.Print("clear", window_width / 2, window_height / 2, 5);
@@ -493,7 +504,6 @@ ParticleManager part;
 		default:
 			break;
 		}
-		part.Draw(startGH);
 		//‰æ‘œ•`‰æ
 		hani.SpriteDraw();
 		spriteStart.SpriteDraw();
