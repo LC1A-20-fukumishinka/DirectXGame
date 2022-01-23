@@ -26,6 +26,7 @@
 #include "Player.h"
 #include <vector>
 #include "WallMgr.h"
+#include "particleManager.h"
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -73,7 +74,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -82,24 +83,34 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sound::StaticInitialize();
 	int alarm = Sound::SoundLoadWave("Resources/Alarm01.wav");
 
-	IXAudio2SourceVoice* voice;
+	IXAudio2SourceVoice *voice;
 	Sound::CreateSourceVoice(voice, alarm);
 
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
+	Input *input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
 
+
 	Camera cam;
+
+#pragma region particles
+	ParticleManager::StaticInitialize(&cam);
+#pragma endregion
+
+	ParticleManager part;
+
+
+
 	cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
 	float angle = 0.0f;	//カメラの回転角
 
@@ -144,7 +155,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	std::vector<Wall> walls;
-	Wall wall;
+	Wall wall[14];
 	DirectX::XMFLOAT3 pillarScale = { 10, 500, 10 };
 	DirectX::XMFLOAT3 LPillarScale = { 50, 500, 50 };
 	DirectX::XMFLOAT3 wideWallScale = { 200, 500, 10 };
@@ -153,48 +164,48 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectX::XMFLOAT3 LWidthWallScale = { 150, 500, 100 };
 
 
-	wall.Init(cam, { 0.0f,floor.position.y ,0.0f }, pillarScale, { pillarScale.x / 4, 10, pillarScale.z / 4 });
-	walls.push_back(wall);
+	wall[0].Init(cam, { 0.0f,floor.position.y ,0.0f }, pillarScale, { pillarScale.x / 4, 10, pillarScale.z / 4 });
+	walls.push_back(wall[0]);
 
 	//入口奥
-	wall.Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
-	walls.push_back(wall);
-	wall.Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
-	walls.push_back(wall);
+	wall[1].Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	walls.push_back(wall[1]);
+	wall[2].Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	walls.push_back(wall[2]);
 
 	//入口手前
-	wall.Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
-	walls.push_back(wall);
-	wall.Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
-	walls.push_back(wall);
+	wall[3].Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	walls.push_back(wall[3]);
+	wall[4].Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	walls.push_back(wall[4]);
 
 	//入り口側中央柱
-	wall.Init(cam, { -180,floor.position.y ,0 }, LHeightWallScale, { LHeightWallScale.x / 2, 10, LHeightWallScale.z / 2 });
-	walls.push_back(wall);
+	wall[5].Init(cam, { -180,floor.position.y ,0 }, LHeightWallScale, { LHeightWallScale.x / 2, 10, LHeightWallScale.z / 2 });
+	walls.push_back(wall[5]);
 
 	//出口側二本柱
-	wall.Init(cam, { +200,floor.position.y ,-80 }, LPillarScale, { LPillarScale.x / 2, 10, LPillarScale.z / 2 });
-	walls.push_back(wall);
-	wall.Init(cam, { +200,floor.position.y ,+80 }, LPillarScale, { LPillarScale.x / 2, 10, LPillarScale.z / 2 });
-	walls.push_back(wall);
+	wall[6].Init(cam, { +200,floor.position.y ,-80 }, LPillarScale, { LPillarScale.x / 2, 10, LPillarScale.z / 2 });
+	walls.push_back(wall[6]);
+	wall[7].Init(cam, { +200,floor.position.y ,+80 }, LPillarScale, { LPillarScale.x / 2, 10, LPillarScale.z / 2 });
+	walls.push_back(wall[7]);
 
 	//中間通路壁
-	wall.Init(cam, { 0,floor.position.y ,floor.scale.z / 2 - 50 }, LWidthWallScale, { LWidthWallScale.x / 2, 10, LWidthWallScale.z / 2 });
-	walls.push_back(wall);
-	wall.Init(cam, { 0,floor.position.y ,-floor.scale.z / 2 + 50 }, LWidthWallScale, { LWidthWallScale.x / 2, 10, LWidthWallScale.z / 2 });
-	walls.push_back(wall);
+	wall[8].Init(cam, { 0,floor.position.y ,floor.scale.z / 2 - 50 }, LWidthWallScale, { LWidthWallScale.x / 2, 10, LWidthWallScale.z / 2 });
+	walls.push_back(wall[8]);
+	wall[9].Init(cam, { 0,floor.position.y ,-floor.scale.z / 2 + 50 }, LWidthWallScale, { LWidthWallScale.x / 2, 10, LWidthWallScale.z / 2 });
+	walls.push_back(wall[9]);
 
 	//出口奥
-	wall.Init(cam, { floor.scale.x / 2 - 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
-	walls.push_back(wall);
-	wall.Init(cam, { floor.scale.x / 2 - 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
-	walls.push_back(wall);
+	wall[10].Init(cam, { floor.scale.x / 2 - 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	walls.push_back(wall[10]);
+	wall[11].Init(cam, { floor.scale.x / 2 - 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	walls.push_back(wall[11]);
 
 	//出口手前
-	wall.Init(cam, { +floor.scale.x / 2 - 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
-	walls.push_back(wall);
-	wall.Init(cam, { +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
-	walls.push_back(wall);
+	wall[12].Init(cam, { +floor.scale.x / 2 - 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	walls.push_back(wall[12]);
+	wall[13].Init(cam, { +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	walls.push_back(wall[13]);
 
 	WallMgr::Instance()->Init(walls);
 	//wall
@@ -225,7 +236,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
 	int stopGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/stop.png");
 	int haniGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/hani.png");
-
+	int particleGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/effect1.png");
 	Sprite spriteStart;
 	spriteStart.Init(startGH);
 
@@ -271,6 +282,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 		// DirectX毎フレーム処理 ここから
 		input->Update();
+
+
 
 		//画像処理
 		int stopDelay = player.GetStopTimeDelay(); //CT 0~Delay
@@ -397,11 +410,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			if (player.IsHit())
 			{
+				for (int i = 0; i < 50; i++)
+				{
+					float randX = (((float)rand() / RAND_MAX) * 2) - 1.0f;
+					float randZ = (((float)rand() / RAND_MAX) * 2) - 1.0f;
+					float dot = sqrtf((randX * randX) + (randZ * randZ));
+					float power = ((float)rand() / RAND_MAX) * 3;
+					randX /= dot;
+					randZ /= dot;
+					part.Add(15, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()), XMFLOAT3(randX * power, 0, randZ * power), XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
+				}
 				EnemyMgr::Instance()->DeadNearEnemy();
 			}
 
-
-			wall.Update();
 
 			for (int i = 0; i < walls.size(); i++)
 			{
@@ -412,7 +433,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				outWall[i].Update();
 			}
 
-			if (player.GetPos().x >= 480)
+			if (player.GetPos().x >= 400)
 			{
 				nowScene = CLEAR;
 			}
@@ -421,6 +442,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				nowScene = GAMEOVER;
 			}
+
 			break;
 		case CLEAR:
 			if (input->KeyTrigger(DIK_SPACE))
@@ -437,6 +459,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		default:
 			break;
 		}
+		part.Update();
+
 		//描画
 		myDirectX->PreDraw();
 		switch (nowScene)
@@ -468,6 +492,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				walls[i].Draw();
 			}
+
+			part.Draw(particleGH);
+
 			break;
 		case CLEAR:
 			debugText.Print("clear", window_width / 2, window_height / 2, 5);
@@ -478,7 +505,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		default:
 			break;
 		}
-
 		//画像描画
 		hani.SpriteDraw();
 		spriteStart.SpriteDraw();
@@ -498,6 +524,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		myDirectX->PostDraw();
 		// DirectX毎フレーム処理 ここまで
 	}
+
 	//xAudio2解放
 	Sound::xAudioDelete();
 	//ウィンドウクラスを登録解除
