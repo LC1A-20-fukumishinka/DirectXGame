@@ -1,6 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
-
+#include "Vector3.h"
 namespace Projection
 {
 	struct ProjectionData
@@ -28,15 +28,18 @@ public:
 	DirectX::XMMATRIX matProjection;
 
 	DirectX::XMMATRIX matView;
-	DirectX::XMFLOAT3 eye;
-	DirectX::XMFLOAT3 target;
-	DirectX::XMFLOAT3 up;
-	DirectX::XMFLOAT3 position;
-
+	Vector3 eye;
+	Vector3 target;
+	Vector3 up;
+	Vector3 position;
+	Vector3 shift;
 
 	Camera();
 	void Init(const DirectX::XMFLOAT3 &eye = { 0, 0, -100 }, const  DirectX::XMFLOAT3 &target = { 0, 0, 0 },const DirectX::XMFLOAT3 &position = { 0, 0, 0 }, const  DirectX::XMFLOAT3 &up = { 0, 1, 0 }, Projection::ProjectionData &projectionData = Projection::ProjectionData());
 	void Update();
+
+	//ÉJÉÅÉâÇàÍèuÇæÇØÇ∏ÇÁÇ∑
+	void SetShift(DirectX::XMFLOAT3 shift);
 
 	DirectX::XMMATRIX GetMatBillboard() const;
 	DirectX::XMMATRIX GetMatBillboardY() const;
