@@ -71,8 +71,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sound::StaticInitialize();
 	int alarm = Sound::SoundLoadWave("Resources/Alarm01.wav");
 
-	IXAudio2SourceVoice *voice;
-	Sound::CreateSourceVoice(voice, alarm);
+	Sound voice(alarm);
 
 #pragma endregion
 
@@ -324,11 +323,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 		//XVˆ—
-		if (input->Button(XINPUT_GAMEPAD_A))
+		if (input->KeyTrigger(DIK_X))
 		{
-			Sound::Play(voice, alarm);
+			voice.PlayLoop();
 		}
-
+		if (input->KeyTrigger(DIK_Z))
+		{
+			voice.Stop();
+		}
 		cam.Update();
 		switch (nowScene)
 		{

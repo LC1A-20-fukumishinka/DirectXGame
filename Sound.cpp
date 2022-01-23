@@ -133,7 +133,7 @@ void Sound::SoundUnload()
 	}
 }
 
-void Sound::Play(IXAudio2SourceVoice *pSourceVoice, const int soundIndex)
+void Sound::Play()
 {
 	HRESULT result;
 
@@ -149,7 +149,7 @@ void Sound::Play(IXAudio2SourceVoice *pSourceVoice, const int soundIndex)
 	result = pSourceVoice->Start();
 }
 
-void Sound::PlayLoop(IXAudio2SourceVoice *pSourceVoice, const int soundIndex)
+void Sound::PlayLoop()
 {
 	HRESULT result;
 
@@ -164,9 +164,20 @@ void Sound::PlayLoop(IXAudio2SourceVoice *pSourceVoice, const int soundIndex)
 	result = pSourceVoice->Start();
 }
 
-void Sound::Stop(IXAudio2SourceVoice *pSourceVoice)
+void Sound::Stop()
 {
 	pSourceVoice->Stop();
 	pSourceVoice->FlushSourceBuffers();
+}
+
+Sound::Sound(const int soundIndex)
+{
+	this->soundIndex = soundIndex;
+
+	HRESULT result;
+	//波形フォーマットをもとにSourceVolでの生成
+	pSourceVoice = nullptr;
+	result = xAudio2->CreateSourceVoice(&pSourceVoice, &soundData[this->soundIndex].wfex);
+	assert(SUCCEEDED(result));
 }
 
