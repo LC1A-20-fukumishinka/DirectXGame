@@ -1,5 +1,5 @@
 #include "Player.h"
-
+#include "Shake.h"
 Player::Player()
 {
 	pos = { 0,0,0 };
@@ -204,7 +204,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 			(enemyPos.z - obj.position.z) * (enemyPos.z - obj.position.z));
 
 		//半径の合計
-		float r = 15.0f + 16.0f;
+		float r = 15.0f + 32.0f;
 
 		//円×円
 		if (attackAngle < ATTACK_ANGLE && dist < r)
@@ -218,6 +218,12 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 
 		attackDelay = ATTACK_DELAY;
 		attackFlag = false;
+	}
+
+	//被ダメージ時シェイク
+	if (isDamaged)
+	{
+		camera.SetShift(Shake::GetShake(1.0f, true, false, true));
 	}
 }
 

@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "MyDirectX.h"
+
 using namespace DirectX;
 
 using namespace Projection;
@@ -8,6 +9,7 @@ Camera::Camera()
 	this->eye = { 0.0f, 0.0f, -100.0f };
 	this->target = { 0.0f, 0.0f, 0.0f };
 	this->up = { 0.0f, 1.0f, 0.0f };
+	this->shift = { 0.0f, 0.0f, 0.0f };
 	position = { 0.0f, 0.0f, 0.0f };
 	matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
 	matBillBoard = XMMatrixIdentity();
@@ -54,6 +56,12 @@ void Camera::Update()
 	//matView = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&target), XMLoadFloat3(&up));
 	//matView *= XMMatrixTranslation(position.x, position.y, position.z);
 	MakeMatCamera();
+	SetShift(XMFLOAT3(0, 0, 0));
+}
+
+void Camera::SetShift(XMFLOAT3 shift)
+{
+	this->shift = shift;
 }
 
 DirectX::XMMATRIX Camera::GetMatBillboard() const
@@ -68,11 +76,11 @@ DirectX::XMMATRIX Camera::GetMatBillboardY() const
 
 void Camera::MakeMatCamera()
 {
-	XMFLOAT3 tmpEye = {eye.x + position.x,eye.y + position.y ,eye.z + position.z };
+	XMFLOAT3 tmpEye =eye + position + shift;
 	XMVECTOR eyePosition = XMLoadFloat3(&tmpEye);
 	//íçéãì_ç¿ïW
 
-	XMFLOAT3 tmpTarget = { target.x + position.x,target.y + position.y ,target.z + position.z };
+	XMFLOAT3 tmpTarget = target + position + shift;
 	XMVECTOR targetPosition = XMLoadFloat3(&tmpTarget);
 	//(âºÇÃ) è„ï˚å¸
 	XMVECTOR upVector = XMLoadFloat3(&up);
