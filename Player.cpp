@@ -57,12 +57,21 @@ void Player::Input(const Camera& camera)
 	vec.x = input->LStick().x;
 	vec.z = input->LStick().y;
 	XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
+	//入力がある場合
 	if (vec.x != 0 && vec.z != 0)
 	{
+		//コントローラーの方向ベクトル
 		vec.x *= MOVE_SPEED;
 		vec.z *= MOVE_SPEED;
 		pos.x += vec.x;
 		pos.z += vec.z;
+
+		//自分の方向ベクトル
+		XMFLOAT3 myVec = { 0,0,0 };
+		float rotY = angle;
+		ConvertToRadian(rotY);
+		myVec.x = cosf(-rotY);
+		myVec.z = sinf(-rotY);
 	}
 
 
