@@ -12,7 +12,6 @@ class Sound
 private://サブクラス
 #pragma region Sound
 
-
 public:
 	//チャンクヘッダ
 	struct ChunkHeader
@@ -46,26 +45,30 @@ public://静的メンバ関数
 	static bool StaticInitialize();
 	static void xAudioDelete();
 	static void CreateSourceVoice(IXAudio2SourceVoice *&pSourceVoice, const int soundIndex);
-
-public://静的メンバ変数
-
-	static Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
-	static IXAudio2MasteringVoice *masterVoice;
-
-
-
-public://メンバ変数
 	//音声データ読み込み
 	static int SoundLoadWave(const char *filename);
 	//音声データ解放
 	static void SoundUnload();
 
-	//音声再生
-	static void Play(IXAudio2SourceVoice *pSourceVoice, const int soundIndex);
 
-	static void PlayLoop(IXAudio2SourceVoice *pSourceVoice, const int soundIndex);
+public://静的メンバ変数
 
-	static void Stop(IXAudio2SourceVoice *pSourceVoice);
+	static Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
+	static IXAudio2MasteringVoice *masterVoice;
 private:
 	static std::vector<SoundData> soundData;
+
+
+public://メンバ関数
+	Sound(const int soundIndex);
+
+	//音声再生
+	void Play();
+
+	void PlayLoop();
+
+	void Stop();
+private://メンバ変数
+	IXAudio2SourceVoice *pSourceVoice;
+	int soundIndex;
 };
