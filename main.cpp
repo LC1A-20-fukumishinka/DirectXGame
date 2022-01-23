@@ -27,6 +27,8 @@
 #include <vector>
 #include "WallMgr.h"
 #include "particleManager.h"
+#include "Vector3.h"
+#include "Shake.h"
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -44,20 +46,6 @@ using namespace Microsoft::WRL;
 	頑張っていこう！
 	こんにちは！
 */
-
-struct Vertex
-{
-	XMFLOAT3 pos;	//xyz座標
-	XMFLOAT3 normal;
-	XMFLOAT2 uv;	//uv座標
-};
-
-struct ConstBufferData
-{
-	XMFLOAT4 color;	//色(RGBA)
-	XMMATRIX mat;	//3D変換行列
-};
-
 const int window_width = 1280;
 const int window_height = 720;
 
@@ -109,9 +97,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	ParticleManager part;
 
-
-
-	cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
+	cam.Init(Vector3(0, 250, 0), Vector3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
 	float angle = 0.0f;	//カメラの回転角
 
 	DebugText debugText;
@@ -413,11 +399,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				{
 					float randX = (((float)rand() / RAND_MAX) * 2) - 1.0f;
 					float randZ = (((float)rand() / RAND_MAX) * 2) - 1.0f;
-					float dot = sqrtf((randX * randX) + (randZ * randZ));
+					Vector3 tmp(randX, 0, randZ);
 					float power = ((float)rand() / RAND_MAX) * 3;
-					randX /= dot;
-					randZ /= dot;
-					part.Add(15, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()), XMFLOAT3(randX * power, 0, randZ * power), XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
+					tmp = tmp.normalaize();
+					part.Add(15, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()),tmp * power, XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
 				}
 				EnemyMgr::Instance()->DeadNearEnemy();
 			}
