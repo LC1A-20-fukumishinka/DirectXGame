@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Shake.h"
+
 Player::Player()
 {
 	pos = { 0,0,0 };
@@ -12,15 +13,23 @@ Player::Player()
 	attackDelay = 0;
 	drawCount = 0;
 	angle = 0;
+	easeTimer = 0;
 	attackFlag = false;
 	stopTimeFlag = false;
 	isHit = false;
 	isDead = false;
 	isDamaged = false;
+	spriteFlag = false;
+	isEffect = false;
 
 	model.CreateModel("player");
 	obj.scale = { 10.0f,10.0f,10.0f };
 	obj.rotation = { 0, angle + 90.0f, 0 };
+
+	GH1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/dead.png");
+	dead.Init(GH1, XMFLOAT2(0.0f, 0.0f));
+	dead.position = { 0,-720,0 };
+	dead.size = { 1280,720 };
 }
 
 Player::~Player()
@@ -39,11 +48,14 @@ void Player::Init(const Camera& camera)
 	attackDelay = 0;
 	drawCount = 0;
 	angle = 0;
+	easeTimer = 0;
 	attackFlag = false;
 	stopTimeFlag = false;
 	isHit = false;
 	isDead = false;
 	isDamaged = false;
+	spriteFlag = false;
+	isEffect = false;
 
 	obj.Init(camera);
 	obj.rotation = { 0, angle + 90.0f, 0 };
@@ -222,6 +234,14 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	{
 		camera.SetShift(Shake::GetShake(1.0f, true, false, true));
 	}
+
+	if (spriteFlag)
+	{
+		XMFLOAT3 pos = dead.position;
+		if (pos.y < 0) { pos.y += 10.0f; }
+		dead.position = pos;
+		dead.SpriteUpdate();
+	}
 }
 
 void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
@@ -239,6 +259,11 @@ void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
 	}
 
 	obj.modelDraw(model.GetModel(), pipelineSet);
+
+	if (spriteFlag)
+	{
+		dead.SpriteDraw();
+	}
 }
 
 void Player::Finalize()
@@ -270,4 +295,28 @@ void Player::PushBack(const XMFLOAT3& enemyPos)
 		pos.x = enemyPos.x + vec3.x * r;
 		pos.z = enemyPos.z + vec3.z * r;
 	}
+}
+
+void Player::DeathEffect(Camera& camera)
+{
+	if (hp <= 0)
+	{
+		if (obj.rotation.x > -90.0f) { obj.rotation.x -= 1.0f; }
+		else if (easeTimer < 1.0f)
+		{
+			easeTimer += 0.01f;
+			camera.eye.y = (650 - 250) * easeOutCubic(easeTimer) + 250;
+		}
+		else { spriteFlag = true; }
+	}
+}
+
+bool Player::SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRight)
+{
+	if (lowerLeft.x <= pos.x <= upperRight.x &&
+		lowerLeft.z <= pos.z <= upperRight.z)
+	{
+		return true;
+	}
+	return false;
 }

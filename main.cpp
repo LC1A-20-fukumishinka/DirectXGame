@@ -62,7 +62,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI‰Šú‰»ˆ—
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -76,13 +76,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX‰Šú‰»ˆ— ‚±‚±‚Ü‚Å
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -373,6 +373,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//_RPTN(_CRT_WARN, "playerPos : %f, %f, %f\n\n", pos.x, pos.y, pos.z);
 			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
+			player.DeathEffect(cam);
 			box.position = enemyPos;
 			box.Update(cam);
 
@@ -405,7 +406,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					Vector3 tmp(randX, 0, randZ);
 					float power = ((float)rand() / RAND_MAX) * 3;
 					tmp = tmp.normalaize();
-					part.Add(15, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()),tmp * power, XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
+					part.Add(15, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()), tmp * power, XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
 				}
 				EnemyMgr::Instance()->DeadNearEnemy();
 			}
