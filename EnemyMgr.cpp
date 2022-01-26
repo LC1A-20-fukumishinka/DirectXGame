@@ -20,6 +20,8 @@ void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, con
 
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
+		enemy[i].BulletUpdate(cam);
+
 		if (enemy[i].isAlive)
 		{
 			enemy[i].Update(playerPos, playerSphere, cam);
@@ -48,13 +50,14 @@ void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject
 {
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
-		if (!enemy[i].isAlive)continue;
-		enemy[i].Draw(pipelineSet, enemyModel.GetModel());
 		for (int j = 0; j < 20; ++j)
 		{
 			if (!enemy[i].enemyBullet[j].isAlive)continue;
 			EnemyMgr::Instance()->enemy[i].enemyBullet[j].Draw(pipelineSet, bulletModel);
 		}
+		if (!enemy[i].isAlive)continue;
+		enemy[i].Draw(pipelineSet, enemyModel.GetModel());
+
 	}
 }
 

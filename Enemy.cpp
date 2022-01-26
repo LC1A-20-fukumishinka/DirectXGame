@@ -50,11 +50,7 @@ void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const 
 	//生成済みじゃなかったら生成する
 	if (!isAlive)return;
 
-	//弾の更新
-	for (int i = 0; i < MAX_BULLET; ++i)
-	{
-		enemyBullet[i].Update(cam);
-	}
+
 	status = STATUS_ATTACK;
 
 	//ステータスによって処理を分ける
@@ -106,6 +102,15 @@ void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const 
 	p2 = MulXMFLOAT3(p2, forwardVec);
 	p2.y = 10;
 	forwardTriangle.p2 = XMLoadFloat3(&p2);
+}
+
+void Enemy::BulletUpdate(const Camera &cam)
+{
+	//弾の更新
+	for (int i = 0; i < MAX_BULLET; ++i)
+	{
+		enemyBullet[i].Update(cam);
+	}
 }
 
 void Enemy::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model)
@@ -299,8 +304,8 @@ Sphere Enemy::GetNearEnemyBulletSphere(const XMFLOAT3& playerPos)
 void Enemy::Dead()
 {
 	isAlive = false;
-	for (int i = 0; i < MAX_BULLET; i++)
-	{
-		enemyBullet[i].Dead();
-	}
+	//for (int i = 0; i < MAX_BULLET; i++)
+	//{
+	//	enemyBullet[i].Dead();
+	//}
 }

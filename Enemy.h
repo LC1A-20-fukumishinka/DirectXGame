@@ -89,6 +89,8 @@ public:
 	//更新処理
 	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam);
 
+	//弾の更新処理
+	void BulletUpdate(const Camera& cam);
 	//描画処理
 	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);
 
