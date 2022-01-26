@@ -13,8 +13,8 @@ const int STOP_TIME_COUNT = 60;						//最大時間停止量
 const int STOP_TIME_DELAY = 30;						//攻撃可能までのクールタイム
 const int ATTACK_DELAY = 30;						//攻撃の最大CT
 const int MAX_HP = 3;								//HP
-const float MOVE_SPEED = 1.0f;						//動く速さ
-const float MOVE_ANGLE = 3.0f;						//向きを変える速さ
+const float MOVE_SPEED = 1.5f;						//動く速さ
+const float MOVE_ANGLE = 6.0f;						//向きを変える速さ
 const float ATTACK_ANGLE = 90;						//攻撃範囲角度
 
 using namespace DirectX;
@@ -44,6 +44,7 @@ private:
 	bool isHit;										//攻撃が当たったか
 	bool isDead;									//HPが0になったか
 	bool isDamaged;									//自分がダメージを受けたか
+	bool isOverTrigger;
 
 private:
 	int GH1;
