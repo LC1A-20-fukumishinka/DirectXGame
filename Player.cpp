@@ -23,6 +23,7 @@ Player::Player()
 	spriteDeadFlag = false;
 	spriteClearFlag = false;
 	isEffect = false;
+	isOverTrigger = false;
 
 	model.CreateModel("player");
 	obj.scale = { 10.0f,10.0f,10.0f };
@@ -65,6 +66,7 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	spriteDeadFlag = false;
 	spriteClearFlag = false;
 	isEffect = false;
+	isOverTrigger = false;
 
 	obj.Init(camera);
 	obj.rotation = { 0, angle + 90.0f, 0 };
@@ -90,6 +92,19 @@ void Player::Input(const Camera& camera)
 		myVec.x = cosf(-rotY);
 		myVec.z = sinf(-rotY);
 
+		//コントローラーのアングル
+		float contAngle = -atan2f(vec.z, vec.x);
+		ConvertToDegree(contAngle);
+		if (contAngle < 0) { contAngle += 360.0f; }
+
+		/*float dot = vec.x * myVec.x + vec.z * myVec.z;
+		float absA = sqrtf(vec.x * vec.x + vec.z * vec.z);
+		float absB = sqrtf(myVec.x * myVec.x + myVec.z * myVec.z);
+		float cosTheta = dot / (absA * absB);
+		float theta = acosf(-cosTheta);
+
+		ConvertToDegree(theta);*/
+
 		float vx1 = myVec.x - 0;
 		float vz1 = myVec.z - 0;
 		float vx2 = vec.x - 0;
@@ -97,8 +112,31 @@ void Player::Input(const Camera& camera)
 
 		//近い方を判定
 		float cross = vx1 * vz2 - vz1 * vx2;
-		if (cross < 0) { angle += MOVE_ANGLE; }
-		else { angle -= MOVE_ANGLE; }
+		if (cross < 0)
+		{
+			angle += MOVE_ANGLE;
+
+			//if (angle >= 360.0f) { angle = angle - 360.0f; }
+			if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle > contAngle) { isOverTrigger = true; }
+		}
+		else
+		{
+			angle -= MOVE_ANGLE;
+			//if (angle < 0.0f) { angle = angle + 360.0f; }
+			if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle < contAngle) { isOverTrigger = true; }
+		}
+
+		if (angle >= 360.0f) { angle -= 360.0f; }
+		else if (angle < 0.0f) { angle += 360.0f; }
+
+		if (isOverTrigger)
+		{
+			/*if (angle < contAngle) { angle += contAngle - angle; }
+			else { angle -= angle - contAngle; }*/
+			angle = contAngle;
+			isOverTrigger = false;
+		}
+
 		obj.rotation = { 0, angle + 90.0f, 0 };
 
 		myVec.x *= MOVE_SPEED;
