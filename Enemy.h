@@ -40,6 +40,7 @@ private:
 	const XMFLOAT3 TRIANGLE_UPPER_LEFT_POS = { -50.0f,0.0f,100.0f };
 
 	const float ROTATE_SPEED = XM_PI / 5.0f;	//回転速度
+	const float ENEMY_RADIUS = 32.0f;
 
 	static const int MAX_BULLET = 20;
 	const int MAX_BULLET_TIMER = 10;			//射撃レート
@@ -87,7 +88,7 @@ public:
 	void Generate(const Camera& cam, const XMFLOAT3& generatePos, const XMFLOAT3& forwardVec);
 
 	//更新処理
-	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam);
+	void Update(const XMFLOAT3& playerPos, const float& angle, const bool& isAttack,const bool& isStop);
 
 	//描画処理
 	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);

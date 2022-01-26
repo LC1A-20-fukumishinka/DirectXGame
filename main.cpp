@@ -494,7 +494,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				Sphere pSphere;
 				pSphere.center = XMLoadFloat3(&pos);
 				pSphere.radius = 16;
-				EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam, player.GetStopTimeFlag());
+				EnemyMgr::Instance()->Update(player.GetPos(), player.GetAngle(), player.GetStopTimeFlag(), player.GetAttackFlag());
 				EnemyMgr::Instance()->UpdateData(cam);
 
 				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {

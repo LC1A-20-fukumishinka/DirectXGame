@@ -7,6 +7,7 @@ EnemyBullet::EnemyBullet()
 	isAlive = false;
 	bulletSphere = {};
 	desTimer = 0;
+	status = BULLET_STATUS_ALIVE;
 }
 
 void EnemyBullet::Init(const Camera& cam)
@@ -24,25 +25,48 @@ void EnemyBullet::Generate(const XMFLOAT3& generatePos, const XMFLOAT3& forwardV
 	isAlive = true;
 }
 
-void EnemyBullet::Update(const Camera& cam)
+void EnemyBullet::Update()
 {
 	if (!isAlive)return;
 
-	//消えるまでのタイマーを進める
-	desTimer++;
-	if (desTimer >= MAX_DES_TIMER)
+	switch (status)
 	{
+	case BULLET_STATUS_ALIVE:
+
+		//消えるまでのタイマーを進める
+		desTimer++;
+		if (desTimer >= MAX_DES_TIMER)
+		{
+			Dead();
+		}
+
+		moveVec.x = forwardVec.x * BULLET_SPEED;
+		moveVec.y = forwardVec.y * BULLET_SPEED;
+		moveVec.z = forwardVec.z * BULLET_SPEED;
+
+		//座標を更新
+		bulletData.position.x += moveVec.x;
+		bulletData.position.y += moveVec.y;
+		bulletData.position.z += moveVec.z;
+
+		break;
+	case BULLET_STATUS_EXPLOSION:
+		Explosion();
+		bulletData.color = { 49,78,97,255 };
+		break;
+	default:
+		break;
+	}
+}
+
+void EnemyBullet::Explosion()
+{
+	explosionTimer++;
+	if (explosionTimer > MAX_EXPLOSION_TIMER)
+	{
+		explosionTimer = 0;
 		Dead();
 	}
-
-	moveVec.x = forwardVec.x * BULLET_SPEED;
-	moveVec.y = forwardVec.y * BULLET_SPEED;
-	moveVec.z = forwardVec.z * BULLET_SPEED;
-
-	//座標を更新
-	bulletData.position.x += moveVec.x;
-	bulletData.position.y += moveVec.y;
-	bulletData.position.z += moveVec.z;
 }
 
 void EnemyBullet::Dead()

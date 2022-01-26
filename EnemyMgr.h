@@ -26,7 +26,7 @@ public:
 	void Init(const Camera& cam);
 
 	//XVˆ—
-	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam, const bool& isStop);
+	void Update(const XMFLOAT3& playerPos, const float& angle, const bool& isStop, const bool& isAttack);
 
 	void UpdateData(const Camera& cam);
 
