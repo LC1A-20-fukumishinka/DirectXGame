@@ -182,6 +182,15 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 	forwardTriangle.p2 = XMLoadFloat3(&p2);
 }
 
+void Enemy::BulletUpdate(const Camera &cam)
+{
+	//íeÇÃçXêV
+	for (int i = 0; i < MAX_BULLET; ++i)
+	{
+		enemyBullet[i].Update();
+	}
+}
+
 void Enemy::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model)
 {
 	if (isAlive)

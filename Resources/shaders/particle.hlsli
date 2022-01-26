@@ -2,6 +2,7 @@ cbuffer cbuff0 : register(b0)
 {
 	matrix mat;
 	matrix matBillboard; // ３Ｄ変換行列
+	float4 color;
 };
 
 // 頂点シェーダーからピクセルシェーダーへのやり取りに使用する構造体

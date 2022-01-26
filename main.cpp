@@ -29,6 +29,7 @@
 #include "particleManager.h"
 #include "Vector3.h"
 #include "Shake.h"
+#include "BombEffect.h"
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -69,7 +70,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -83,13 +84,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
+	Input *input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -295,13 +296,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
 	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0));
 
-	EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, enemyForwardVec, cam);
+	//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
 
 	//画像初期化
 	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
 	int stopGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/stop.png");
 	int haniGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/hani.png");
 	int particleGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/effect1.png");
+	BombEffect::SetTexture(particleGH);
+
 	Sprite spriteStart;
 	spriteStart.Init(startGH);
 
@@ -334,6 +337,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	titleLogo.SpriteUpdate();
 
 	int stageNum = 0;
+
+	Vector3 up(0, 0, 1), left(-1, 0, 0);
+
+	Vector3 down = -up;
+	Vector3 right = -left;
+
+	std::vector<XMFLOAT3> loomEnemyAngles;
+	loomEnemyAngles.push_back(down);
+	loomEnemyAngles.push_back(down);
+	loomEnemyAngles.push_back(left);
+	loomEnemyAngles.push_back(left);
+	loomEnemyAngles.push_back(up);
+	loomEnemyAngles.push_back(left);
+
+
+
+	std::vector<XMFLOAT3> townEnemyAngles;
+	townEnemyAngles.push_back(down);
+	townEnemyAngles.push_back(down);
+	townEnemyAngles.push_back(left);
+	townEnemyAngles.push_back(left);
+	townEnemyAngles.push_back(up);
+	townEnemyAngles.push_back(left);
+
+	BombEffect bomb;
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -415,41 +443,58 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case TITLE:
 			titleLogo.SpriteTransferVertexBuffer();
 
-			if (input->KeyTrigger(DIK_SPACE)||input->ButtonTrigger(XINPUT_GAMEPAD_A))
+			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
 				nowScene = STAGESELECT;
 				cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
 				player.Init(cam, STAGE_1);
 				EnemyMgr::Instance()->Init(cam);
-				EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, enemyForwardVec, cam);
+				//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
 
 			}
 			break;
 		case STAGESELECT:
-			if (input->KeyTrigger(DIK_0) || input->KeyTrigger(DIK_1))
+
+
+			if (input->KeyTrigger(DIK_A) || input->KeyTrigger(DIK_D))
 			{
-				if (input->KeyTrigger(DIK_0))
+
+				if (input->KeyTrigger(DIK_A))
+				{
+					stageNum--;
+				}
+				if (input->KeyTrigger(DIK_D))
+				{
+					stageNum++;
+				}
+
+				if (stageNum < 0)
 				{
 					stageNum = 0;
-					WallMgr::Instance()->Init(loomWalls);
-					EnemyMgr::Instance()->Init(cam);
-					EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, enemyForwardVec, cam);
 				}
-				if (input->KeyTrigger(DIK_1))
+
+				if (stageNum >= 2)
 				{
 					stageNum = 1;
-					WallMgr::Instance()->Init(townWalls);
-					EnemyMgr::Instance()->Init(cam);
-					EnemyMgr::Instance()->Generate(townEnemyGeneratePos, enemyForwardVec, cam);
 				}
-				nowScene = GAME;
+
+			}
+			if(input->KeyTrigger(DIK_SPACE)|| input->Button(XINPUT_GAMEPAD_A))
+			{
 				if (stageNum == 0)
 				{
+					WallMgr::Instance()->Init(loomWalls);
+					//EnemyMgr::Instance()->Init(cam);
+					EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
 				}
 				else if (stageNum == 1)
 				{
-
+					stageNum = 1;
+					WallMgr::Instance()->Init(townWalls);
+					//EnemyMgr::Instance()->Init(cam);
+					EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
 				}
+				nowScene = GAME;
 			}
 			break;
 		case GAME:
@@ -478,10 +523,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (input->KeyTrigger(DIK_RETURN))
 			{
+				bomb.Bomb(player.GetPos(), 1);
+
 				int a = 0;
 			}
 			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
+			bomb.Update();
 			player.DeathEffect(cam);
 			box.position = enemyPos;
 			box.Update(cam);
@@ -569,9 +617,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			break;
 
 		case STAGESELECT:
-			debugText.Print("stageselect", 10, 10, 10);
-			debugText.Print("stage 1", 10, 20, 10);
-			debugText.Print("stage 2", 10, 30, 10);
+			debugText.Print("stageselect", 10, 10, 3);
+			if (stageNum == 0)
+			{
+				debugText.Print("stage 1", 10, 100, 3);
+			}
+			if (stageNum == 1)
+			{
+				debugText.Print("stage 2", 10, 100, 3);
+			}
 			break;
 		case GAME:
 			//if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
@@ -588,6 +642,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			EnemyMgr::Instance()->Draw(model3D->GetPipeLine(), boxModel.GetModel());
 
+			bomb.Draw();
 			//for (int i = 0; i < loomWalls.size(); i++)
 			//{
 			//	//loomWalls[i].Draw();
@@ -596,6 +651,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			part.Draw(particleGH);
 
+			hani.SpriteDraw();
+			spriteStart.SpriteDraw();
+			spriteStop.SpriteDraw();
 			break;
 		case CLEAR:
 			debugText.Print("clear", window_width / 2, window_height / 2, 5);
@@ -606,10 +664,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		default:
 			break;
 		}
-		//画像描画
-		hani.SpriteDraw();
-		spriteStart.SpriteDraw();
-		spriteStop.SpriteDraw();
 
 		//深度地リセット
 		DepthReset();

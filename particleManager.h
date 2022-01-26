@@ -30,9 +30,9 @@ public: // サブクラス
 	// 定数バッファ用データ構造体
 	struct ConstBufferData
 	{
-		//XMFLOAT4 color;	// 色 (RGBA)
 		XMMATRIX mat;	// ３Ｄ変換行列
 		XMMATRIX matBillboard;	// ３Ｄ変換行列
+		XMFLOAT4 color;	// 色 (RGBA)
 	};
 
 	struct Particle
@@ -56,6 +56,10 @@ public: // サブクラス
 		float s_scale = 1.0f;
 		//最終値
 		float e_scale = 0.0f;
+
+		XMFLOAT4 s_color = { 1, 1, 1, 1 };
+
+		XMFLOAT4 e_color = { 1, 1, 1, 1 };
 	};
 private: // 定数
 	static const int division = 50;					// 分割数
@@ -80,7 +84,7 @@ public: // 静的メンバ関数
 	/// 3Dオブジェクト生成
 	/// </summary>
 	/// <returns></returns>
-	static ParticleManager* Create();
+	static ParticleManager *Create();
 
 
 	static void SetCamera(Camera camera);
@@ -89,7 +93,7 @@ public: // 静的メンバ関数
 
 private: // 静的メンバ変数
 	// デバイス
-	static ID3D12Device* device;
+	static ID3D12Device *device;
 	// ルートシグネチャ
 	static ComPtr<ID3D12RootSignature> rootsignature;
 	// パイプラインステートオブジェクト
@@ -146,7 +150,7 @@ public: // メンバ関数
 	/// <param name="start_scale">初期サイズ</param>
 	/// <param name="end_scale">終了時サイズ</param>
 	void Add(int life, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
-	float start_scale, float end_scale);
+		float start_scale, float end_scale, XMFLOAT4 start_color = { 1, 1, 1, 1 }, XMFLOAT4 end_color = { 1, 1, 1,1 });
 private: // メンバ変数
 	ComPtr<ID3D12Resource> constBuff; // 定数バッファ
 
