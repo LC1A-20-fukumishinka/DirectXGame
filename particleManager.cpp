@@ -297,6 +297,8 @@ void ParticleManager::Update()
 		}
 	);
 	//全パーティクル更新
+
+	XMFLOAT4 setColor = {};
 	for (std::forward_list<Particle>::iterator it = particles.begin();
 		it != particles.end();
 		it++)
@@ -314,6 +316,11 @@ void ParticleManager::Update()
 		//スケールの線形補間
 		it->scale = (it->e_scale - it->s_scale)/f;
 		it->scale += it->s_scale;
+		setColor = {((it->e_color.x - it->s_color.x) / f) + it->s_color.x ,
+					((it->e_color.y - it->s_color.y) / f) + it->s_color.y ,
+					((it->e_color.z - it->s_color.z) / f) + it->s_color.z ,
+					((it->e_color.w - it->s_color.w) / f) + it->s_color.w , };
+		
 	}
 	//頂点バッファへデータ転送
 	VertexPos *vertMap = nullptr;
@@ -340,11 +347,13 @@ void ParticleManager::Update()
 		}
 		vertBuff->Unmap(0, nullptr);
 	}
+
 	// 定数バッファへデータ転送
 	ConstBufferData *constMap = nullptr;
 	result = constBuff->Map(0, nullptr, (void **)&constMap);
 	constMap->mat = camera->matView * camera->matProjection;	//行列の合成
 	constMap->matBillboard = camera->GetMatBillboard();	//行列の合成
+	constMap->color = setColor;
 	constBuff->Unmap(0, nullptr);
 }
 
@@ -388,7 +397,7 @@ void ParticleManager::Draw(int textureNumber)
 }
 
 void ParticleManager::Add(int life, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOAT3 accel,
-	float start_scale, float end_scale)
+	float start_scale, float end_scale, XMFLOAT4 start_color, XMFLOAT4 end_color)
 {
 	//リストに要素を追加
 	particles.emplace_front();
@@ -402,6 +411,8 @@ void ParticleManager::Add(int life, XMFLOAT3 position, XMFLOAT3 velocity, XMFLOA
 	p.scale = start_scale;
 	p.s_scale = start_scale;
 	p.e_scale = end_scale;
+	p.s_color = start_color;
+	p.e_color = end_color;
 }
 
 const DirectX::XMFLOAT3 operator+(const DirectX::XMFLOAT3 &lhs, const DirectX::XMFLOAT3 &rhs)
