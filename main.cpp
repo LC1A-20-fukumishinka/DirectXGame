@@ -221,13 +221,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 0 });
 	//enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 120 });
 	std::vector<XMFLOAT3> enemyForwardVec;
-	enemyForwardVec.push_back(XMFLOAT3(0, 1, 0));
+	enemyForwardVec.push_back(XMFLOAT3(0, 0, -1));
 	enemyForwardVec.push_back(XMFLOAT3(0, 0, 1));
+	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0));
 	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
 	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
-	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
-	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
-	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
+	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0));
 
 	EnemyMgr::Instance()->Generate(enemyGeneratePos, enemyForwardVec, cam);
 

@@ -35,6 +35,7 @@ void EnemyMgr::UpdateData(const Camera& cam)
 {
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
+		//enemy[i].enemyData.rotation.y += 1.0f;
 		//更新処理
 		enemy[i].enemyData.Update(cam);
 		for (int j = 0; j < 20; ++j)
@@ -110,5 +111,13 @@ void EnemyMgr::Generate(std::vector<DirectX::XMFLOAT3> &generatePos, std::vector
 	for (int i = 0; i < generatePos.size(); i++)
 	{
 		enemy[i].Generate(cam, generatePos[i], forwardVec[i]);
+		//正面ベクトルの初期値
+		XMFLOAT3 honraiForwardVec = { 0,0,1 };
+		//正面ベクトルの初期値と指定されたベクトルのなす角度を求める
+		float angle = calAngle(forwardVec[i], honraiForwardVec);
+		angle = acosf(angle);
+		angle = XMConvertToDegrees(angle);
+		if (forwardVec[i].x < 0)angle *= -1;
+		enemy[i].enemyData.rotation.y = angle;
 	}
 }
