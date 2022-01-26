@@ -49,6 +49,12 @@ using namespace Microsoft::WRL;
 const int window_width = 1280;
 const int window_height = 720;
 
+//Player‰ŠúˆÊ’u(ŠÈˆÕ)
+const XMFLOAT3 STAGE_1 = { -450,0,0 };
+const XMFLOAT3 STAGE_2 = { 0,0,0 };
+const XMFLOAT3 STAGE_3 = { 0,0,0 };
+const XMFLOAT3 STAGE_4 = { 0,0,0 };
+
 enum Scenes
 {
 	TITLE,
@@ -62,7 +68,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI‰Šú‰»ˆ—
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -71,19 +77,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sound::StaticInitialize();
 	int alarm = Sound::SoundLoadWave("Resources/Alarm01.wav");
 
-	IXAudio2SourceVoice *voice;
-	Sound::CreateSourceVoice(voice, alarm);
+	Sound voice(alarm);
 
 #pragma endregion
 
 	//DirectX‰Šú‰»ˆ— ‚±‚±‚Ü‚Å
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -129,7 +134,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	Player player;
-	player.Init(cam);
+	player.Init(cam, STAGE_1);
 
 
 
@@ -332,23 +337,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 
 		//XVˆ—
-		if (input->Button(XINPUT_GAMEPAD_A))
+		if (input->KeyTrigger(DIK_X))
 		{
-			Sound::Play(voice, alarm);
+			voice.PlayLoop();
 		}
-
+		if (input->KeyTrigger(DIK_Z))
+		{
+			voice.Stop();
+		}
 		cam.Update();
 		switch (nowScene)
 		{
 		case TITLE:
 			titleLogo.SpriteTransferVertexBuffer();
 
-			if (input->KeyTrigger(DIK_SPACE))
+			if (input->KeyTrigger(DIK_SPACE)||input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
 				nowScene = GAME;
 				cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
-				player.Init(cam);
-				//EnemyMgr::Instance()->Init(cam);
+				player.Init(cam, STAGE_1);
+				EnemyMgr::Instance()->Init(cam);
 				EnemyMgr::Instance()->Generate(enemyGeneratePos, enemyForwardVec, cam);
 
 			}
@@ -376,8 +384,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			}
 			XMFLOAT3 pos = player.GetPos();
+			//_RPTN(_CRT_WARN, "playerPos : %f, %f, %f\n\n", pos.x, pos.y, pos.z);
 			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
+			player.DeathEffect(cam);
 			box.position = enemyPos;
 			box.Update(cam);
 
@@ -410,7 +420,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					Vector3 tmp(randX, 0, randZ);
 					float power = ((float)rand() / RAND_MAX) * 3;
 					tmp = tmp.normalaize();
-					part.Add(15, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()),tmp * power, XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
+					part.Add(15, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()), tmp * power, XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
 				}
 				EnemyMgr::Instance()->DeadNearEnemy();
 			}
