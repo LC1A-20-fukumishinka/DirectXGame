@@ -147,6 +147,7 @@ void Player::Input(const Camera& camera)
 
 void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 {
+	attackFlag = false;
 	pos.x += vec3.x;
 	pos.z += vec3.z;
 
@@ -250,7 +251,6 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		}
 
 		attackDelay = ATTACK_DELAY;
-		attackFlag = false;
 	}
 
 	//被ダメージ時シェイク

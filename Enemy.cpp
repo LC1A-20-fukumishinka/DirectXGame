@@ -45,16 +45,90 @@ void Enemy::Generate(const Camera& cam, const XMFLOAT3& generatePos, const XMFLO
 	this->forwardVec = forwardVec;
 }
 
-void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam)
+void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& isAttack, const bool& isStop)
 {
 	//生成済みじゃなかったら生成する
 	if (!isAlive)return;
 
-	//弾の更新
+	if (isAttack)
+	{
+		for (int i = 0; i < MAX_BULLET; ++i)
+		{
+			if (!enemyBullet[i].isAlive)continue;
+			//判定
+			//敵への方向ベクトル
+			XMFLOAT3 vec = { 0,0,0 };
+			//vec.x = enemyPos.x - obj.position.x;
+			vec.x = playerPos.x - enemyBullet[i].bulletData.position.x;
+			vec.z = playerPos.z - enemyBullet[i].bulletData.position.z;
+			XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
+
+			//自機の方向ベクトル
+			XMFLOAT3 myVec = { 0,0,0 };
+			float rad = angle;
+			XMConvertToRadians(rad);
+			myVec.x = cosf(rad);
+			myVec.z = sinf(rad);
+
+			//計算
+			float dot = vec.x * myVec.x + vec.z * myVec.z;
+			float absA = sqrtf(vec.x * vec.x + vec.z * vec.z);
+			float absB = sqrtf(myVec.x * myVec.x + myVec.z * myVec.z);
+			float cosTheta = dot / (absA * absB);
+			float theta = acosf(-cosTheta);
+
+			XMConvertToDegrees(theta);
+			//ConvertToDegree(dot);
+			float attackAngle = theta;
+			//float attackAngle = dot;
+
+			//2点間の距離
+			float distance = Distance3D(playerPos, enemyBullet[i].bulletData.position);
+
+			//半径の合計
+			float r = 15.0f + enemyBullet->BULLET_RADIUS;;
+
+			//円×円
+			if (attackAngle < 90 && distance < r)
+			{
+				enemyBullet[i].status = enemyBullet->BULLET_STATUS_EXPLOSION;
+				enemyBullet[i].bulletData.color = { 49,78,97,255 };
+			}
+		}
+	}
+
+	if (isStop)return;
+
+	//弾の処理
 	for (int i = 0; i < MAX_BULLET; ++i)
 	{
-		enemyBullet[i].Update(cam);
+		if (!enemyBullet[i].isAlive)continue;
+		if (enemyBullet[i].status != enemyBullet->BULLET_STATUS_EXPLOSION)continue;
+		XMFLOAT3 enemyPos1 = enemyBullet[i].bulletData.position;
+		for (int j = 0; j < MAX_BULLET; ++j)
+		{
+			if (!enemyBullet[j].isAlive)continue;
+			if (enemyBullet[j].status != enemyBullet->BULLET_STATUS_ALIVE)continue;
+			if (i == j)continue;
+			XMFLOAT3 enemyPos2 = enemyBullet[j].bulletData.position;
+			//2点間の距離を求める
+			float distance = Distance3D(enemyPos1, enemyPos2);
+			//半径の和を求める
+			float r = enemyBullet[i].EXPLOSION_RADIUS + enemyBullet[j].BULLET_RADIUS;
+			if (distance < r)
+			{
+				enemyBullet[j].status = enemyBullet->BULLET_STATUS_EXPLOSION;
+			}
+		}
+		//敵との距離を求める
+		float distance = Distance3D(enemyPos1, enemyData.position);
+		float r = enemyBullet[i].EXPLOSION_RADIUS + ENEMY_RADIUS;
+		if (distance < r)
+		{
+			Dead();
+		}
 	}
+
 	status = STATUS_ATTACK;
 
 	//ステータスによって処理を分ける
@@ -73,12 +147,12 @@ void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const 
 		break;
 	}
 
-	////正面ベクトルの更新
-	//matRot = XMMatrixIdentity();
-	//matRot *= XMMatrixRotationZ(XMConvertToRadians(enemyData.rotation.z));
-	//matRot *= XMMatrixRotationX(XMConvertToRadians(enemyData.rotation.x));
-	//matRot *= XMMatrixRotationY(XMConvertToRadians(enemyData.rotation.y));
-	//UpdateForwardVec(forwardVec, matRot);
+	//正面ベクトルの更新
+	matRot = XMMatrixIdentity();
+	matRot *= XMMatrixRotationZ(XMConvertToRadians(enemyData.rotation.z));
+	matRot *= XMMatrixRotationX(XMConvertToRadians(enemyData.rotation.x));
+	matRot *= XMMatrixRotationY(XMConvertToRadians(enemyData.rotation.y));
+	UpdateForwardVec(forwardVec, matRot);
 
 
 	//レイの更新処理
@@ -299,8 +373,8 @@ Sphere Enemy::GetNearEnemyBulletSphere(const XMFLOAT3& playerPos)
 void Enemy::Dead()
 {
 	isAlive = false;
-	for (int i = 0; i < MAX_BULLET; i++)
-	{
-		enemyBullet[i].Dead();
-	}
+	//for (int i = 0; i < MAX_BULLET; i++)
+	//{
+	//	enemyBullet[i].Dead();
+	//}
 }
