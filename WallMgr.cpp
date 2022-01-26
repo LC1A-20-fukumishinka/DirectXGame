@@ -20,6 +20,22 @@ void WallMgr::Init(std::vector<Wall> &walls)
 	this->walls = walls;
 }
 
+void WallMgr::Update()
+{
+	for (int i = 0; i < walls.size(); i++)
+	{
+		walls[i].Update();
+	}
+}
+
+void WallMgr::Draw()
+{
+	for (int i = 0; i < walls.size(); i++)
+	{
+	walls[i].Draw();
+	}
+}
+
 std::vector<Triangle> WallMgr::GetFaces()
 {
 	vector<Triangle> wallFaces;
@@ -45,4 +61,22 @@ std::vector<DirectX::XMFLOAT3> WallMgr::GetWallPos()
 		wallPos.push_back(walls[i].GetPos());
 	}
 	return wallPos;
+}
+
+bool WallMgr::CheckWallBullet(const DirectX::XMFLOAT3 &Pos, const  DirectX::XMFLOAT3 Speed)
+{
+	Vector3 posA, posB;
+	posA = posB = Pos;
+	posB += Vector3(Speed.x, Speed.y, Speed.z);
+
+	bool isHit;
+	for (int i = 0; i < walls.size(); i++)
+	{
+		isHit = walls[i].IsHitWall(posA, posB);
+		if (isHit)
+		{
+			return true;
+		}
+	}
+	return false;
 }

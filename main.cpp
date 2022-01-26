@@ -58,6 +58,7 @@ const XMFLOAT3 STAGE_4 = { 0,0,0 };
 enum Scenes
 {
 	TITLE,
+	STAGESELECT,
 	GAME,
 	CLEAR,
 	GAMEOVER
@@ -145,81 +146,147 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	floor.Init(cam);
 
 
-	std::vector<Wall> walls;
-	Wall wall[14];
 	DirectX::XMFLOAT3 pillarScale = { 10, 500, 10 };
 	DirectX::XMFLOAT3 LPillarScale = { 50, 500, 50 };
 	DirectX::XMFLOAT3 wideWallScale = { 200, 500, 10 };
 	DirectX::XMFLOAT3 heightWallScale = { 10, 500, 100 };
 	DirectX::XMFLOAT3 LHeightWallScale = { 80, 500, 150 };
 	DirectX::XMFLOAT3 LWidthWallScale = { 150, 500, 100 };
+#pragma region loom
+
+	std::vector<Wall> loomWalls;
+	Wall wall[14];
+
 
 
 	wall[0].Init(cam, { 0.0f,floor.position.y ,0.0f }, pillarScale, { pillarScale.x / 4, 10, pillarScale.z / 4 });
-	walls.push_back(wall[0]);
+	loomWalls.push_back(wall[0]);
 
 	//入口奥
 	wall[1].Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
-	walls.push_back(wall[1]);
+	loomWalls.push_back(wall[1]);
 	wall[2].Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
-	walls.push_back(wall[2]);
+	loomWalls.push_back(wall[2]);
 
 	//入口手前
 	wall[3].Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
-	walls.push_back(wall[3]);
+	loomWalls.push_back(wall[3]);
 	wall[4].Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
-	walls.push_back(wall[4]);
+	loomWalls.push_back(wall[4]);
 
 	//入り口側中央柱
 	wall[5].Init(cam, { -180,floor.position.y ,0 }, LHeightWallScale, { LHeightWallScale.x / 2, 10, LHeightWallScale.z / 2 });
-	walls.push_back(wall[5]);
+	loomWalls.push_back(wall[5]);
 
 	//出口側二本柱
 	wall[6].Init(cam, { +200,floor.position.y ,-80 }, LPillarScale, { LPillarScale.x / 2, 10, LPillarScale.z / 2 });
-	walls.push_back(wall[6]);
+	loomWalls.push_back(wall[6]);
 	wall[7].Init(cam, { +200,floor.position.y ,+80 }, LPillarScale, { LPillarScale.x / 2, 10, LPillarScale.z / 2 });
-	walls.push_back(wall[7]);
+	loomWalls.push_back(wall[7]);
 
 	//中間通路壁
 	wall[8].Init(cam, { 0,floor.position.y ,floor.scale.z / 2 - 50 }, LWidthWallScale, { LWidthWallScale.x / 2, 10, LWidthWallScale.z / 2 });
-	walls.push_back(wall[8]);
+	loomWalls.push_back(wall[8]);
 	wall[9].Init(cam, { 0,floor.position.y ,-floor.scale.z / 2 + 50 }, LWidthWallScale, { LWidthWallScale.x / 2, 10, LWidthWallScale.z / 2 });
-	walls.push_back(wall[9]);
+	loomWalls.push_back(wall[9]);
 
 	//出口奥
 	wall[10].Init(cam, { floor.scale.x / 2 - 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
-	walls.push_back(wall[10]);
+	loomWalls.push_back(wall[10]);
 	wall[11].Init(cam, { floor.scale.x / 2 - 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
-	walls.push_back(wall[11]);
+	loomWalls.push_back(wall[11]);
 
 	//出口手前
 	wall[12].Init(cam, { +floor.scale.x / 2 - 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
-	walls.push_back(wall[12]);
+	loomWalls.push_back(wall[12]);
 	wall[13].Init(cam, { +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
-	walls.push_back(wall[13]);
+	loomWalls.push_back(wall[13]);
 
-	WallMgr::Instance()->Init(walls);
+	WallMgr::Instance()->Init(loomWalls);
+
+#pragma endregion
+	std::vector<Wall> townWalls;
+	Wall townWallData[11];
+
+	//初期地点右上
+	townWallData[0].Init(cam, { -floor.scale.x / 2 + 75,floor.position.y, -75.0f }, { 50, 500, 50 }, { 25, 10, 25 });
+	townWalls.push_back(townWallData[0]);
+
+	//左壁沿い
+	townWallData[1].Init(cam, { -floor.scale.x / 2 + 25,floor.position.y ,25.0f }, { 50, 500, 50 }, { 25, 10, 25 });
+	townWalls.push_back(townWallData[1]);
+
+	//初期地点右右上
+	townWallData[2].Init(cam, { -floor.scale.x / 2 + 250,floor.position.y, -75.0f }, { 50, 500, 50 }, { 25, 10, 25 });
+	townWalls.push_back(townWallData[2]);
+
+	//初期地点側上部縦長壁
+	townWallData[3].Init(cam, { -floor.scale.x / 2 + 180,floor.position.y, 40.0f }, { 50, 500, 100 }, { 25, 10, 50 });
+	townWalls.push_back(townWallData[3]);
+
+	//中央上部左横長壁
+	townWallData[4].Init(cam, { -140,floor.position.y ,floor.scale.z / 2 - 80 }, { 150, 500, 75 }, { 75, 10, 37.5f });
+	townWalls.push_back(townWallData[4]);
+
+	//中央下部大壁
+	townWallData[5].Init(cam, { -20,floor.position.y ,-floor.scale.z / 2 + 50 }, { 140, 500, 100 }, { 70, 10, 50 });
+	townWalls.push_back(townWallData[5]);
+
+	//中央上部右大壁
+	townWallData[6].Init(cam, { +100,floor.position.y ,60.0f }, { 150, 500, 120 }, { 75, 10, 60 });
+	townWalls.push_back(townWallData[6]);
+
+	//右側下段壁
+	townWallData[7].Init(cam, { +200,floor.position.y ,-80 }, { 150, 500, 50 }, { 75.0f, 10, 25 });
+	townWalls.push_back(townWallData[7]);
+
+	//右上隔離壁縦
+	townWallData[8].Init(cam, { floor.scale.x / 2 - 230,floor.position.y ,floor.scale.z / 2 - 50 }, { 50, 500, 100 }, { 25, 10, 50 });
+	townWalls.push_back(townWallData[8]);
+	//右下端壁
+	townWallData[9].Init(cam, { floor.scale.x / 2 - 75,floor.position.y ,-floor.scale.z / 2 + 100 }, { 150, 500, 200 }, { 75, 10, 100 });
+	townWalls.push_back(townWallData[9]);
+
+	//隔離部屋内壁
+	townWallData[10].Init(cam, { floor.scale.x / 2 - 75,floor.position.y ,floor.scale.z / 2 - 100 }, { 150, 500, 100 }, { 75, 10, 50 });
+	townWalls.push_back(townWallData[10]);
+
+	WallMgr::Instance()->Init(townWalls);
 	//wall
 	std::vector<Wall> outWall;
 	outWall.resize(4);
 	outWall[0].Init(cam, { -(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
-	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 10, 10 }, { floor.scale.x / 2 , 10, 10.0f / 2 });
+	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2 , 10, 10.0f / 2 });
 	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
 	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2, 10, 10.0f / 2 });
 
 	EnemyMgr::Instance()->Init(cam);
 
 	Scenes nowScene = TITLE;
-	std::vector<XMFLOAT3> enemyGeneratePos;
-	enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, 105 });
-	enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, -105 });
-	enemyGeneratePos.push_back(XMFLOAT3{ -85, 0, 0 });
-	enemyGeneratePos.push_back(XMFLOAT3{ 130, 0, -50 });
-	//enemyGeneratePos.push_back(XMFLOAT3{ , 0, -30 });
-	enemyGeneratePos.push_back(XMFLOAT3{ 130, 0, 50 });
-	//enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, -120 });
-	enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 0 });
-	//enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 120 });
+	std::vector<XMFLOAT3> loomEnemyGeneratePos;
+	loomEnemyGeneratePos.push_back(XMFLOAT3{ -255, 0, 105 });
+	loomEnemyGeneratePos.push_back(XMFLOAT3{ -255, 0, -105 });
+	loomEnemyGeneratePos.push_back(XMFLOAT3{ -85, 0, 0 });
+	loomEnemyGeneratePos.push_back(XMFLOAT3{ 130, 0, -50 });
+	loomEnemyGeneratePos.push_back(XMFLOAT3{ 130, 0, 50 });
+	loomEnemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 0 });
+	std::vector<XMFLOAT3> townEnemyGeneratePos;
+	townEnemyGeneratePos.push_back(XMFLOAT3{ -336, 0, -70 });
+	townEnemyGeneratePos.push_back(XMFLOAT3{ -396, 0, 64 });
+	townEnemyGeneratePos.push_back(XMFLOAT3{ -148, 0, -26 });
+	townEnemyGeneratePos.push_back(XMFLOAT3{ -23, 0, 66 });
+	townEnemyGeneratePos.push_back(XMFLOAT3{ 88, 0, -80 });
+	townEnemyGeneratePos.push_back(XMFLOAT3{ 304, 0, 0 });
+	//std::vector<XMFLOAT3> enemyGeneratePos;
+	//enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, 105 });
+	//enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, -105 });
+	//enemyGeneratePos.push_back(XMFLOAT3{ -85, 0, 0 });
+	//enemyGeneratePos.push_back(XMFLOAT3{ 130, 0, -50 });
+	////enemyGeneratePos.push_back(XMFLOAT3{ , 0, -30 });
+	//enemyGeneratePos.push_back(XMFLOAT3{ 130, 0, 50 });
+	////enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, -120 });
+	//enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 0 });
+	////enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 120 });
 	std::vector<XMFLOAT3> enemyForwardVec;
 	enemyForwardVec.push_back(XMFLOAT3(0, 0, -1));
 	enemyForwardVec.push_back(XMFLOAT3(0, 0, 1));
@@ -228,7 +295,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
 	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0));
 
-	EnemyMgr::Instance()->Generate(enemyGeneratePos, enemyForwardVec, cam);
+	EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, enemyForwardVec, cam);
 
 	//画像初期化
 	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
@@ -265,6 +332,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	titleLogo.position = { window_width / 2, window_height / 2 , 0.0f };
 	titleLogo.size = { window_width, window_height };
 	titleLogo.SpriteUpdate();
+
+	int stageNum = 0;
 #pragma endregion
 	//if (FAILED(result))
 	//{
@@ -324,16 +393,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		float width = window_width;
 		float height = window_height;
 		hani.position = { width / 2 ,height / 2 ,0 };
-		//hani.position = { 100,100,0 };
 
 		spriteStart.SpriteUpdate();
 		spriteStop.SpriteUpdate();
 		hani.SpriteUpdate();
 
-		if (input->KeyTrigger(DIK_RETURN))
-		{
-			int a = 0;
-		}
+
 
 		//更新処理
 		if (input->KeyTrigger(DIK_X))
@@ -352,12 +417,39 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (input->KeyTrigger(DIK_SPACE)||input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
-				nowScene = GAME;
+				nowScene = STAGESELECT;
 				cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
 				player.Init(cam, STAGE_1);
 				EnemyMgr::Instance()->Init(cam);
-				EnemyMgr::Instance()->Generate(enemyGeneratePos, enemyForwardVec, cam);
+				EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, enemyForwardVec, cam);
 
+			}
+			break;
+		case STAGESELECT:
+			if (input->KeyTrigger(DIK_0) || input->KeyTrigger(DIK_1))
+			{
+				if (input->KeyTrigger(DIK_0))
+				{
+					stageNum = 0;
+					WallMgr::Instance()->Init(loomWalls);
+					EnemyMgr::Instance()->Init(cam);
+					EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, enemyForwardVec, cam);
+				}
+				if (input->KeyTrigger(DIK_1))
+				{
+					stageNum = 1;
+					WallMgr::Instance()->Init(townWalls);
+					EnemyMgr::Instance()->Init(cam);
+					EnemyMgr::Instance()->Generate(townEnemyGeneratePos, enemyForwardVec, cam);
+				}
+				nowScene = GAME;
+				if (stageNum == 0)
+				{
+				}
+				else if (stageNum == 1)
+				{
+
+				}
 			}
 			break;
 		case GAME:
@@ -367,10 +459,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			XMFLOAT3 enemyPos = { 0,0,50 };
 			player.Input(cam);
 
-			for (int i = 0; i < walls.size(); i++)
+			for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
 			{
 				XMFLOAT3 playerSpeed = player.GetVec3();
-				XMFLOAT3 push = walls[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
+				XMFLOAT3 push = WallMgr::Instance()->GetWalls()[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
 				playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
 				player.SetVec3(playerSpeed);
 			}
@@ -383,7 +475,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			}
 			XMFLOAT3 pos = player.GetPos();
-			//_RPTN(_CRT_WARN, "playerPos : %f, %f, %f\n\n", pos.x, pos.y, pos.z);
+
+			if (input->KeyTrigger(DIK_RETURN))
+			{
+				int a = 0;
+			}
 			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			player.DeathEffect(cam);
@@ -425,10 +521,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 
-			for (int i = 0; i < walls.size(); i++)
-			{
-				walls[i].Update();
-			}
+			//for (int i = 0; i < loomWalls.size(); i++)
+			//{
+			//	loomWalls[i].Update();
+			//}
+			WallMgr::Instance()->Update();
 			for (int i = 0; i < outWall.size(); i++)
 			{
 				outWall[i].Update();
@@ -470,8 +567,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//debugText.Print("", window_width / 2 - 40, window_height / 2, 5);
 			titleLogo.SpriteDraw();
 			break;
+
+		case STAGESELECT:
+			debugText.Print("stageselect", 10, 10, 10);
+			debugText.Print("stage 1", 10, 20, 10);
+			debugText.Print("stage 2", 10, 30, 10);
+			break;
 		case GAME:
-			if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+			//if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 
 			player.Draw(model3D->GetPipeLine());
@@ -479,16 +582,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				outWall[i].Draw();
 			}
-			box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
-			box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+			//box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
+			//box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
 
 			EnemyMgr::Instance()->Draw(model3D->GetPipeLine(), boxModel.GetModel());
 
-			for (int i = 0; i < walls.size(); i++)
-			{
-				walls[i].Draw();
-			}
+			//for (int i = 0; i < loomWalls.size(); i++)
+			//{
+			//	//loomWalls[i].Draw();
+			//}
+			WallMgr::Instance()->Draw();
 
 			part.Draw(particleGH);
 
