@@ -215,8 +215,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, -120 });
 	enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 0 });
 	//enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 120 });
+	std::vector<XMFLOAT3> enemyForwardVec;
+	enemyForwardVec.push_back(XMFLOAT3(0, 1, 0));
+	enemyForwardVec.push_back(XMFLOAT3(0, 0, 1));
+	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
+	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
+	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
+	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
+	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
 
-	EnemyMgr::Instance()->Generate(enemyGeneratePos, cam);
+	EnemyMgr::Instance()->Generate(enemyGeneratePos, enemyForwardVec, cam);
 
 	//‰æ‘œ‰Šú‰»
 	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
@@ -340,8 +348,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				nowScene = GAME;
 				cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
 				player.Init(cam);
-				EnemyMgr::Instance()->Init(cam);
-				EnemyMgr::Instance()->Generate(enemyGeneratePos, cam);
+				//EnemyMgr::Instance()->Init(cam);
+				EnemyMgr::Instance()->Generate(enemyGeneratePos, enemyForwardVec, cam);
 
 			}
 			break;
@@ -465,12 +473,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
-			for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; ++i)
-			{
-				EnemyMgr::Instance()->enemy[i].enemyBullet.Draw(model3D->GetPipeLine(), boxModel.GetModel());
-			}
 
-			EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
+			EnemyMgr::Instance()->Draw(model3D->GetPipeLine(), boxModel.GetModel());
 
 			for (int i = 0; i < walls.size(); i++)
 			{
