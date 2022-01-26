@@ -415,7 +415,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case TITLE:
 			titleLogo.SpriteTransferVertexBuffer();
 
-			if (input->KeyTrigger(DIK_SPACE)||input->ButtonTrigger(XINPUT_GAMEPAD_A))
+			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
 				nowScene = STAGESELECT;
 				cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
