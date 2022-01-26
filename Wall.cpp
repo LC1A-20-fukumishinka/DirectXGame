@@ -1,5 +1,6 @@
 #include "Wall.h"
 #include "ModelPipeline.h"
+#include "Vector3.h"
 using namespace DirectX;
 
 const DirectX::XMFLOAT3 &operator -(const DirectX::XMFLOAT3 v1, const DirectX::XMFLOAT3 v2);
@@ -273,6 +274,32 @@ DirectX::XMFLOAT3 Wall::PushBack(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 size, 
 		}
 	}
 	return moveP;
+}
+
+bool Wall::IsHitWall(DirectX::XMFLOAT3 posA, DirectX::XMFLOAT3 posB)
+{
+	Vector3 CenPos, CenSize;
+	CenPos = wallObj.position;
+	CenSize = collisionScale;
+	Vector3 LN = { CenPos.x - CenSize.x, CenPos.y , CenPos.z - CenSize.z };
+	Vector3 RN = { CenPos.x + CenSize.x, CenPos.y , CenPos.z - CenSize.z };
+	Vector3 LF = { CenPos.x - CenSize.x, CenPos.y , CenPos.z + CenSize.z };
+	Vector3 RF = { CenPos.x + CenSize.x, CenPos.y , CenPos.z + CenSize.z };
+
+	bool isHit = LineCollision(LN, RN, posA, posB);
+	if (!isHit)
+	{
+		isHit = LineCollision(LF, RF, posA, posB);
+	}
+	if (!isHit)
+	{
+		isHit = LineCollision(LN, LF, posA, posB);
+	}
+	if (!isHit)
+	{
+		isHit = LineCollision(RN, RF, posA, posB);
+	}
+	return false;
 }
 
 const XMFLOAT3 &operator-(const DirectX::XMFLOAT3 v1, const DirectX::XMFLOAT3 v2)

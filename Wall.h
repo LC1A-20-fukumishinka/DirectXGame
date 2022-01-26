@@ -17,6 +17,8 @@ public:
 	void Finalize();
 
 	DirectX::XMFLOAT3 PushBack(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 size, DirectX::XMFLOAT3 MoveSpeed);
+
+	bool IsHitWall(DirectX::XMFLOAT3 posA, DirectX::XMFLOAT3 posB);
 private://Ã“Iƒƒ“ƒo•Ï”
 	static Model *wallModel;
 public:
