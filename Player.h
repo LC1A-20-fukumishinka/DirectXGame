@@ -9,7 +9,7 @@
 #include <DirectXMath.h>
 #include <math.h>
 
-const int STOP_TIME_COUNT = 60;						//最大時間停止量
+const int STOP_TIME_COUNT = 360;						//最大時間停止量
 const int STOP_TIME_DELAY = 30;						//攻撃可能までのクールタイム
 const int ATTACK_DELAY = 30;						//攻撃の最大CT
 const int MAX_HP = 3;								//HP

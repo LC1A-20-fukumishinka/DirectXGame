@@ -14,21 +14,18 @@ void EnemyMgr::Init(const Camera& cam)
 	}
 }
 
-void EnemyMgr::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam, const bool& isStop)
+void EnemyMgr::Update(const XMFLOAT3& playerPos, const float& angle, const bool& isStop, const bool& isAttack)
 {
-	if (isStop)return;
-
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
-		enemy[i].BulletUpdate(cam);
-
 		if (enemy[i].isAlive)
 		{
-			enemy[i].Update(playerPos, playerSphere, cam);
+			enemy[i].Update(playerPos, angle, isAttack, isStop);
 		}
-		else
+		if (isStop)return;
+		for (int j = 0; j < 20; ++j)
 		{
-			//enemy[i].Generate(cam, { playerPos.x + GetRand(-100,100),playerPos.y,playerPos.z + GetRand(-100,100) });
+			enemy[i].enemyBullet[j].Update();
 		}
 	}
 }
@@ -37,6 +34,7 @@ void EnemyMgr::UpdateData(const Camera& cam)
 {
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
+		//enemy[i].enemyData.rotation.y += 1.0f;
 		//更新処理
 		enemy[i].enemyData.Update(cam);
 		for (int j = 0; j < 20; ++j)
@@ -57,7 +55,6 @@ void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject
 		}
 		if (!enemy[i].isAlive)continue;
 		enemy[i].Draw(pipelineSet, enemyModel.GetModel());
-
 	}
 }
 
@@ -113,5 +110,13 @@ void EnemyMgr::Generate(std::vector<DirectX::XMFLOAT3> &generatePos, std::vector
 	for (int i = 0; i < generatePos.size(); i++)
 	{
 		enemy[i].Generate(cam, generatePos[i], forwardVec[i]);
+		//正面ベクトルの初期値
+		XMFLOAT3 honraiForwardVec = { 0,0,1 };
+		//正面ベクトルの初期値と指定されたベクトルのなす角度を求める
+		float angle = calAngle(forwardVec[i], honraiForwardVec);
+		angle = acosf(angle);
+		angle = XMConvertToDegrees(angle);
+		if (forwardVec[i].x < 0)angle *= -1;
+		enemy[i].enemyData.rotation.y = angle;
 	}
 }

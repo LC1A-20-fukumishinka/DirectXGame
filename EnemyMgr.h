@@ -26,7 +26,7 @@ public:
 	void Init(const Camera& cam);
 
 	//更新処理
-	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam, const bool& isStop);
+	void Update(const XMFLOAT3& playerPos, const float& angle, const bool& isStop, const bool& isAttack);
 
 	void UpdateData(const Camera& cam);
 
@@ -50,6 +50,11 @@ public:
 	void Generate(std::vector<DirectX::XMFLOAT3>& generatePos, std::vector<DirectX::XMFLOAT3>& forwardVec, const Camera& cam);
 
 };
+
+inline float calAngle(const XMFLOAT3& rhs, const XMFLOAT3& lhs)
+{
+	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));	
+}
 
 ////3D座標軸での二点間の距離を求める
 //inline float Distance3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {

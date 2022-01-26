@@ -278,6 +278,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	townEnemyGeneratePos.push_back(XMFLOAT3{ -23, 0, 66 });
 	townEnemyGeneratePos.push_back(XMFLOAT3{ 88, 0, -80 });
 	townEnemyGeneratePos.push_back(XMFLOAT3{ 304, 0, 0 });
+	//std::vector<XMFLOAT3> enemyGeneratePos;
+	//enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, 105 });
+	//enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, -105 });
+	//enemyGeneratePos.push_back(XMFLOAT3{ -85, 0, 0 });
+	//enemyGeneratePos.push_back(XMFLOAT3{ 130, 0, -50 });
+	////enemyGeneratePos.push_back(XMFLOAT3{ , 0, -30 });
+	//enemyGeneratePos.push_back(XMFLOAT3{ 130, 0, 50 });
+	////enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, -120 });
+	//enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 0 });
+	////enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 120 });
+	std::vector<XMFLOAT3> enemyForwardVec;
+	enemyForwardVec.push_back(XMFLOAT3(0, 0, -1));
+	enemyForwardVec.push_back(XMFLOAT3(0, 0, 1));
+	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0));
+	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
+	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
+	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0));
 
 	//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
 
@@ -525,7 +542,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				Sphere pSphere;
 				pSphere.center = XMLoadFloat3(&pos);
 				pSphere.radius = 16;
-				EnemyMgr::Instance()->Update(player.GetPos(), pSphere, cam, player.GetStopTimeFlag());
+				EnemyMgr::Instance()->Update(player.GetPos(), player.GetAngle(), player.GetStopTimeFlag(), player.GetAttackFlag());
 				EnemyMgr::Instance()->UpdateData(cam);
 
 				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
