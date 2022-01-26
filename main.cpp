@@ -49,6 +49,12 @@ using namespace Microsoft::WRL;
 const int window_width = 1280;
 const int window_height = 720;
 
+//Player‰ŠúˆÊ’u(ŠÈˆÕ)
+const XMFLOAT3 STAGE_1 = { -450,0,0 };
+const XMFLOAT3 STAGE_2 = { 0,0,0 };
+const XMFLOAT3 STAGE_3 = { 0,0,0 };
+const XMFLOAT3 STAGE_4 = { 0,0,0 };
+
 enum Scenes
 {
 	TITLE,
@@ -128,7 +134,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	Player player;
-	player.Init(cam);
+	player.Init(cam, STAGE_1);
 
 
 
@@ -337,11 +343,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case TITLE:
 			titleLogo.SpriteTransferVertexBuffer();
 
-			if (input->KeyTrigger(DIK_SPACE))
+			if (input->KeyTrigger(DIK_SPACE)||input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
 				nowScene = GAME;
 				cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
-				player.Init(cam);
+				player.Init(cam, STAGE_1);
 				EnemyMgr::Instance()->Init(cam);
 				EnemyMgr::Instance()->Generate(enemyGeneratePos, cam);
 
