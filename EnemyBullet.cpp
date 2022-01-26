@@ -35,10 +35,14 @@ void EnemyBullet::Update(const Camera& cam)
 		Dead();
 	}
 
+	moveVec.x = forwardVec.x * BULLET_SPEED;
+	moveVec.y = forwardVec.y * BULLET_SPEED;
+	moveVec.z = forwardVec.z * BULLET_SPEED;
+
 	//ç¿ïWÇçXêV
-	bulletData.position.x -= forwardVec.x * BULLET_SPEED;
-	bulletData.position.y -= forwardVec.y * BULLET_SPEED;
-	bulletData.position.z -= forwardVec.z * BULLET_SPEED;
+	bulletData.position.x += moveVec.x;
+	bulletData.position.y += moveVec.y;
+	bulletData.position.z += moveVec.z;
 }
 
 void EnemyBullet::Dead()

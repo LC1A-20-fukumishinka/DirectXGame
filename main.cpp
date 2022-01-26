@@ -49,6 +49,12 @@ using namespace Microsoft::WRL;
 const int window_width = 1280;
 const int window_height = 720;
 
+//Player‰ŠúˆÊ’u(ŠÈˆÕ)
+const XMFLOAT3 STAGE_1 = { -450,0,0 };
+const XMFLOAT3 STAGE_2 = { 0,0,0 };
+const XMFLOAT3 STAGE_3 = { 0,0,0 };
+const XMFLOAT3 STAGE_4 = { 0,0,0 };
+
 enum Scenes
 {
 	TITLE,
@@ -63,7 +69,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI‰Šú‰»ˆ—
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -77,13 +83,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX‰Šú‰»ˆ— ‚±‚±‚Ü‚Å
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -129,7 +135,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	Player player;
-	player.Init(cam);
+	player.Init(cam, STAGE_1);
 
 
 
@@ -392,11 +398,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case TITLE:
 			titleLogo.SpriteTransferVertexBuffer();
 
-			if (input->KeyTrigger(DIK_SPACE))
+			if (input->KeyTrigger(DIK_SPACE)||input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
 				nowScene = STAGESELECT;
 				cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
-				player.Init(cam);
+				player.Init(cam, STAGE_1);
 				EnemyMgr::Instance()->Init(cam);
 				EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
 
@@ -459,6 +465,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
+			player.DeathEffect(cam);
 			box.position = enemyPos;
 			box.Update(cam);
 
@@ -561,12 +568,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			//box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
-			for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; ++i)
-			{
-				EnemyMgr::Instance()->enemy[i].enemyBullet.Draw(model3D->GetPipeLine(), boxModel.GetModel());
-			}
 
-			EnemyMgr::Instance()->Draw(model3D->GetPipeLine());
+			EnemyMgr::Instance()->Draw(model3D->GetPipeLine(), boxModel.GetModel());
 
 			//for (int i = 0; i < loomWalls.size(); i++)
 			//{

@@ -31,13 +31,18 @@ private:
 		ROTATE_STATUS_STOP		//停止
 	};
 
-	const int TARGET_TIMER_END = 300;			//プレイヤーを見つけた後攻撃するまでの待機時間
-	const int ATTACK_DELAY_TIMER_END = 200;		//攻撃後の硬直時間
+	const int TARGET_TIMER_END = 100;			//プレイヤーを見つけた後攻撃するまでの待機時間
+	const int ATTACK_DELAY_TIMER_END = 100;		//攻撃後の硬直時間
 	const int SEARCH_DELAY_TIMER_END = 300;		//索敵開始した後のディレイタイマー(debug)
 	const int MAX_SEARCH_TIMER = 100;			//索敵時左右切り替え用のタイマー
 
 	const XMFLOAT3 TRIANGLE_UPPER_RIGHT_POS = { 50.0f,0.0f,100.0f };
 	const XMFLOAT3 TRIANGLE_UPPER_LEFT_POS = { -50.0f,0.0f,100.0f };
+
+	const float ROTATE_SPEED = XM_PI / 5.0f;	//回転速度
+
+	static const int MAX_BULLET = 20;
+	const int MAX_BULLET_TIMER = 10;			//射撃レート
 
 public:
 	/*---- メンバ変数 ----*/
@@ -46,7 +51,7 @@ public:
 	XMFLOAT3 forwardVec;	//正面ベクトル
 	int status;				//Enemyの状態
 	XMMATRIX matRot;		//回転行列
-	EnemyBullet enemyBullet;//敵の弾
+	EnemyBullet enemyBullet[MAX_BULLET];//敵の弾
 	//当たり判定用
 	Ray forwardRay;			//正面側のレイ
 	Sphere sphere;			//食らい判定用の球
@@ -67,6 +72,7 @@ public:
 	//攻撃用
 	int attackDelayTimer;	//攻撃後の硬直時間
 	bool isAttack;			//攻撃フラグ
+	int bulletTimer;		//射撃レート
 
 public:
 	/*---- メンバ関数 ----*/
@@ -78,7 +84,7 @@ public:
 	void Init(const Camera& cam);
 
 	//生成処理
-	void Generate(const Camera& cam, const XMFLOAT3& generatePos);
+	void Generate(const Camera& cam, const XMFLOAT3& generatePos, const XMFLOAT3& forwardVec);
 
 	//更新処理
 	void Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam);
@@ -87,10 +93,10 @@ public:
 	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);
 
 	//索敵
-	void Searching(const Sphere& playerSphere);
+	//void Searching(const Sphere& playerSphere);
 
 	//ターゲティング
-	void Targeting(const XMFLOAT3& playerPos);
+	//void Targeting(const XMFLOAT3& playerPos);
 
 	//攻撃
 	void Attack();
@@ -101,8 +107,13 @@ public:
 	//レイと壁の当たり判定
 	bool CheckRay2Walls(const Ray& ray, std::vector<Wall>& walls, const XMFLOAT3& playerPos);
 
+	Sphere GetNearEnemyBulletSphere(const XMFLOAT3& playerPos);
+
 	//死亡
 	void Dead();
+
+	//正面ベクトルセット用
+	void SetForwardVec(const XMFLOAT3& forwardVec) { this->forwardVec = forwardVec; }
 
 };
 

@@ -31,14 +31,18 @@ void Enemy::Init(const Camera& cam)
 	isAttack = false;
 	searchDelayTimer = SEARCH_DELAY_TIMER_END;
 	HP = 100;
-	enemyBullet.Init(cam);
+	for (int i = 0; i < MAX_BULLET; ++i)
+	{
+		enemyBullet[i].Init(cam);
+	}
 }
 
-void Enemy::Generate(const Camera& cam, const XMFLOAT3& generatePos)
+void Enemy::Generate(const Camera& cam, const XMFLOAT3& generatePos, const XMFLOAT3& forwardVec)
 {
 	//Init(cam);
 	isAlive = true;
 	this->enemyData.position = generatePos;
+	this->forwardVec = forwardVec;
 }
 
 void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const Camera& cam)
@@ -47,16 +51,20 @@ void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const 
 	if (!isAlive)return;
 
 	//弾の更新
-	enemyBullet.Update(cam);
+	for (int i = 0; i < MAX_BULLET; ++i)
+	{
+		enemyBullet[i].Update(cam);
+	}
+	status = STATUS_ATTACK;
 
 	//ステータスによって処理を分ける
 	switch (status)
 	{
 	case STATUS_SEARCH:
-		Searching(playerSphere);
+		//Searching(playerSphere);
 		break;
 	case STATUS_TARGET:
-		Targeting(playerPos);
+		//Targeting(playerPos);
 		break;
 	case STATUS_ATTACK:
 		Attack();
@@ -65,12 +73,12 @@ void Enemy::Update(const XMFLOAT3& playerPos, const Sphere& playerSphere, const 
 		break;
 	}
 
-	//正面ベクトルの更新
-	matRot = XMMatrixIdentity();
-	matRot *= XMMatrixRotationZ(XMConvertToRadians(enemyData.rotation.z));
-	matRot *= XMMatrixRotationX(XMConvertToRadians(enemyData.rotation.x));
-	matRot *= XMMatrixRotationY(XMConvertToRadians(enemyData.rotation.y));
-	UpdateForwardVec(forwardVec, matRot);
+	////正面ベクトルの更新
+	//matRot = XMMatrixIdentity();
+	//matRot *= XMMatrixRotationZ(XMConvertToRadians(enemyData.rotation.z));
+	//matRot *= XMMatrixRotationX(XMConvertToRadians(enemyData.rotation.x));
+	//matRot *= XMMatrixRotationY(XMConvertToRadians(enemyData.rotation.y));
+	//UpdateForwardVec(forwardVec, matRot);
 
 
 	//レイの更新処理
@@ -108,112 +116,125 @@ void Enemy::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& m
 	}
 }
 
-void Enemy::Searching(const Sphere& playerSphere)
-{
-	searchTimer++;
+//void Enemy::Searching(const Sphere& playerSphere)
+//{
+//	searchTimer++;
+//
+//	if (searchTimer >= MAX_SEARCH_TIMER)
+//	{
+//		//rotateStatus = GetRand(0, 4);
+//		rotateStatus = 0;
+//		searchTimer = 0;
+//	}
+//
+//	switch (rotateStatus)
+//	{
+//	case ROTATE_STATUS_RIGHT:
+//		enemyData.rotation.y += ROTATE_SPEED;
+//		break;
+//	case ROTATE_STATUS_LEFT:
+//		enemyData.rotation.y -= ROTATE_SPEED;
+//		break;
+//	case ROTATE_STATUS_STOP:
+//		break;
+//	default:
+//		enemyData.rotation.y += ROTATE_SPEED;
+//		break;
+//	}
+//
+//	//searchDelayTimer++;
+//
+//
+//	XMFLOAT3 playerPos = {};
+//	XMStoreFloat3(&playerPos, playerSphere.center);
+//	//正面レイ方向に壁がなく、敵がいたら
+//	if (Collision::CheckRay2Sphere(forwardRay, playerSphere) && !CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
+//	{
+//		//ステータスをターゲティングにする
+//		status = STATUS_TARGET;
+//		searchTimer = 30;
+//		searchDelayTimer = 0;
+//	}
+//
+//	
+//	//if (Collision::CheckSphere2Triangle(playerSphere, forwardTriangle))
+//	//{
+//	//	//ステータスをターゲティングにする
+//	//	status = STATUS_TARGET;
+//	//	searchTimer = 30;
+//	//	searchDelayTimer = 0;
+//	//}
+//}
 
-	if (searchTimer >= MAX_SEARCH_TIMER)
-	{
-		//rotateStatus = GetRand(0, 4);
-		rotateStatus = 0;
-		searchTimer = 0;
-	}
-
-	switch (rotateStatus)
-	{
-	case ROTATE_STATUS_RIGHT:
-		enemyData.rotation.y += XM_PI / 5.0f;
-		break;
-	case ROTATE_STATUS_LEFT:
-		enemyData.rotation.y -= XM_PI / 5.0f;
-		break;
-	case ROTATE_STATUS_STOP:
-		break;
-	default:
-		enemyData.rotation.y += XM_PI / 5.0f;
-		break;
-	}
-
-	//searchDelayTimer++;
-
-
-	XMFLOAT3 playerPos = {};
-	XMStoreFloat3(&playerPos, playerSphere.center);
-	//正面レイ方向に壁がなく、敵がいたら
-	if (Collision::CheckRay2Sphere(forwardRay, playerSphere) && !CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
-	{
-		//ステータスをターゲティングにする
-		status = STATUS_TARGET;
-		searchTimer = 30;
-		searchDelayTimer = 0;
-	}
-
-	
-	//if (Collision::CheckSphere2Triangle(playerSphere, forwardTriangle))
-	//{
-	//	//ステータスをターゲティングにする
-	//	status = STATUS_TARGET;
-	//	searchTimer = 30;
-	//	searchDelayTimer = 0;
-	//}
-}
-
-void Enemy::Targeting(const XMFLOAT3& playerPos)
-{
-	XMFLOAT3 buff = XMFLOAT3(enemyData.position.x - playerPos.x, enemyData.position.y - playerPos.y, enemyData.position.z - playerPos.z);
-	//正面ベクトルをプレイヤーの方向に向ける
-	forwardVec = Normalize3D(buff);
-
-	//向いている方向
-	XMFLOAT3 distance = {};
-	UpdateForwardVec(distance, matRot);
-
-	float angle = Cross2D({ forwardVec.x,forwardVec.z }, { distance.x,distance.z });
-
-	if (angle < 0)
-	{
-		enemyData.rotation.y += XM_PI / 2.0f;
-	}
-	else
-	{
-		enemyData.rotation.y -= XM_PI / 2.0f;
-	}
-
-	//追尾中に壁に隠れられたらステータスを捜索に変える
-	if (CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
-	{
-		status = STATUS_SEARCH;
-	}
-
-	//タイマーを進める
-	targetingTimer++;
-
-	if (targetingTimer >= TARGET_TIMER_END)
-	{
-		targetingTimer = 0;
-		//攻撃開始時のプレイヤー座標を保存
-		prevPlayerPos = playerPos;
-
-		isAttack = true;
-
-		enemyBullet.Generate(enemyData.position, forwardVec);
-
-		//ステータスを攻撃にする
-		status = STATUS_ATTACK;
-	}
-}
+//void Enemy::Targeting(const XMFLOAT3& playerPos)
+//{
+//	XMFLOAT3 buff = XMFLOAT3(enemyData.position.x - playerPos.x, enemyData.position.y - playerPos.y, enemyData.position.z - playerPos.z);
+//	//正面ベクトルをプレイヤーの方向に向ける
+//	forwardVec = Normalize3D(buff);
+//
+//	//向いている方向
+//	XMFLOAT3 distance = {};
+//	UpdateForwardVec(distance, matRot);
+//
+//	float angle = Cross2D({ forwardVec.x,forwardVec.z }, { distance.x,distance.z });
+//
+//	if (angle < 0)
+//	{
+//		enemyData.rotation.y += XM_PI / 2.0f;
+//	}
+//	else
+//	{
+//		enemyData.rotation.y -= XM_PI / 2.0f;
+//	}
+//
+//	//追尾中に壁に隠れられたらステータスを捜索に変える
+//	if (CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
+//	{
+//		status = STATUS_SEARCH;
+//	}
+//
+//	//タイマーを進める
+//	targetingTimer++;
+//
+//	if (targetingTimer >= TARGET_TIMER_END)
+//	{
+//		targetingTimer = 0;
+//		//攻撃開始時のプレイヤー座標を保存
+//		prevPlayerPos = playerPos;
+//
+//		isAttack = true;
+//
+//		//enemyBullet.Generate(enemyData.position, forwardVec);
+//
+//		//ステータスを攻撃にする
+//		status = STATUS_ATTACK;
+//	}
+//}
 
 void Enemy::Attack()
 {
-	isAttack = false;
-	
-	attackDelayTimer++;
+	bulletTimer++;
 
-	if (attackDelayTimer >= ATTACK_DELAY_TIMER_END)
+	if (bulletTimer > MAX_BULLET_TIMER)
 	{
-		attackDelayTimer = 0;
-		status = STATUS_SEARCH;
+		bulletTimer = 0;
+		for (int i = 0; i < MAX_BULLET; i++)
+		{
+			if (enemyBullet[i].isAlive)continue;
+			enemyBullet[i].Generate(enemyData.position, forwardVec);
+			break;
+		}
 	}
+
+	//isAttack = false;
+	
+	//attackDelayTimer++;
+
+	//if (attackDelayTimer >= ATTACK_DELAY_TIMER_END)
+	//{
+	//	attackDelayTimer = 0;
+	//	status = STATUS_SEARCH;
+	//}
 }
 
 void Enemy::UpdateForwardVec(XMFLOAT3& forwardVec, XMMATRIX& matRot)
@@ -253,7 +274,33 @@ bool Enemy::CheckRay2Walls(const Ray& ray, std::vector<Wall>& walls, const XMFLO
 	return false;
 }
 
+Sphere Enemy::GetNearEnemyBulletSphere(const XMFLOAT3& playerPos)
+{
+	Sphere saveSphere = {};
+	float saveDistance = 10000.0f;
+
+	for (int i = 0; i < MAX_BULLET; ++i)
+	{
+		//生存してる敵だけ計算する
+		if (!enemyBullet[i].isAlive)continue;
+		//プレイヤーとの距離を測る
+		float distance = Distance3D(playerPos, enemyBullet[i].bulletData.position);
+		//暫定最小より小さかったら
+		if (saveDistance >= distance)
+		{
+			//最少を更新する
+			saveDistance = distance;
+			saveSphere = enemyBullet[i].bulletSphere;
+		}
+	}
+	return saveSphere;
+}
+
 void Enemy::Dead()
 {
 	isAlive = false;
+	for (int i = 0; i < MAX_BULLET; i++)
+	{
+		enemyBullet[i].Dead();
+	}
 }

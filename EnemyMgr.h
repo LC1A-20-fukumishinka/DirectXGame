@@ -31,7 +31,7 @@ public:
 	void UpdateData(const Camera& cam);
 
 	//•`‰æˆ—
-	void Draw(const PipeClass::PipelineSet& pipelineSet);
+	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& bulletModel);
 
 	//“G‚ÌUŒ‚‚ÆƒvƒŒƒCƒ„[‚Ì”»’è
 	bool CheckEnemyAttackToPlayer(int num, const Sphere& playerSphere);
@@ -47,7 +47,7 @@ public:
 	/// “G‚ğ‚Ü‚Æ‚ß‚Ä¶¬‚·‚é
 	/// </summary>
 	/// <param name="generatePos">ŒÄ‚Ño‚·“G‚Ì”z—ñ</param>
-	void Generate(std::vector<DirectX::XMFLOAT3> &generatePos, const Camera &cam);
+	void Generate(std::vector<DirectX::XMFLOAT3>& generatePos, std::vector<DirectX::XMFLOAT3>& forwardVec, const Camera& cam);
 
 };
 
