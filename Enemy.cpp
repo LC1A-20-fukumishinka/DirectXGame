@@ -147,7 +147,7 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 
 			//ƒvƒŒƒCƒ„[‚Æ‚Ì“–‚½‚è”»’è
 			float pDistance = Distance3D(enemyPos1, playerPos);
-			float playerRadius = 16.0f;
+			float playerRadius = 8.0f;
 			float pR = enemyBullet->BULLET_RADIUS + playerRadius;
 			if (pDistance < pR)
 			{
