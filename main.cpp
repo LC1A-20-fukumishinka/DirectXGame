@@ -504,6 +504,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			XMFLOAT3 enemyPos = { 0,0,50 };
 			player.Input(cam);
 
+			//フィールド上の壁
 			for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
 			{
 				XMFLOAT3 playerSpeed = player.GetVec3();
@@ -511,6 +512,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
 				player.SetVec3(playerSpeed);
 			}
+
+			//外周の壁
 			for (int i = 0; i < outWall.size(); i++)
 			{
 				XMFLOAT3 playerSpeed = player.GetVec3();
@@ -519,15 +522,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				player.SetVec3(playerSpeed);
 
 			}
+
 			XMFLOAT3 pos = player.GetPos();
 
 			if (input->KeyTrigger(DIK_RETURN))
 			{
-				bomb.Bomb(player.GetPos(), 1);
+				//bomb.Bomb(player.GetPos(), 1);
 
 				int a = 0;
 			}
+
+			//敵と自機の押し戻し
 			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
+
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			bomb.Update();
 			player.DeathEffect(cam);

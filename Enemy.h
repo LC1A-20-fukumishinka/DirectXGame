@@ -92,6 +92,7 @@ public:
 
 	//’e‚ÌXVˆ—
 	void BulletUpdate(const Camera& cam);
+
 	//•`‰æˆ—
 	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);
 
