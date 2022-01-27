@@ -70,7 +70,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI‰Šú‰»ˆ—
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -84,13 +84,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX‰Šú‰»ˆ— ‚±‚±‚Ü‚Å
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -479,7 +479,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				}
 
 			}
-			if(input->KeyTrigger(DIK_SPACE)|| input->Button(XINPUT_GAMEPAD_A))
+			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
 				if (stageNum == 0)
 				{
@@ -502,7 +502,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			box.Update(cam);
 			XMFLOAT3 enemyPos = { 0,0,50 };
-			player.Input(cam);
+			if (!player.IsDead()) { player.Input(cam); }
 
 			for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
 			{
@@ -527,8 +527,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 				int a = 0;
 			}
-			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
-			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
+			if (!player.IsDead()) { player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos())); }
+			if (!player.IsDead()) { player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos())); }
 			bomb.Update();
 			player.DeathEffect(cam);
 			box.position = enemyPos;
