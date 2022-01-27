@@ -441,9 +441,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		float height = window_height;
 		hani.position = { width / 2 ,height / 2 ,0 };
 
-		spriteStart.SpriteUpdate();
-		spriteStop.SpriteUpdate();
-		hani.SpriteUpdate();
+		if (!player.IsDead()) { spriteStart.SpriteUpdate(); }
+		if (!player.IsDead()) { spriteStop.SpriteUpdate(); }
+		if (!player.IsDead()) { hani.SpriteUpdate(); }
 
 #pragma endregion
 

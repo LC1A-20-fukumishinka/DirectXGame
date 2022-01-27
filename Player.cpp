@@ -6,7 +6,7 @@ Player::Player()
 	pos = { 0,0,0 };
 	//direction = { 0,0,0 };
 	vec3 = { 0,0,0 };
-	contVec3 = { 0,0,0 };
+	//contVec3 = { 0,0,0 };
 	hp = MAX_HP;
 	stopTimeCount = 0;
 	stopTImeDelay = STOP_TIME_DELAY;
@@ -49,7 +49,7 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	this->pos = pos;
 	//direction = { 0,0,0 };
 	vec3 = { 0,0,0 };
-	contVec3 = { 0,0,0 };
+	//contVec3 = { 0,0,0 };
 	hp = MAX_HP;
 	stopTimeCount = 0;
 	stopTImeDelay = STOP_TIME_DELAY;
@@ -271,7 +271,9 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		isHit = false;
 		if (input->isPadConnect())
 		{
-			if (input->RTrigger() >= 0 && attackDelay == 0) { attackFlag = true; }
+			if (input->RTrigger() >= 0.3 && attackDelay == 0) {
+				attackFlag = true;
+			}
 			else if (attackDelay > 0) { attackDelay--; }
 		}
 		else
@@ -337,6 +339,11 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	if (isDamaged)
 	{
 		camera.SetShift(Shake::GetShake(1.0f, true, false, true));
+		damagedCount++;
+		if (damagedCount > INVINCIBLE_COUNT)
+		{
+			isDamaged = false; damagedCount = 0;
+		}
 	}
 
 	if (spriteDeadFlag)
@@ -368,8 +375,8 @@ void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
 		if (drawCount % 3 == 0) { obj.color = { 1.0f,1.0f,1.0f,0.3f }; }
 		else { obj.color = { 1.0f,1.0f,1.0f,1.0f }; }
 
-		if (drawCount < 30) { drawCount++; }
-		else { obj.color = { 1.0f,1.0f,1.0f,1.0f }; isDamaged = false; drawCount = 0; }
+		if (drawCount < INVINCIBLE_COUNT) { drawCount++; }
+		else { obj.color = { 1.0f,1.0f,1.0f,1.0f };  drawCount = 0; }
 	}
 
 	obj.modelDraw(model.GetModel(), pipelineSet);

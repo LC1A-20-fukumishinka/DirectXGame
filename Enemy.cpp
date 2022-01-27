@@ -141,6 +141,7 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 		for (int i = 0; i < MAX_BULLET; ++i)
 		{
 			if (!enemyBullet[i].isAlive)continue;
+			if (enemyBullet[i].status != enemyBullet->BULLET_STATUS_ALIVE)continue;
 
 			XMFLOAT3 enemyPos1 = enemyBullet[i].bulletData.position;
 
