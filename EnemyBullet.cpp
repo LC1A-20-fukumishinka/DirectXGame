@@ -27,7 +27,7 @@ void EnemyBullet::Generate(const XMFLOAT3 &generatePos, const XMFLOAT3 &forwardV
 	this->forwardVec = forwardVec;
 	isAlive = true;
 	desTimer = 0;
-
+	bulletData.color = { 1, 1, 1, 1 };
 }
 
 void EnemyBullet::Update()
@@ -63,7 +63,7 @@ void EnemyBullet::Update()
 		break;
 	case BULLET_STATUS_EXPLOSION:
 		Explosion();
-		bulletData.color = { 49,78,97,255 };
+		bulletData.color = { (49 / 255.0f),(78 / 255.0f),(97 / 255.0f),(255 / 255.0f) };
 		break;
 	default:
 		break;
