@@ -58,6 +58,8 @@ public:
 	Sphere sphere;			//食らい判定用の球
 	Triangle forwardTriangle;//索敵用正面三角
 	bool isAlive;			//生存フラグ
+	int saveNum;
+
 
 	int HP;					//ヒットポイント
 
@@ -91,8 +93,7 @@ public:
 	void Update(const XMFLOAT3& playerPos, const float& angle, const bool& isAttack,const bool& isStop);
 
 	//弾の更新処理
-	void BulletUpdate(const Camera& cam);
-
+	void BulletUpdate();
 	//描画処理
 	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);
 
@@ -111,7 +112,7 @@ public:
 	//レイと壁の当たり判定
 	bool CheckRay2Walls(const Ray& ray, std::vector<Wall>& walls, const XMFLOAT3& playerPos);
 
-	Sphere GetNearEnemyBulletSphere(const XMFLOAT3& playerPos);
+	XMFLOAT3 GetNearEnemyBulletPos(const XMFLOAT3& playerPos);
 
 	//死亡
 	void Dead();

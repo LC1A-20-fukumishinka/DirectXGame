@@ -484,14 +484,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				if (stageNum == 0)
 				{
 					WallMgr::Instance()->Init(loomWalls);
-					//EnemyMgr::Instance()->Init(cam);
+					EnemyMgr::Instance()->Init(cam);
 					EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
 				}
 				else if (stageNum == 1)
 				{
 					stageNum = 1;
 					WallMgr::Instance()->Init(townWalls);
-					//EnemyMgr::Instance()->Init(cam);
+					EnemyMgr::Instance()->Init(cam);
 					EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
 				}
 				nowScene = GAME;
