@@ -46,3 +46,8 @@ void BombEffect::SetTexture(int texNum)
 {
 	textureNumber = texNum;
 }
+
+void BombEffect::BufferUpdate()
+{
+	bombParticle->UpdateConstantBuffer();
+}

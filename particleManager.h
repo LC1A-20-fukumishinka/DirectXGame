@@ -60,6 +60,7 @@ public: // サブクラス
 		XMFLOAT4 s_color = { 1, 1, 1, 1 };
 
 		XMFLOAT4 e_color = { 1, 1, 1, 1 };
+
 	};
 private: // 定数
 	static const int division = 50;					// 分割数
@@ -124,6 +125,8 @@ public: // メンバ関数
 	/// </summary>
 	void Update();
 
+
+	void UpdateConstantBuffer();
 	/// <summary>
 	/// 描画
 	/// </summary>
@@ -155,6 +158,8 @@ private: // メンバ変数
 	D3D12_VERTEX_BUFFER_VIEW vbView;
 
 	VertexPos vertices[vertexCount];
+
+	XMFLOAT4 setColor = { 1, 1, 1, 1 };
 
 private:
 	/// <summary>

@@ -14,6 +14,8 @@ public:
 	void Bomb(const DirectX::XMFLOAT3 &pos, float speed,const int timer);
 
 	static void SetTexture(int texNum);
+
+	void BufferUpdate();
 private:
 
 ParticleManager *bombParticle;

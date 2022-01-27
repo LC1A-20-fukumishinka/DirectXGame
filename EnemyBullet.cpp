@@ -96,5 +96,7 @@ void EnemyBullet::Draw(const PipeClass::PipelineSet &pipelineSet, const ModelObj
 	{
 		bulletData.modelDraw(model, pipelineSet);
 	}
+	effect.BufferUpdate();
+
 	effect.Draw();
 }

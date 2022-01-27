@@ -295,7 +295,6 @@ void ParticleManager::Update()
 	);
 	//全パーティクル更新
 
-	XMFLOAT4 setColor = {};
 	for (std::forward_list<Particle>::iterator it = particles.begin();
 		it != particles.end();
 		it++)
@@ -345,6 +344,13 @@ void ParticleManager::Update()
 		vertBuff->Unmap(0, nullptr);
 	}
 
+	UpdateConstantBuffer();
+}
+
+void ParticleManager::UpdateConstantBuffer()
+{
+
+	HRESULT result;
 	// 定数バッファへデータ転送
 	ConstBufferData *constMap = nullptr;
 	result = constBuff->Map(0, nullptr, (void **)&constMap);
