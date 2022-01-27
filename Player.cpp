@@ -95,15 +95,7 @@ void Player::Input(const Camera& camera)
 		//コントローラーのアングル
 		float contAngle = -atan2f(vec.z, vec.x);
 		ConvertToDegree(contAngle);
-		if (contAngle < 0) { contAngle += 360.0f; }
-
-		/*float dot = vec.x * myVec.x + vec.z * myVec.z;
-		float absA = sqrtf(vec.x * vec.x + vec.z * vec.z);
-		float absB = sqrtf(myVec.x * myVec.x + myVec.z * myVec.z);
-		float cosTheta = dot / (absA * absB);
-		float theta = acosf(-cosTheta);
-
-		ConvertToDegree(theta);*/
+		if (contAngle < 0.0f) { contAngle += 360.0f; }
 
 		float vx1 = myVec.x - 0;
 		float vz1 = myVec.z - 0;
@@ -116,14 +108,19 @@ void Player::Input(const Camera& camera)
 		{
 			angle += MOVE_ANGLE;
 
-			//if (angle >= 360.0f) { angle = angle - 360.0f; }
-			if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle > contAngle) { isOverTrigger = true; }
+			//nearかつオーバーした場合(0を跨いだ時のオーバー判定が微妙)
+			if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle > contAngle) {
+				isOverTrigger = true;
+			}
 		}
 		else
 		{
 			angle -= MOVE_ANGLE;
-			//if (angle < 0.0f) { angle = angle + 360.0f; }
-			if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle < contAngle) { isOverTrigger = true; }
+
+			//nearかつオーバーした場合(0を跨いだ時のオーバー判定が微妙)
+			if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle < contAngle) {
+				isOverTrigger = true;
+			}
 		}
 
 		if (angle >= 360.0f) { angle -= 360.0f; }
@@ -131,8 +128,15 @@ void Player::Input(const Camera& camera)
 
 		if (isOverTrigger)
 		{
-			/*if (angle < contAngle) { angle += contAngle - angle; }
-			else { angle -= angle - contAngle; }*/
+			//差分を計算
+			/*if (angle > contAngle) {
+				angle -= fabsf(fabsf(angle) - fabsf(contAngle));
+			}
+			else {
+				angle += fabsf(fabsf(angle) - fabsf(contAngle));
+			}*/
+
+			//直接書き換え
 			angle = contAngle;
 			isOverTrigger = false;
 		}
@@ -141,9 +145,13 @@ void Player::Input(const Camera& camera)
 
 		myVec.x *= MOVE_SPEED;
 		myVec.z *= MOVE_SPEED;
-		contVec3 = myVec;
+		//contVec3 = myVec;
+		vec3 = myVec;
 	}
-	else { contVec3 = { 0,0,0 }; }
+	else {
+		contVec3 = { 0,0,0 };
+		vec3 = { 0,0,0 };
+	}
 
 
 	/*---キー操作用---*/
@@ -180,7 +188,7 @@ void Player::Input(const Camera& camera)
 			vec3.z *= -MOVE_SPEED;
 		}
 	}
-	else { vec3 = { 0.0f,0.0f,0.0f }; }
+	//else { vec3 = { 0.0f,0.0f,0.0f }; }
 }
 
 void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
