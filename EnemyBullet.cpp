@@ -1,5 +1,5 @@
 #include"EnemyBullet.h"
-
+#include"WallMgr.h"
 EnemyBullet::EnemyBullet()
 {
 	bulletData = {};
@@ -10,7 +10,7 @@ EnemyBullet::EnemyBullet()
 	status = BULLET_STATUS_ALIVE;
 }
 
-void EnemyBullet::Init(const Camera& cam)
+void EnemyBullet::Init(const Camera &cam)
 {
 	bulletData.Init(cam);
 	bulletData.scale = { 10.0f, 10.0f, 10.0f };
@@ -20,16 +20,19 @@ void EnemyBullet::Init(const Camera& cam)
 	isAlive = false;
 }
 
-void EnemyBullet::Generate(const XMFLOAT3& generatePos, const XMFLOAT3& forwardVec)
+void EnemyBullet::Generate(const XMFLOAT3 &generatePos, const XMFLOAT3 &forwardVec)
 {
 	//生成座標と正面ベクトルを設定
 	bulletData.position = generatePos;
 	this->forwardVec = forwardVec;
 	isAlive = true;
+	desTimer = 0;
+
 }
 
 void EnemyBullet::Update()
 {
+	effect.Update();
 	if (!isAlive)return;
 
 	switch (status)
@@ -46,6 +49,11 @@ void EnemyBullet::Update()
 		moveVec.x = forwardVec.x * BULLET_SPEED;
 		moveVec.y = forwardVec.y * BULLET_SPEED;
 		moveVec.z = forwardVec.z * BULLET_SPEED;
+
+		if (WallMgr::Instance()->CheckWallBullet(bulletData.position, moveVec))
+		{
+			isAlive = false;
+		}
 
 		//座標を更新
 		bulletData.position.x += moveVec.x;
@@ -64,6 +72,10 @@ void EnemyBullet::Update()
 
 void EnemyBullet::Explosion()
 {
+	if (explosionTimer == 0)
+	{
+		effect.Bomb(bulletData.position, static_cast<float>(EXPLOSION_RADIUS) / MAX_EXPLOSION_TIMER * 2, MAX_EXPLOSION_TIMER);
+	}
 	explosionTimer++;
 	if (explosionTimer > MAX_EXPLOSION_TIMER)
 	{
@@ -78,10 +90,11 @@ void EnemyBullet::Dead()
 	isAlive = false;
 }
 
-void EnemyBullet::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model)
+void EnemyBullet::Draw(const PipeClass::PipelineSet &pipelineSet, const ModelObject &model)
 {
 	if (isAlive)
 	{
 		bulletData.modelDraw(model, pipelineSet);
 	}
+	effect.Draw();
 }

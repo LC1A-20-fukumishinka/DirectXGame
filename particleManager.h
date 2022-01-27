@@ -67,7 +67,7 @@ private: // 定数
 	static const float prizmHeight;			// 柱の高さ
 	static const int planeCount = division * 2 + division * 2;		// 面の数
 	//static const int vertexCount = planeCount * 3;		// 頂点数
-	static const int vertexCount = 1024;		// 頂点数
+	static const int vertexCount = 256;		// 頂点数
 	//static const int indexCount = 3 * 2;
 public: // 静的メンバ関数
 
@@ -98,14 +98,8 @@ private: // 静的メンバ変数
 	static ComPtr<ID3D12RootSignature> rootsignature;
 	// パイプラインステートオブジェクト
 	static ComPtr<ID3D12PipelineState> pipelinestate;
-	// 頂点バッファ
-	static ComPtr<ID3D12Resource> vertBuff;
 
 	static Camera *camera;
-	// 頂点バッファビュー
-	static D3D12_VERTEX_BUFFER_VIEW vbView;
-
-	static VertexPos vertices[vertexCount];
 
 private:// 静的メンバ関数
 
@@ -121,10 +115,6 @@ private:// 静的メンバ関数
 	///// <returns>成否</returns>
 	//static bool LoadTexture();
 
-	/// <summary>
-	/// モデル作成
-	/// </summary>
-	static void CreateModel();
 
 public: // メンバ関数
 	ParticleManager();
@@ -158,6 +148,19 @@ private: // メンバ変数
 	XMFLOAT3 scale = { 1,1,1 };
 
 	std::forward_list<Particle> particles;
+
+	// 頂点バッファ
+	ComPtr<ID3D12Resource> vertBuff;
+	// 頂点バッファビュー
+	D3D12_VERTEX_BUFFER_VIEW vbView;
+
+	VertexPos vertices[vertexCount];
+
+private:
+	/// <summary>
+/// モデル作成
+/// </summary>
+	void CreateModel();
 
 };
 

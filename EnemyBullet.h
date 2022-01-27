@@ -3,7 +3,7 @@
 #include"Object3D.h"
 #include<DirectXMath.h>
 #include"Collision.h"
-
+#include "BombEffect.h"
 using namespace DirectX;
 
 class EnemyBullet
@@ -31,7 +31,7 @@ public:
 	int desTimer;					//消えるためのタイマー
 	int status;						//弾の状態
 	int explosionTimer;				//爆発持続タイマー
-
+	BombEffect effect;
 	/*---- メンバ関数 ----*/
 	//コンストラクタ
 	EnemyBullet();

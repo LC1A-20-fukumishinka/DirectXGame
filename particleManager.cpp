@@ -15,9 +15,9 @@ using namespace Microsoft::WRL;
 ID3D12Device *ParticleManager::device = nullptr;
 ComPtr<ID3D12RootSignature> ParticleManager::rootsignature;
 ComPtr<ID3D12PipelineState> ParticleManager::pipelinestate;
-ComPtr<ID3D12Resource> ParticleManager::vertBuff;
-D3D12_VERTEX_BUFFER_VIEW ParticleManager::vbView{};
-ParticleManager::VertexPos ParticleManager::vertices[vertexCount];
+//ComPtr<ID3D12Resource> ParticleManager::vertBuff;
+//D3D12_VERTEX_BUFFER_VIEW ParticleManager::vbView{};
+//ParticleManager::VertexPos ParticleManager::vertices[vertexCount];
 Camera *ParticleManager::camera = nullptr;
 bool ParticleManager::StaticInitialize(Camera *camera)
 {
@@ -30,8 +30,6 @@ bool ParticleManager::StaticInitialize(Camera *camera)
 	// パイプライン初期化
 	InitializeGraphicsPipeline();
 
-	// モデル生成
-	CreateModel();
 
 	return true;
 }
@@ -235,9 +233,6 @@ void ParticleManager::CreateModel()
 {
 	HRESULT result = S_FALSE;
 
-	std::vector<VertexPos> realVertices;
-
-
 
 	// 頂点バッファ生成
 	result = device->CreateCommittedResource(
@@ -284,6 +279,8 @@ ParticleManager::ParticleManager()
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&constBuff));
+
+	CreateModel();
 }
 
 void ParticleManager::Update()
