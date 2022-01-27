@@ -70,7 +70,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -84,13 +84,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -102,6 +102,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	ParticleManager::StaticInitialize(&cam);
 #pragma endregion
 
+#pragma region Init
 	ParticleManager part;
 
 	cam.Init(Vector3(0, 250, 0), Vector3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
@@ -137,7 +138,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	Player player;
 	player.Init(cam, STAGE_1);
-
+	bool isdead;
+	int hp;
 
 
 	Object3D floor;
@@ -153,6 +155,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectX::XMFLOAT3 heightWallScale = { 10, 500, 100 };
 	DirectX::XMFLOAT3 LHeightWallScale = { 80, 500, 150 };
 	DirectX::XMFLOAT3 LWidthWallScale = { 150, 500, 100 };
+
+#pragma endregion
+
 #pragma region loom
 
 	std::vector<Wall> loomWalls;
@@ -206,6 +211,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	WallMgr::Instance()->Init(loomWalls);
 
 #pragma endregion
+
+#pragma region 壁
+
 	std::vector<Wall> townWalls;
 	Wall townWallData[11];
 
@@ -297,7 +305,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
 	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0));
 
+#pragma endregion
+
 	//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
+
+#pragma region 画像初期化
 
 	//画像初期化
 	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
@@ -337,6 +349,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	titleLogo.size = { window_width, window_height };
 	titleLogo.SpriteUpdate();
 
+#pragma endregion
+
+#pragma region 敵
+
 	int stageNum = 0;
 
 	Vector3 up(0, 0, 1), left(-1, 0, 0);
@@ -362,13 +378,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	townEnemyAngles.push_back(up);
 	townEnemyAngles.push_back(left);
 
-	BombEffect bomb;
 #pragma endregion
+
+	BombEffect bomb;
 	//if (FAILED(result))
 	//{
 	//	return result;
 	//}
-#pragma endregion
 	//描画初期化処理 ここまで
 	while (Win->loopBreak()) //ゲームループ
 	{
@@ -380,6 +396,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		input->Update();
 
 		oldScene = nowScene;
+
+#pragma region 画像処理
 
 		//画像処理
 		int stopDelay = player.GetStopTimeDelay(); //CT 0~Delay
@@ -427,6 +445,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		spriteStop.SpriteUpdate();
 		hani.SpriteUpdate();
 
+#pragma endregion
+
 
 
 		//更新処理
@@ -439,8 +459,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			voice.Stop();
 		}
 		cam.Update();
+
+
 		switch (nowScene)
 		{
+
+#pragma region TITLE_UPDATE
+
 		case TITLE:
 			titleLogo.SpriteTransferVertexBuffer();
 
@@ -452,6 +477,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
 			}
 			break;
+
+#pragma endregion
+
+#pragma region STAGESELECT_UPDATE
+
 		case STAGESELECT:
 
 
@@ -478,7 +508,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				}
 
 			}
-			if(input->KeyTrigger(DIK_SPACE)|| input->Button(XINPUT_GAMEPAD_A))
+			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
 				if (stageNum == 0)
 				{
@@ -499,12 +529,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				nowScene = GAME;
 			}
 			break;
+
+#pragma endregion
+
+#pragma region GAME_UPDATE
+
 		case GAME:
 			XMFLOAT3 moveSpeed = { input->LStick().x , 0.0f, input->LStick().y };
 
 			box.Update(cam);
 			XMFLOAT3 enemyPos = { 0,0,50 };
-			player.Input(cam);
+			isdead = player.IsDead();
+			hp = player.GetHP();
+			if (!isdead) { player.Input(cam); }
 
 			//フィールド上の壁
 			for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
@@ -525,8 +562,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			}
 
-			XMFLOAT3 pos = player.GetPos();
-
 			if (input->KeyTrigger(DIK_RETURN))
 			{
 				//bomb.Bomb(player.GetPos(), 1);
@@ -535,11 +570,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 			//敵と自機の押し戻し
-			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
-
+			if (!isdead) { player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos())); }
+			//自機更新処理
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
-			bomb.Update();
+			//自機死亡演出
 			player.DeathEffect(cam);
+
+			bomb.Update();
+
 			box.position = enemyPos;
 			box.Update(cam);
 
@@ -549,13 +587,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			floor.Update(cam);
 			{
 				Sphere pSphere;
-				pSphere.center = XMLoadFloat3(&pos);
+				pSphere.center = XMLoadFloat3(&player.GetPos());
 				pSphere.radius = 16;
 				EnemyMgr::Instance()->Update(player.GetPos(), player.GetAngle(), player.GetStopTimeFlag(), player.GetAttackFlag());
 				EnemyMgr::Instance()->UpdateData(cam);
 
 				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
-					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i, pSphere))
+					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i))
 					{
 						if (!damaged) player.Damaged();
 						damaged = true;
@@ -593,24 +631,41 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				nowScene = CLEAR;
 			}
 
-			if (player.IsDead())
+			/*if (player.IsDead())
+			{
+				nowScene = GAMEOVER;
+			}*/
+			if (!player.IsEffect() && player.IsDead())
 			{
 				nowScene = GAMEOVER;
 			}
 
 			break;
+
+#pragma endregion
+
+#pragma region CLEAR_UPDATE
+
 		case CLEAR:
 			if (input->KeyTrigger(DIK_SPACE))
 			{
 				nowScene = TITLE;
 			}
 			break;
+
+#pragma endregion
+
+#pragma region GAMEOVER_UPDATE
+
 		case GAMEOVER:
 			if (input->KeyTrigger(DIK_SPACE))
 			{
 				nowScene = TITLE;
 			}
 			break;
+
+#pragma endregion
+
 		default:
 			break;
 		}
@@ -620,10 +675,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		myDirectX->PreDraw();
 		switch (oldScene)
 		{
+
+#pragma region TITLE_DRAW
+
 		case TITLE:
 			//debugText.Print("", window_width / 2 - 40, window_height / 2, 5);
 			titleLogo.SpriteDraw();
 			break;
+
+#pragma endregion
+
+#pragma region STAGESELECT_DRAW
 
 		case STAGESELECT:
 			debugText.Print("stageselect", 10, 10, 3);
@@ -636,6 +698,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				debugText.Print("stage 2", 10, 100, 3);
 			}
 			break;
+
+#pragma endregion
+
+#pragma region GAME_DRAW
+
 		case GAME:
 			//if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
@@ -660,16 +727,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			part.Draw(particleGH);
 
-			hani.SpriteDraw();
-			spriteStart.SpriteDraw();
-			spriteStop.SpriteDraw();
+			if (!player.IsDead()) { hani.SpriteDraw(); }
+			if (!player.IsDead()) { spriteStart.SpriteDraw(); }
+			if (!player.IsDead()) { spriteStop.SpriteDraw(); }
 			break;
+
+#pragma endregion
+
+#pragma region CLEAR_DRAW
+
 		case CLEAR:
 			debugText.Print("clear", window_width / 2, window_height / 2, 5);
 			break;
+
+#pragma endregion
+
+#pragma region GAMEOVER_DRAW
+
 		case GAMEOVER:
 			debugText.Print("game over", window_width / 2, window_height / 2, 5);
 			break;
+
+#pragma endregion
+
 		default:
 			break;
 		}

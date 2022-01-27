@@ -17,6 +17,7 @@ Enemy::Enemy()
 	bulletTimer = 0;
 	matRot = XMMatrixIdentity();
 	saveNum = 0;
+	isHit = false;
 }
 
 void Enemy::Init(const Camera& cam)
@@ -105,6 +106,7 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 
 	else
 	{
+		isHit = false;
 		//’e‚Ìˆ—
 		for (int i = 0; i < MAX_BULLET; ++i)
 		{
@@ -132,6 +134,23 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 			if (distance < r)
 			{
 				Dead();
+			}
+		}
+
+		//’e‚Ìˆ—
+		for (int i = 0; i < MAX_BULLET; ++i)
+		{
+			if (!enemyBullet[i].isAlive)continue;
+
+			XMFLOAT3 enemyPos1 = enemyBullet[i].bulletData.position;
+
+			//ƒvƒŒƒCƒ„[‚Æ‚Ì“–‚½‚è”»’è
+			float pDistance = Distance3D(enemyPos1, playerPos);
+			float playerRadius = 16.0f;
+			float pR = enemyBullet->BULLET_RADIUS + playerRadius;
+			if (pDistance < pR)
+			{
+				isHit = true;
 			}
 		}
 
