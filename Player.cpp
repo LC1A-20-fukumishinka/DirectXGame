@@ -76,119 +76,127 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 void Player::Input(const Camera& camera)
 {
 	/*---コントローラー操作用---*/
-	//コントローラーの方向ベクトル
-	XMFLOAT3 vec = { 0,0,0 };
-	vec.x = input->LStick().x;
-	vec.z = input->LStick().y;
-	XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
-
-	//入力がある場合
-	if (vec.x != 0 && vec.z != 0)
+	if (input->isPadConnect())
 	{
-		//自分の方向ベクトル
-		XMFLOAT3 myVec = { 0,0,0 };
-		float rotY = angle;
-		ConvertToRadian(rotY);
-		myVec.x = cosf(-rotY);
-		myVec.z = sinf(-rotY);
+		//コントローラーの方向ベクトル
+		XMFLOAT3 vec = { 0,0,0 };
+		vec.x = input->LStick().x;
+		vec.z = input->LStick().y;
+		XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
 
-		//コントローラーのアングル
-		float contAngle = -atan2f(vec.z, vec.x);
-		ConvertToDegree(contAngle);
-		if (contAngle < 0.0f) { contAngle += 360.0f; }
-
-		float vx1 = myVec.x - 0;
-		float vz1 = myVec.z - 0;
-		float vx2 = vec.x - 0;
-		float vz2 = vec.z - 0;
-
-		//近い方を判定
-		float cross = vx1 * vz2 - vz1 * vx2;
-		if (cross < 0)
+		//入力がある場合
+		if (vec.x != 0 && vec.z != 0)
 		{
-			angle += MOVE_ANGLE;
+			//自分の方向ベクトル
+			XMFLOAT3 myVec = { 0,0,0 };
+			float rotY = angle;
+			ConvertToRadian(rotY);
+			myVec.x = cosf(-rotY);
+			myVec.z = sinf(-rotY);
 
-			//nearかつオーバーした場合(0を跨いだ時のオーバー判定が微妙)
-			if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle > contAngle) {
-				isOverTrigger = true;
+			//コントローラーのアングル
+			float contAngle = -atan2f(vec.z, vec.x);
+			ConvertToDegree(contAngle);
+			if (contAngle < 0.0f) { contAngle += 360.0f; }
+
+			float vx1 = myVec.x - 0;
+			float vz1 = myVec.z - 0;
+			float vx2 = vec.x - 0;
+			float vz2 = vec.z - 0;
+
+			//近い方を判定
+			float cross = vx1 * vz2 - vz1 * vx2;
+			if (cross < 0)
+			{
+				angle += MOVE_ANGLE;
+
+				//nearかつオーバーした場合(0を跨いだ時のオーバー判定が微妙)
+				if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle > contAngle) {
+					isOverTrigger = true;
+				}
 			}
-		}
-		else
-		{
-			angle -= MOVE_ANGLE;
+			else
+			{
+				angle -= MOVE_ANGLE;
 
-			//nearかつオーバーした場合(0を跨いだ時のオーバー判定が微妙)
-			if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle < contAngle) {
-				isOverTrigger = true;
+				//nearかつオーバーした場合(0を跨いだ時のオーバー判定が微妙)
+				if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle < contAngle) {
+					isOverTrigger = true;
+				}
 			}
-		}
 
-		if (angle >= 360.0f) { angle -= 360.0f; }
-		else if (angle < 0.0f) { angle += 360.0f; }
+			if (angle >= 360.0f) { angle -= 360.0f; }
+			else if (angle < 0.0f) { angle += 360.0f; }
 
-		if (isOverTrigger)
-		{
-			//差分を計算
-			/*if (angle > contAngle) {
-				angle -= fabsf(fabsf(angle) - fabsf(contAngle));
+			if (isOverTrigger)
+			{
+				//差分を計算
+				/*if (angle > contAngle) {
+					angle -= fabsf(fabsf(angle) - fabsf(contAngle));
+				}
+				else {
+					angle += fabsf(fabsf(angle) - fabsf(contAngle));
+				}*/
+
+				//直接書き換え
+				angle = contAngle;
+				isOverTrigger = false;
 			}
-			else {
-				angle += fabsf(fabsf(angle) - fabsf(contAngle));
-			}*/
 
-			//直接書き換え
-			angle = contAngle;
-			isOverTrigger = false;
+			obj.rotation = { 0, angle + 90.0f, 0 };
+
+			myVec.x *= MOVE_SPEED;
+			myVec.z *= MOVE_SPEED;
+			//contVec3 = myVec;
+			vec3 = myVec;
 		}
-
-		obj.rotation = { 0, angle + 90.0f, 0 };
-
-		myVec.x *= MOVE_SPEED;
-		myVec.z *= MOVE_SPEED;
-		//contVec3 = myVec;
-		vec3 = myVec;
-	}
-	else {
-		contVec3 = { 0,0,0 };
-		vec3 = { 0,0,0 };
+		else {
+			//contVec3 = { 0,0,0 };
+			vec3 = { 0,0,0 };
+		}
 	}
 
 
 	/*---キー操作用---*/
-	/*移動*/
-	if (input->Key(DIK_D) || input->Key(DIK_A))
+	else
 	{
-		if (input->Key(DIK_D))
+		/*移動*/
+		if (input->Key(DIK_D) || input->Key(DIK_A))
 		{
-			angle += MOVE_ANGLE;
-		}
-		if (input->Key(DIK_A))
-		{
-			angle -= MOVE_ANGLE;
+			if (input->Key(DIK_D))
+			{
+				angle += MOVE_ANGLE;
+			}
+			if (input->Key(DIK_A))
+			{
+				angle -= MOVE_ANGLE;
+			}
+
+			obj.rotation = { 0, angle + 90.0f, 0 };
 		}
 
-		obj.rotation = { 0, angle + 90.0f, 0 };
+		if (input->Key(DIK_W) || input->Key(DIK_S))
+		{
+			float rotY = angle;
+			ConvertToRadian(rotY);
+			vec3.x = cosf(-rotY);
+			vec3.z = sinf(-rotY);
+
+			if (input->Key(DIK_W))
+			{
+				vec3.x *= MOVE_SPEED;
+				vec3.z *= MOVE_SPEED;
+			}
+			if (input->Key(DIK_S))
+			{
+				vec3.x *= -MOVE_SPEED;
+				vec3.z *= -MOVE_SPEED;
+			}
+		}
+		else { vec3 = { 0.0f,0.0f,0.0f }; }
 	}
 
-	if (input->Key(DIK_W) || input->Key(DIK_S))
-	{
-		float rotY = angle;
-		ConvertToRadian(rotY);
-		vec3.x = cosf(-rotY);
-		vec3.z = sinf(-rotY);
-
-		if (input->Key(DIK_W))
-		{
-			vec3.x *= MOVE_SPEED;
-			vec3.z *= MOVE_SPEED;
-		}
-		if (input->Key(DIK_S))
-		{
-			vec3.x *= -MOVE_SPEED;
-			vec3.z *= -MOVE_SPEED;
-		}
-	}
-	//else { vec3 = { 0.0f,0.0f,0.0f }; }
+	//デバッグ用
 	if (input->KeyTrigger(DIK_DOWN))
 	{
 		Damaged();
@@ -197,16 +205,20 @@ void Player::Input(const Camera& camera)
 
 void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 {
+	if (input->isPadConnect())
+	{
+		pos.x += vec3.x;
+		pos.z += vec3.z;
+	}
+	else
+	{
+		pos.x += vec3.x;
+		pos.z += vec3.z;
+	}
+
 	attackFlag = false;
-	pos.x += vec3.x;
-	pos.z += vec3.z;
-
-	pos.x += contVec3.x;
-	pos.z += contVec3.z;
-
 	camera.position = pos;
 	obj.position = pos;
-
 	obj.Update(camera);
 
 	/*---キー操作用---*/
@@ -218,11 +230,22 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		//CT管理
 		if (stopTImeDelay >= STOP_TIME_DELAY)
 		{
-			//時間停止受付
-			if (input->KeyTrigger(DIK_RETURN))
+			if (input->isPadConnect())
 			{
-				stopTImeDelay = 0;
-				stopTimeFlag = true;
+				//時間停止受付
+				if (input->ButtonTrigger(XINPUT_GAMEPAD_A))
+				{
+					stopTImeDelay = 0;
+					stopTimeFlag = true;
+				}
+			}
+			else
+			{
+				if (input->KeyTrigger(DIK_RETURN))
+				{
+					stopTImeDelay = 0;
+					stopTimeFlag = true;
+				}
 			}
 		}
 		else { stopTImeDelay++; }
@@ -246,9 +269,16 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	if (!attackFlag)
 	{
 		isHit = false;
-		if (input->KeyTrigger(DIK_SPACE) && attackDelay == 0) { attackFlag = true; }
-		else if (attackDelay > 0) { attackDelay--; }
-		isHit = false;
+		if (input->isPadConnect())
+		{
+			if (input->RTrigger() >= 0 && attackDelay == 0) { attackFlag = true; }
+			else if (attackDelay > 0) { attackDelay--; }
+		}
+		else
+		{
+			if (input->KeyTrigger(DIK_SPACE) && attackDelay == 0) { attackFlag = true; }
+			else if (attackDelay > 0) { attackDelay--; }
+		}
 	}
 
 	//攻撃中
