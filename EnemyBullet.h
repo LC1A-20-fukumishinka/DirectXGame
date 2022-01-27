@@ -10,7 +10,7 @@ class EnemyBullet
 {
 public:
 	/*---- ƒƒ“ƒo’è” ----*/
-	const float BULLET_SPEED = 10.0f;
+	const float BULLET_SPEED = 8.0f;
 	const float BULLET_RADIUS = 5.0f;
 	const int MAX_DES_TIMER = 100;
 	const float EXPLOSION_RADIUS = 40.0f;

@@ -15,6 +15,9 @@ void EnemyBullet::Init(const Camera& cam)
 	bulletData.Init(cam);
 	bulletData.scale = { 10.0f, 10.0f, 10.0f };
 	bulletSphere.radius = BULLET_RADIUS;
+	status = BULLET_STATUS_ALIVE;
+	desTimer = 0;
+	isAlive = false;
 }
 
 void EnemyBullet::Generate(const XMFLOAT3& generatePos, const XMFLOAT3& forwardVec)

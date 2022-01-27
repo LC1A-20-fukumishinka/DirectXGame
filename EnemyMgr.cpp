@@ -22,11 +22,8 @@ void EnemyMgr::Update(const XMFLOAT3& playerPos, const float& angle, const bool&
 		{
 			enemy[i].Update(playerPos, angle, isAttack, isStop);
 		}
-		if (isStop)return;
-		for (int j = 0; j < 20; ++j)
-		{
-			enemy[i].enemyBullet[j].Update();
-		}
+		if (isStop)continue;
+		enemy[i].BulletUpdate();
 	}
 }
 
