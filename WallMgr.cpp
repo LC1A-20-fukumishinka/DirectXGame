@@ -65,9 +65,13 @@ std::vector<DirectX::XMFLOAT3> WallMgr::GetWallPos()
 
 bool WallMgr::CheckWallBullet(const DirectX::XMFLOAT3 &Pos, const  DirectX::XMFLOAT3 Speed)
 {
-	Vector3 posA, posB;
+	Vector3 posA, posB , vecAdd;
 	posA = posB = Pos;
 	posB += Vector3(Speed.x, Speed.y, Speed.z);
+	vecAdd = Vector3(Speed.x, Speed.y, Speed.z).normalaize();
+
+	vecAdd *= 0.01f;
+	posB += vecAdd;
 
 	bool isHit;
 	for (int i = 0; i < walls.size(); i++)

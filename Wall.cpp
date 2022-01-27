@@ -299,7 +299,7 @@ bool Wall::IsHitWall(DirectX::XMFLOAT3 posA, DirectX::XMFLOAT3 posB)
 	{
 		isHit = LineCollision(RN, RF, posA, posB);
 	}
-	return false;
+	return isHit;
 }
 
 const XMFLOAT3 &operator-(const DirectX::XMFLOAT3 v1, const DirectX::XMFLOAT3 v2)
