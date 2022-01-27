@@ -189,6 +189,10 @@ void Player::Input(const Camera& camera)
 		}
 	}
 	//else { vec3 = { 0.0f,0.0f,0.0f }; }
+	if (input->KeyTrigger(DIK_DOWN))
+	{
+		Damaged();
+	}
 }
 
 void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
@@ -327,7 +331,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
 {
 	//“K“–‚Èƒ‚ƒfƒ‹‚Å‘ã—p‚·‚é
-	if (IsDead()) return;
+	//if (IsDead()) return;
 
 	if (isDamaged)
 	{
@@ -377,16 +381,20 @@ void Player::PushBack(const XMFLOAT3& enemyPos)
 
 void Player::DeathEffect(Camera& camera)
 {
-	if (hp <= 2)
+	if (IsDead())
 	{
-		isEffect = true;
-		if (obj.rotation.x > -90.0f) { obj.rotation.x -= 1.0f; }
+		if (!spriteDeadFlag) isEffect = true;
+		if (obj.rotation.x > -90.0f) {
+			obj.rotation.x -= 1.0f;
+		}
 		else if (easeTimer < 1.0f)
 		{
 			easeTimer += 0.01f;
 			camera.eye.y = (650 - 250) * easeOutCubic(easeTimer) + 250;
 		}
-		else { spriteDeadFlag = true; }
+		else {
+			spriteDeadFlag = true;
+		}
 	}
 }
 

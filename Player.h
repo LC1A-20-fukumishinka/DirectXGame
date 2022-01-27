@@ -79,7 +79,9 @@ public:
 	{
 		isDamaged = true;
 		if (hp > 0) { hp--; }
-		else if (hp <= 0) { isDead = true; }
+		if (hp <= 0) {
+			isDead = true;
+		}
 	}	//HP‚ðŒ¸‚ç‚·
 
 	int GetHP() { return hp; }											//HP‚ð•Ô‚·
@@ -90,6 +92,7 @@ public:
 	bool GetStopTimeFlag() { return stopTimeFlag; }						//ŽžŠÔ‚ðŽ~‚ß‚Ä‚¢‚é‚©Ž~‚ß‚Ä‚¢‚È‚¢‚©‚ð•Ô‚·
 	bool IsHit() { return isHit; }										//“G‚ÉUŒ‚‚ª“–‚½‚Á‚½‚©
 	bool IsDead() { return isDead; }									//Ž©‹@‚ªŽ€‚ñ‚¾‚©
+	bool IsEffect() { return isEffect; }
 
 private:
 	void ConvertToRadian(float& degree)
