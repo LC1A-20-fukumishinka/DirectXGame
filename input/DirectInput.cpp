@@ -1,5 +1,5 @@
 #include "DirectInput.h"
-
+#include <cassert>
 #pragma comment(lib, "Xinput.lib")
 
 Input::Input()
@@ -12,6 +12,7 @@ Input::~Input()
 
 void Input::Init(WNDCLASSEX &w, HWND &hwnd)
 {
+	HRESULT result;
 	for (int i = 0; i < 256; i++)
 	{
 		key[i] = 0;
@@ -43,12 +44,15 @@ void Input::Update()
 	result = devkeyboard->GetDeviceState(sizeof(key), key);//ëSïîÇÃÉLÅ[ì¸óÕÇÃèÛë‘ÇéÊìæÇ∑ÇÈ
 
 
+	for (int i = 0; i < 4; i++)
+	{
+		oldState[i] = padState[i];
 
-	oldState = padState;
-	ZeroMemory(&padState, sizeof(XINPUT_STATE));
+		ZeroMemory(&padState[i], sizeof(XINPUT_STATE));
 
-	dwResult = XInputGetState(static_cast<DWORD>(0), &padState);
 
+		dwResult[i] = XInputGetState(static_cast<DWORD>(i), &padState[i]);
+	}
 
 }
 
@@ -70,11 +74,15 @@ bool Input::KeyRelease(int KeyCode)
 	return false;
 }
 
-bool Input::Button(WORD bitmask)
+bool Input::Button(WORD bitmask, int controllNum)
 {
-	if (dwResult == ERROR_SUCCESS)
+	if (!Check(controllNum))
 	{
-		bool isButton = padState.Gamepad.wButtons & bitmask;;
+		assert(0);
+	}
+	if (dwResult[controllNum] == ERROR_SUCCESS)
+	{
+		bool isButton = padState[controllNum].Gamepad.wButtons & bitmask;;
 		return isButton;
 	}
 	else
@@ -83,12 +91,16 @@ bool Input::Button(WORD bitmask)
 	}
 }
 
-bool Input::ButtonTrigger(WORD bitmask)
+bool Input::ButtonTrigger(WORD bitmask, int controllNum)
 {
-	if (dwResult == ERROR_SUCCESS)
+	if (!Check(controllNum))
 	{
-		bool isButton = padState.Gamepad.wButtons & bitmask;
-		bool isOldButton = oldState.Gamepad.wButtons & bitmask;
+		assert(0);
+	}
+	if (dwResult[controllNum] == ERROR_SUCCESS)
+	{
+		bool isButton = padState[controllNum].Gamepad.wButtons & bitmask;
+		bool isOldButton = oldState[controllNum].Gamepad.wButtons & bitmask;
 		return (isButton && !isOldButton);
 	}
 	else
@@ -97,12 +109,16 @@ bool Input::ButtonTrigger(WORD bitmask)
 	}
 }
 
-bool Input::ButtonRelease(WORD bitmask)
+bool Input::ButtonRelease(WORD bitmask, int controllNum)
 {
-	if (dwResult == ERROR_SUCCESS)
+	if (!Check(controllNum))
 	{
-		bool isButton = padState.Gamepad.wButtons & bitmask;
-		bool isOldButton = oldState.Gamepad.wButtons & bitmask;
+		assert(0);
+	}
+	if (dwResult[controllNum] == ERROR_SUCCESS)
+	{
+		bool isButton = padState[controllNum].Gamepad.wButtons & bitmask;
+		bool isOldButton = oldState[controllNum].Gamepad.wButtons & bitmask;
 		return (!isButton && isOldButton);
 	}
 	else
@@ -111,57 +127,73 @@ bool Input::ButtonRelease(WORD bitmask)
 	}
 }
 
-DirectX::XMFLOAT2 Input::LStick()
+DirectX::XMFLOAT2 Input::LStick(int controllNum)
 {
-	if ((padState.Gamepad.sThumbLX <  XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-		padState.Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) &&
-		(padState.Gamepad.sThumbLY <  XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
-			padState.Gamepad.sThumbLY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))
+	if (!Check(controllNum))
 	{
-		lStick = { 0, 0 };
+		assert(0);
+	}
+	if ((padState[controllNum].Gamepad.sThumbLX <  XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+		padState[controllNum].Gamepad.sThumbLX > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) &&
+		(padState[controllNum].Gamepad.sThumbLY <  XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE &&
+			padState[controllNum].Gamepad.sThumbLY > -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE))
+	{
+		lStick[controllNum] = { 0, 0 };
 	}
 	else
 	{
 		float stickMax = 32767;
-		lStick = { padState.Gamepad.sThumbLX / stickMax , padState.Gamepad.sThumbLY / stickMax };
+		lStick[controllNum] = { padState[controllNum].Gamepad.sThumbLX / stickMax , padState[controllNum].Gamepad.sThumbLY / stickMax };
 	}
 
-	return lStick;
+	return lStick[controllNum];
 }
 
-DirectX::XMFLOAT2 Input::RStick()
+DirectX::XMFLOAT2 Input::RStick(int controllNum)
 {
-	if ((padState.Gamepad.sThumbRX <  XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
-		padState.Gamepad.sThumbRX > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) &&
-		(padState.Gamepad.sThumbRY <  XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
-			padState.Gamepad.sThumbRY > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))
+	if (!Check(controllNum))
 	{
-		rStick = { 0, 0 };
+		assert(0);
+	}
+	if ((padState[controllNum].Gamepad.sThumbRX <  XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+		padState[controllNum].Gamepad.sThumbRX > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) &&
+		(padState[controllNum].Gamepad.sThumbRY <  XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE &&
+			padState[controllNum].Gamepad.sThumbRY > -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE))
+	{
+		rStick[controllNum] = { 0, 0 };
 	}
 	else
 	{
 		float stickMax = 32767;
-		rStick = { padState.Gamepad.sThumbRX / stickMax , padState.Gamepad.sThumbRY / stickMax };
+		rStick[controllNum] = { padState[controllNum].Gamepad.sThumbRX / stickMax , padState[controllNum].Gamepad.sThumbRY / stickMax };
 	}
 
-	return rStick;
+	return rStick[controllNum];
 }
 
-float Input::LTrigger()
+float Input::LTrigger(int controllNum)
 {
-	if (padState.Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+	if (!Check(controllNum))
 	{
-		float TriggerInput = padState.Gamepad.bLeftTrigger/ 255.0f;
+		assert(0);
+	}
+	if (padState[controllNum].Gamepad.bLeftTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+	{
+		float TriggerInput = padState[controllNum].Gamepad.bLeftTrigger / 255.0f;
 		return TriggerInput;
 	}
 	return 0.0f;
 }
 
-float Input::RTrigger()
+float Input::RTrigger(int controllNum)
 {
-	if (padState.Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+	if (!Check(controllNum))
 	{
-		float TriggerInput = padState.Gamepad.bRightTrigger / 255.0f;
+		assert(0);
+	}
+	if (padState[controllNum].Gamepad.bRightTrigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+	{
+		float TriggerInput = padState[controllNum].Gamepad.bRightTrigger / 255.0f;
 		return TriggerInput;
 	}
 	return 0.0f;
@@ -172,4 +204,25 @@ Input *Input::GetInstance()
 {
 	static Input instance;
 	return &instance;
+}
+
+bool Input::isPadConnect(int controllNum)
+{
+	if (!Check(controllNum))
+	{
+		assert(0);
+	}
+	if (dwResult[controllNum] == ERROR_SUCCESS)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Input::Check(int controllNum)
+{
+	return (controllNum >= 0 && controllNum < 4);
 }

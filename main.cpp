@@ -51,8 +51,8 @@ const int window_width = 1280;
 const int window_height = 720;
 
 //Player‰ŠúˆÊ’u(ŠÈˆÕ)
-const XMFLOAT3 STAGE_1 = { -450,0,0 };
-const XMFLOAT3 STAGE_2 = { 0,0,0 };
+const XMFLOAT3 STAGE_1 = { -450.1f,0,0 };
+const XMFLOAT3 STAGE_2 = { -450.1f,0,-140.1f };
 const XMFLOAT3 STAGE_3 = { 0,0,0 };
 const XMFLOAT3 STAGE_4 = { 0,0,0 };
 
@@ -264,6 +264,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	EnemyMgr::Instance()->Init(cam);
 
 	Scenes nowScene = TITLE;
+	Scenes oldScene = nowScene;
 	std::vector<XMFLOAT3> loomEnemyGeneratePos;
 	loomEnemyGeneratePos.push_back(XMFLOAT3{ -255, 0, 105 });
 	loomEnemyGeneratePos.push_back(XMFLOAT3{ -255, 0, -105 });
@@ -378,7 +379,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		// DirectX–ˆƒtƒŒ[ƒ€ˆ— ‚±‚±‚©‚ç
 		input->Update();
 
-
+		oldScene = nowScene;
 
 		//‰æ‘œˆ—
 		int stopDelay = player.GetStopTimeDelay(); //CT 0~Delay
@@ -446,11 +447,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
 				nowScene = STAGESELECT;
-				cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
-				player.Init(cam, STAGE_1);
-				EnemyMgr::Instance()->Init(cam);
-				//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
 
+
+				//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
 			}
 			break;
 		case STAGESELECT:
@@ -483,13 +482,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				if (stageNum == 0)
 				{
+					player.Init(cam, STAGE_1);
+					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), STAGE_1, { 0,0,1 });
 					WallMgr::Instance()->Init(loomWalls);
 					EnemyMgr::Instance()->Init(cam);
 					EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
 				}
 				else if (stageNum == 1)
 				{
-					stageNum = 1;
+					player.Init(cam, STAGE_2);
+					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), STAGE_2, { 0,0,1 });
 					WallMgr::Instance()->Init(townWalls);
 					EnemyMgr::Instance()->Init(cam);
 					EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
@@ -616,7 +618,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		//•`‰æ
 		myDirectX->PreDraw();
-		switch (nowScene)
+		switch (oldScene)
 		{
 		case TITLE:
 			//debugText.Print("", window_width / 2 - 40, window_height / 2, 5);
