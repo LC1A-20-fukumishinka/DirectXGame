@@ -11,7 +11,7 @@ public:
 	void Finalize();
 	void Draw();
 
-	void Bomb(const DirectX::XMFLOAT3 &pos, float speed);
+	void Bomb(const DirectX::XMFLOAT3 &pos, float speed,const int timer);
 
 	static void SetTexture(int texNum);
 private:
