@@ -535,7 +535,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//“G‚ÆŽ©‹@‚Ì‰Ÿ‚µ–ß‚µ
 			player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 
-			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 			if (!player.IsDead()) { player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos())); }
 			if (!player.IsDead()) { player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos())); }
 			bomb.Update();
