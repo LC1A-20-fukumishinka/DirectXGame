@@ -9,6 +9,7 @@
 #include <DirectXMath.h>
 #include <math.h>
 
+const int INVINCIBLE_COUNT = 60;					//無敵時間
 const int STOP_TIME_COUNT = 360;						//最大時間停止量
 const int STOP_TIME_DELAY = 30;						//攻撃可能までのクールタイム
 const int ATTACK_DELAY = 30;						//攻撃の最大CT
@@ -30,13 +31,14 @@ private:
 private:
 	XMFLOAT3 pos;									//ポジション
 	XMFLOAT3 vec3;									//向いている方向
-	XMFLOAT3 contVec3;
+	//XMFLOAT3 contVec3;
 	int hp;											//ヒットポイント
 	int stopTimeCount;								//時間を止めている間のカウント
 	int stopTImeDelay;								//時間停止のCT
 	int attackCount;								//攻撃のクールタイム
 	int attackDelay;								//攻撃のCT
 	int drawCount;									//被ダメエフェクト用
+	int damagedCount;								//無敵時間管理
 	float angle;									//移動する角度
 	float easeTimer;								//イージング
 	bool attackFlag;								//攻撃しているか
@@ -78,7 +80,7 @@ public:
 	void Damaged()
 	{
 		isDamaged = true;
-		if (hp > 0) { hp--; }
+		if (hp > 0 && damagedCount == 0) { hp--; }
 		if (hp <= 0) {
 			isDead = true;
 		}
