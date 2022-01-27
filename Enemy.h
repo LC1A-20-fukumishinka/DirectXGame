@@ -59,7 +59,7 @@ public:
 	Triangle forwardTriangle;//索敵用正面三角
 	bool isAlive;			//生存フラグ
 	int saveNum;
-
+	bool isHit;
 
 	int HP;					//ヒットポイント
 

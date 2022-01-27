@@ -55,16 +55,9 @@ void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject
 	}
 }
 
-bool EnemyMgr::CheckEnemyAttackToPlayer(int num,const Sphere& playerSphere)
+bool EnemyMgr::CheckEnemyAttackToPlayer(int i)
 {
-	if (!enemy[num].isAttack)return false;
-	//³–ÊƒŒƒC•ûŒü‚É“G‚ª‚¢‚½‚ç
-	if (Collision::CheckRay2Sphere(enemy[num].forwardRay, playerSphere))
-	{
-		return true;
-	}
-
-	return false;
+	return enemy[i].isHit;
 }
 
 void EnemyMgr::DeadNearEnemy()

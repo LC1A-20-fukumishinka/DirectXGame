@@ -12,6 +12,7 @@ public:
 	/*---- メンバ変数 ----*/
 	Model enemyModel;		//モデル
 	int saveNum;			//近い敵の配列番号を保存するための変数
+	bool isHit;				//弾がプレイヤーに当たった時に使うフラグ
 
 	//コンストラクタ
 	friend Singleton<EnemyMgr>;
@@ -34,7 +35,7 @@ public:
 	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& bulletModel);
 
 	//敵の攻撃とプレイヤーの判定
-	bool CheckEnemyAttackToPlayer(int num, const Sphere& playerSphere);
+	bool CheckEnemyAttackToPlayer(int i);
 
 	//プレイヤーから一番近い敵が死ぬ処理
 	void DeadNearEnemy();
