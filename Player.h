@@ -31,7 +31,7 @@ private:
 private:
 	XMFLOAT3 pos;									//ポジション
 	XMFLOAT3 vec3;									//向いている方向
-	Vector3 nextCameraPos; 
+	Vector3 nextCameraPos;
 	//XMFLOAT3 contVec3;
 	int hp;											//ヒットポイント
 	int stopTimeCount;								//時間を止めている間のカウント
@@ -48,7 +48,7 @@ private:
 	bool isHit;										//攻撃が当たったか
 	bool isDead;									//HPが0になったか
 	bool isDamaged;									//自分がダメージを受けたか
-	bool isOverTrigger;
+	bool isClear;
 
 private:
 	int GH1;
@@ -97,6 +97,7 @@ public:
 	bool IsHit() { return isHit; }										//敵に攻撃が当たったか
 	bool IsDead() { return isDead; }									//自機が死んだか
 	bool IsEffect() { return isEffect; }
+	bool IsClear() { return isClear; }
 
 private:
 	void ConvertToRadian(float& degree)

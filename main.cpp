@@ -339,7 +339,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	hani.color.w = 0.5f;
 
 	bool damaged = false;
-
+	bool isClear = false;
 
 	Sprite titleLogo;
 	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/TitleGraph.png");
@@ -543,7 +543,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			XMFLOAT3 enemyPos = { 0,0,50 };
 			isdead = player.IsDead();
 			hp = player.GetHP();
-			if (!isdead) { player.Input(cam); }
+			if (!isdead && !isClear) { player.Input(cam); }
 
 			//フィールド上の壁
 			for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
@@ -572,7 +572,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 			//敵と自機の押し戻し
-			if (!isdead) { player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos())); }
+			if (!isdead && !isClear) { player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos())); }
 			//自機更新処理
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
 
@@ -628,11 +628,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				outWall[i].Update();
 			}
 
-			if (player.GetPos().x >= 400)
+			//クリア遷移
+			XMFLOAT3 lowerLeft = { 350,0,-40 };
+			XMFLOAT3 upperRight = { 450,0,40 };
+			player.ClearEffect(cam, player.SetGoalAndCheak(lowerLeft, upperRight));
+			isClear = player.IsClear();
+			if (!player.IsEffect() && isClear)
 			{
 				nowScene = CLEAR;
 			}
 
+			//死亡遷移
 			/*if (player.IsDead())
 			{
 				nowScene = GAMEOVER;

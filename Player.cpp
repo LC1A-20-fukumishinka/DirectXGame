@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "Shake.h"
 #include <cmath>
+
 Player::Player()
 {
 	pos = { 0,0,0 };
@@ -24,7 +25,7 @@ Player::Player()
 	spriteDeadFlag = false;
 	spriteClearFlag = false;
 	isEffect = false;
-	isOverTrigger = false;
+	isClear = false;
 
 	model.CreateModel("player");
 	obj.scale = { 10.0f,10.0f,10.0f };
@@ -36,7 +37,7 @@ Player::Player()
 	dead.size = { 1280,720 };
 
 	GH2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_CLEAR.png");
-	clear.Init(GH1, XMFLOAT2(0.0f, 0.0f));
+	clear.Init(GH2, XMFLOAT2(0.0f, 0.0f));
 	clear.position = { 0,-720,0 };
 	clear.size = { 1280,720 };
 }
@@ -68,7 +69,7 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	spriteDeadFlag = false;
 	spriteClearFlag = false;
 	isEffect = false;
-	isOverTrigger = false;
+	isClear = false;
 
 	obj.Init(camera);
 	obj.rotation = { 0, angle + 90.0f, 0 };
@@ -142,7 +143,7 @@ void Player::Input(const Camera& camera)
 
 		//PAD未入力
 		else {
-			if (movePower > 0.0f) movePower -= 0.01f;
+			if (movePower > 0.0f) movePower -= 0.02f;
 			if (movePower < 0.0f) movePower = 0.0f;
 
 			vec3.x *= movePower;
@@ -214,7 +215,7 @@ void Player::Input(const Camera& camera)
 void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 {
 	//移動処理
-	if (!isDead)
+	if (!isDead && !isClear)
 	{
 		//コントローラー接続時
 		if (input->isPadConnect())
@@ -298,7 +299,6 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	}
 
 	/*攻撃*/
-
 	//攻撃前
 	if (!attackFlag)
 	{
@@ -383,6 +383,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		}
 	}
 
+	//死亡画像処理
 	if (spriteDeadFlag)
 	{
 		XMFLOAT3 pos = dead.position;
@@ -392,6 +393,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		dead.SpriteUpdate();
 	}
 
+	//クリア画像処理
 	if (spriteClearFlag)
 	{
 		XMFLOAT3 pos = clear.position;
@@ -474,9 +476,12 @@ void Player::DeathEffect(Camera& camera)
 
 bool Player::SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRight)
 {
-	if (lowerLeft.x <= pos.x <= upperRight.x &&
-		lowerLeft.z <= pos.z <= upperRight.z)
+	if (lowerLeft.x <= pos.x &&
+		pos.x <= upperRight.x &&
+		lowerLeft.z <= pos.z &&
+		pos.z <= upperRight.z)
 	{
+		isClear = true;
 		return true;
 	}
 	return false;
@@ -486,7 +491,7 @@ void Player::ClearEffect(Camera& camera, bool setGoalAndCheak)
 {
 	if (setGoalAndCheak)
 	{
-		isEffect = true;
+		if (!spriteClearFlag) isEffect = true;
 		if (easeTimer < 1.0f)
 		{
 			easeTimer += 0.01f;
