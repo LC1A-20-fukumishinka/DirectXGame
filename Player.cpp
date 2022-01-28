@@ -112,10 +112,7 @@ void Player::Input(const Camera& camera)
 			if (myAngle < 0.0f) { myAngle += 360.0f; }
 
 			//ダッシュ入力があった場合
-			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
-			{
-				myAngle = contAngle;
-			}
+			if (input->ButtonTrigger(XINPUT_GAMEPAD_B)) { myAngle = contAngle; }
 
 			//近い方を判定
 			float hosei = RotateEarliestArc(myAngle, contAngle);
@@ -128,7 +125,21 @@ void Player::Input(const Camera& camera)
 			myVec.x = cosf(-myAngle);
 			myVec.z = sinf(-myAngle);
 			vec3 = myVec;
+
+			//ダッシュ入力があった場合
+			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
+			{
+				vec3.x *= DASH_SPEED;
+				vec3.z *= DASH_SPEED;
+			}
+			else
+			{
+				vec3.x *= MOVE_SPEED * movePower;
+				vec3.z *= MOVE_SPEED * movePower;
+			}
 		}
+
+		//PAD未入力
 		else {
 			if (movePower > 0.0f) movePower -= 0.06f;
 			if (movePower < 0.0f) movePower = 0.0f;
@@ -140,39 +151,53 @@ void Player::Input(const Camera& camera)
 	else
 	{
 		/*移動*/
-		if (input->Key(DIK_D) || input->Key(DIK_A))
+		if (input->Key(DIK_D) || input->Key(DIK_A) || input->Key(DIK_W) || input->Key(DIK_S))
 		{
-			if (input->Key(DIK_D))
+			//角度変更
+			if (input->Key(DIK_D) || input->Key(DIK_A))
 			{
-				angle += MOVE_ANGLE;
-			}
-			if (input->Key(DIK_A))
-			{
-				angle -= MOVE_ANGLE;
+				if (input->Key(DIK_D))
+				{
+					angle += MOVE_ANGLE;
+				}
+				if (input->Key(DIK_A))
+				{
+					angle -= MOVE_ANGLE;
+				}
+
+				obj.rotation = { 0, angle + 90.0f, 0 };
 			}
 
-			obj.rotation = { 0, angle + 90.0f, 0 };
+			//前後移動
+			if (input->Key(DIK_W) || input->Key(DIK_S))
+			{
+				//移動滑らか用
+				if (movePower < 1.0f) movePower += 0.04;
+
+				float rotY = angle;
+				ConvertToRadian(rotY);
+				vec3.x = cosf(-rotY);
+				vec3.z = sinf(-rotY);
+
+				if (input->Key(DIK_W))
+				{
+					vec3.x *= MOVE_SPEED * movePower;
+					vec3.z *= MOVE_SPEED * movePower;
+				}
+				if (input->Key(DIK_S))
+				{
+					vec3.x *= -MOVE_SPEED * movePower;
+					vec3.z *= -MOVE_SPEED * movePower;
+				}
+			}
+			//移動する気ない時
+			else { vec3 = { 0.0f,0.0f,0.0f }; }
 		}
-
-		if (input->Key(DIK_W) || input->Key(DIK_S))
-		{
-			float rotY = angle;
-			ConvertToRadian(rotY);
-			vec3.x = cosf(-rotY);
-			vec3.z = sinf(-rotY);
-
-			if (input->Key(DIK_W))
-			{
-				vec3.x *= MOVE_SPEED;
-				vec3.z *= MOVE_SPEED;
-			}
-			if (input->Key(DIK_S))
-			{
-				vec3.x *= -MOVE_SPEED;
-				vec3.z *= -MOVE_SPEED;
-			}
+		//入力ない時
+		else {
+			if (movePower > 0.0f) movePower -= 0.06f;
+			if (movePower < 0.0f) movePower = 0.0f;
 		}
-		else { vec3 = { 0.0f,0.0f,0.0f }; }
 	}
 
 	//デバッグ用
@@ -184,28 +209,33 @@ void Player::Input(const Camera& camera)
 
 void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 {
+	//移動処理
 	if (!isDead)
 	{
+		//コントローラー接続時
 		if (input->isPadConnect())
 		{
 			//ダッシュ入力があった場合
 			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
 			{
-				pos.x += vec3.x * DASH_SPEED;
-				pos.z += vec3.z * DASH_SPEED;
+				pos.x += vec3.x;
+				pos.z += vec3.z;
 			}
 			else
 			{
-				pos.x += vec3.x * MOVE_SPEED * movePower;
-				pos.z += vec3.z * MOVE_SPEED * movePower;
+				pos.x += vec3.x;
+				pos.z += vec3.z;
 			}
 		}
+
+		//未接続
 		else
 		{
 			pos.x += vec3.x;
 			pos.z += vec3.z;
 		}
 	}
+
 
 	attackFlag = false;
 	camera.position = pos;
