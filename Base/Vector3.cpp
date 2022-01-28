@@ -48,6 +48,10 @@ float Vector3::length() const
 Vector3 &Vector3::normalaize()
 {
 	float l = length();
+	if (l <= 0)
+	{
+		return *this;
+	}
 	return *this /= l;
 }
 
