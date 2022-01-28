@@ -79,7 +79,7 @@ float Wall::LineCross(DirectX::XMFLOAT3 wallLine, DirectX::XMFLOAT3 playerLine)
 	return (wallLine.x * playerLine.z) - (wallLine.z * playerLine.x);
 }
 
-void Wall::SetFace(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale	)
+void Wall::SetFace(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale)
 {
 	Triangle wallFace[8];
 	std::vector<Triangle> tmpWalls;
@@ -95,13 +95,13 @@ void Wall::SetFace(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale	)
 	XMVECTOR{ scale.x / 2, scale.y / 2, scale.z / 2, 0 };
 
 	TLN = XMVECTOR{ -scale.x / 2,  scale.y / 2, -scale.z / 2, 0 };
-	TRN = XMVECTOR{  scale.x / 2,  scale.y / 2, -scale.z / 2, 0 };
+	TRN = XMVECTOR{ scale.x / 2,  scale.y / 2, -scale.z / 2, 0 };
 	BLN = XMVECTOR{ -scale.x / 2, -scale.y / 2, -scale.z / 2, 0 };
-	BRN = XMVECTOR{  scale.x / 2, -scale.y / 2, -scale.z / 2, 0 };
+	BRN = XMVECTOR{ scale.x / 2, -scale.y / 2, -scale.z / 2, 0 };
 	TLF = XMVECTOR{ -scale.x / 2,  scale.y / 2,  scale.z / 2, 0 };
-	TRF = XMVECTOR{  scale.x / 2,  scale.y / 2,  scale.z / 2, 0 };
+	TRF = XMVECTOR{ scale.x / 2,  scale.y / 2,  scale.z / 2, 0 };
 	BLF = XMVECTOR{ -scale.x / 2, -scale.y / 2,  scale.z / 2, 0 };
-	BRF = XMVECTOR{  scale.x / 2, -scale.y / 2,  scale.z / 2, 0 };
+	BRF = XMVECTOR{ scale.x / 2, -scale.y / 2,  scale.z / 2, 0 };
 
 	//far面F
 	wallFace[0].p0 += TLF;
@@ -182,36 +182,15 @@ DirectX::XMFLOAT3 Wall::PushBack(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 size, 
 	XMFLOAT3 moveP = {};
 
 	float length = 1000.0f;
-	up = LineCollision(LN, RN, pos, AfterPos);
+	up = LineCollision(LF, RF, pos, AfterPos);
 
-	down = LineCollision(LF, RF, pos, AfterPos);
+	down = LineCollision(LN, RN, pos, AfterPos);
 
 	left = LineCollision(LN, LF, pos, AfterPos);
 
 	right = LineCollision(RN, RF, pos, AfterPos);
 	//上
 	if (up)
-	{
-		XMFLOAT3 line = RN - LN;
-
-		float lineLength = Length(line);
-		float d0 = fabs(LineCross(line, pos - LN));
-		float d1 = fabs(LineCross(line, AfterPos - LN));
-
-		float rate = d0 / (d0 + d1);
-
-		XMFLOAT3 interSection = pos + (MoveSpeed * rate);
-		XMFLOAT3 dist = interSection - pos;
-
-		//動く前の座標と交点が他の点より近かったら入れ替える
-		if (length > Length(dist));
-		{
-			length = Length(dist);
-			moveP = { 0, 0,-d1 / lineLength - 0.1f };
-		}
-	}
-	//下
-	if (down)
 	{
 		XMFLOAT3 line = RF - LF;
 
@@ -225,10 +204,31 @@ DirectX::XMFLOAT3 Wall::PushBack(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 size, 
 		XMFLOAT3 dist = interSection - pos;
 
 		//動く前の座標と交点が他の点より近かったら入れ替える
-		if (length > Length(dist));
+		if (length > Length(dist))
 		{
 			length = Length(dist);
-			moveP = { 0,0.0f,  d1 / lineLength + 0.1f };
+			moveP = { 0, 0,d1 / lineLength + 0.1f };
+		}
+	}
+	//下
+	if (down)
+	{
+		XMFLOAT3 line = RN - LN;
+
+		float lineLength = Length(line);
+		float d0 = fabs(LineCross(line, pos - LN));
+		float d1 = fabs(LineCross(line, AfterPos - LN));
+
+		float rate = d0 / (d0 + d1);
+
+		XMFLOAT3 interSection = pos + (MoveSpeed * rate);
+		XMFLOAT3 dist = interSection - pos;
+
+		//動く前の座標と交点が他の点より近かったら入れ替える
+		if (length > Length(dist))
+		{
+			length = Length(dist);
+			moveP = { 0,0.0f,  -d1 / lineLength - 0.1f };
 		}
 	}
 	//左
@@ -246,7 +246,7 @@ DirectX::XMFLOAT3 Wall::PushBack(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 size, 
 		XMFLOAT3 dist = interSection - pos;
 
 		//動く前の座標と交点が他の点より近かったら入れ替える
-		if (length > Length(dist));
+		if (length > Length(dist))
 		{
 			length = Length(dist);
 			moveP = { -d1 / lineLength - 0.1f, 0.0f, 0 };
@@ -267,7 +267,7 @@ DirectX::XMFLOAT3 Wall::PushBack(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 size, 
 		XMFLOAT3 dist = interSection - pos;
 
 		//動く前の座標と交点が他の点より近かったら入れ替える
-		if (length > Length(dist));
+		if (length > Length(dist))
 		{
 			length = Length(dist);
 			moveP = { d1 / lineLength + 0.1f,0, 0 };

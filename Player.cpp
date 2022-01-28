@@ -250,8 +250,6 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 
 
 	attackFlag = false;
-	camera.position = pos;
-	Vector3 nowTargetPos = camera.target;
 
 	obj.position = pos;
 	obj.Update(camera);

@@ -70,7 +70,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -84,13 +84,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
+	Input *input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -158,6 +158,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma endregion
 
+	std::vector<Wall> outWall;
+	outWall.resize(4);
+	outWall[0].Init(cam, { -(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
+	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2 , 10, 10.0f / 2 });
+	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
+	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2, 10, 10.0f / 2 });
 #pragma region loom
 
 	std::vector<Wall> loomWalls;
@@ -208,6 +214,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	wall[13].Init(cam, { +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
 	loomWalls.push_back(wall[13]);
 
+	for (int i = 0; i < outWall.size(); i++)
+	{
+		loomWalls.push_back(outWall[i]);
+	}
 	WallMgr::Instance()->Init(loomWalls);
 
 #pragma endregion
@@ -260,14 +270,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	townWallData[10].Init(cam, { floor.scale.x / 2 - 75,floor.position.y ,floor.scale.z / 2 - 100 }, { 150, 500, 100 }, { 75, 10, 50 });
 	townWalls.push_back(townWallData[10]);
 
+	for (int i = 0; i < outWall.size(); i++)
+	{
+		townWalls.push_back(outWall[i]);
+	}
+
 	WallMgr::Instance()->Init(townWalls);
 	//wall
-	std::vector<Wall> outWall;
-	outWall.resize(4);
-	outWall[0].Init(cam, { -(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
-	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2 , 10, 10.0f / 2 });
-	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
-	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2, 10, 10.0f / 2 });
+
 
 	EnemyMgr::Instance()->Init(cam);
 
@@ -546,23 +556,41 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (!isdead && !isClear) { player.Input(cam); }
 
 			//フィールド上の壁
-			for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
+			XMFLOAT3 playerSpeed = player.GetVec3();
+
+			while (true)
 			{
-				XMFLOAT3 playerSpeed = player.GetVec3();
-				XMFLOAT3 push = WallMgr::Instance()->GetWalls()[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
-				playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
-				player.SetVec3(playerSpeed);
+			bool pushEnd;
+				for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
+				{
+					if (input->Button(XINPUT_GAMEPAD_B))
+					{
+						int b = 0;
+					}
+					Vector3 push;
+					push = WallMgr::Instance()->GetWalls()[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
+
+					playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
+					Vector3 ps;
+
+					pushEnd = push.length() <= 0;
+				}
+				if (pushEnd)
+				{
+					player.SetVec3(playerSpeed);
+					break;
+				}
 			}
 
-			//外周の壁
-			for (int i = 0; i < outWall.size(); i++)
-			{
-				XMFLOAT3 playerSpeed = player.GetVec3();
-				XMFLOAT3 push = outWall[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
-				playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
-				player.SetVec3(playerSpeed);
+			////外周の壁
+			//for (int i = 0; i < outWall.size(); i++)
+			//{
+			//	XMFLOAT3 playerSpeed = player.GetVec3();
+			//	XMFLOAT3 push = outWall[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
+			//	playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
+			//	player.SetVec3(playerSpeed);
 
-			}
+			//}
 
 			if (input->KeyTrigger(DIK_RETURN))
 			{
@@ -655,7 +683,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region CLEAR_UPDATE
 
 		case CLEAR:
-			if (input->KeyTrigger(DIK_SPACE))
+			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
 				nowScene = TITLE;
 			}
@@ -666,7 +694,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region GAMEOVER_UPDATE
 
 		case GAMEOVER:
-			if (input->KeyTrigger(DIK_SPACE))
+			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
 				nowScene = TITLE;
 			}
