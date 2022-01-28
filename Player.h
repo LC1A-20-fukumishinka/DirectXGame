@@ -5,10 +5,9 @@
 #include "ModelPipeline.h"
 #include "TextureMgr.h"
 #include "Sprite.h"
-
 #include <DirectXMath.h>
 #include <math.h>
-
+#include "Vector3.h"
 const int INVINCIBLE_COUNT = 60;					//無敵時間
 const int STOP_TIME_COUNT = 30;						//最大時間停止量
 const int STOP_TIME_DELAY = 30;						//攻撃可能までのクールタイム
@@ -31,6 +30,7 @@ private:
 private:
 	XMFLOAT3 pos;									//ポジション
 	XMFLOAT3 vec3;									//向いている方向
+	Vector3 nextCameraPos; 
 	//XMFLOAT3 contVec3;
 	int hp;											//ヒットポイント
 	int stopTimeCount;								//時間を止めている間のカウント
