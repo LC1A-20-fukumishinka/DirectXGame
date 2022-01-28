@@ -575,8 +575,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (!isdead) { player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos())); }
 			//自機更新処理
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
-			//自機死亡演出
-			player.DeathEffect(cam);
 
 			bomb.Update();
 
@@ -617,6 +615,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				EnemyMgr::Instance()->DeadNearEnemy();
 			}
 
+			//自機死亡演出(シーン切り替えの直前に置く)
+			player.DeathEffect(cam);
 
 			//for (int i = 0; i < loomWalls.size(); i++)
 			//{

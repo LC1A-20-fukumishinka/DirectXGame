@@ -15,6 +15,7 @@ Player::Player()
 	drawCount = 0;
 	angle = 0;
 	easeTimer = 0;
+	movePower = 0;
 	attackFlag = false;
 	stopTimeFlag = false;
 	isHit = false;
@@ -58,6 +59,7 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	drawCount = 0;
 	angle = 0;
 	easeTimer = 0;
+	movePower = 0;
 	attackFlag = false;
 	stopTimeFlag = false;
 	isHit = false;
@@ -79,80 +81,57 @@ void Player::Input(const Camera& camera)
 	if (input->isPadConnect())
 	{
 		//コントローラーの方向ベクトル
-		XMFLOAT3 vec = { 0,0,0 };
-		vec.x = input->LStick().x;
-		vec.z = input->LStick().y;
-		XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
+		XMFLOAT3 contVec = { 0,0,0 };
+		contVec.x = input->LStick().x;
+		contVec.z = input->LStick().y;
+
+		//正規化
+		XMStoreFloat3(&contVec, XMVector3Normalize(XMLoadFloat3(&contVec)));
 
 		//入力がある場合
-		if (vec.x != 0 && vec.z != 0)
+		if (contVec.x != 0 && contVec.z != 0)
 		{
+			//移動滑らか用
+			if (movePower < 1.0f) movePower += 0.04;
+
 			//自分の方向ベクトル
 			XMFLOAT3 myVec = { 0,0,0 };
-			float rotY = angle;
+			float rotY = obj.rotation.y - 90.0f;
 			ConvertToRadian(rotY);
 			myVec.x = cosf(-rotY);
 			myVec.z = sinf(-rotY);
 
 			//コントローラーのアングル
-			float contAngle = -atan2f(vec.z, vec.x);
+			float contAngle = -atan2f(contVec.z, contVec.x);
 			ConvertToDegree(contAngle);
 			if (contAngle < 0.0f) { contAngle += 360.0f; }
 
-			float vx1 = myVec.x - 0;
-			float vz1 = myVec.z - 0;
-			float vx2 = vec.x - 0;
-			float vz2 = vec.z - 0;
+			//自分のアングル
+			float myAngle = -atan2f(myVec.z, myVec.x);
+			ConvertToDegree(myAngle);
+			if (myAngle < 0.0f) { myAngle += 360.0f; }
+
+			//ダッシュ入力があった場合
+			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
+			{
+				myAngle = contAngle;
+			}
 
 			//近い方を判定
-			float cross = vx1 * vz2 - vz1 * vx2;
-			if (cross < 0)
-			{
-				angle += MOVE_ANGLE;
+			float hosei = RotateEarliestArc(myAngle, contAngle);
 
-				//nearかつオーバーした場合(0を跨いだ時のオーバー判定が微妙)
-				if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle > contAngle) {
-					isOverTrigger = true;
-				}
-			}
-			else
-			{
-				angle -= MOVE_ANGLE;
-
-				//nearかつオーバーした場合(0を跨いだ時のオーバー判定が微妙)
-				if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle < contAngle) {
-					isOverTrigger = true;
-				}
-			}
-
-			if (angle >= 360.0f) { angle -= 360.0f; }
-			else if (angle < 0.0f) { angle += 360.0f; }
-
-			if (isOverTrigger)
-			{
-				//差分を計算
-				/*if (angle > contAngle) {
-					angle -= fabsf(fabsf(angle) - fabsf(contAngle));
-				}
-				else {
-					angle += fabsf(fabsf(angle) - fabsf(contAngle));
-				}*/
-
-				//直接書き換え
-				angle = contAngle;
-				isOverTrigger = false;
-			}
-
-			obj.rotation = { 0, angle + 90.0f, 0 };
-
-			myVec.x *= MOVE_SPEED;
-			myVec.z *= MOVE_SPEED;
-			//contVec3 = myVec;
+			//計算
+			myAngle = myAngle + hosei / 10.0f;
+			obj.rotation.y = myAngle + 90.0f;
+			angle = myAngle;
+			ConvertToRadian(myAngle);
+			myVec.x = cosf(-myAngle);
+			myVec.z = sinf(-myAngle);
 			vec3 = myVec;
 		}
 		else {
-			//contVec3 = { 0,0,0 };
-			vec3 = { 0,0,0 };
+			if (movePower > 0.0f) movePower -= 0.06f;
+			if (movePower < 0.0f) movePower = 0.0f;
 		}
 	}
 
@@ -205,15 +184,27 @@ void Player::Input(const Camera& camera)
 
 void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 {
-	if (input->isPadConnect())
+	if (!isDead)
 	{
-		pos.x += vec3.x;
-		pos.z += vec3.z;
-	}
-	else
-	{
-		pos.x += vec3.x;
-		pos.z += vec3.z;
+		if (input->isPadConnect())
+		{
+			//ダッシュ入力があった場合
+			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
+			{
+				pos.x += vec3.x * DASH_SPEED;
+				pos.z += vec3.z * DASH_SPEED;
+			}
+			else
+			{
+				pos.x += vec3.x * MOVE_SPEED * movePower;
+				pos.z += vec3.z * MOVE_SPEED * movePower;
+			}
+		}
+		else
+		{
+			pos.x += vec3.x;
+			pos.z += vec3.z;
+		}
 	}
 
 	attackFlag = false;
@@ -338,11 +329,14 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	//被ダメージ時シェイク
 	if (isDamaged)
 	{
-		camera.SetShift(Shake::GetShake(1.0f, true, false, true));
-		damagedCount++;
-		if (damagedCount > INVINCIBLE_COUNT)
+		if (!isDead)
 		{
-			isDamaged = false; damagedCount = 0;
+			camera.SetShift(Shake::GetShake(1.0f, true, false, true));
+			damagedCount++;
+			if (damagedCount > INVINCIBLE_COUNT)
+			{
+				isDamaged = false; damagedCount = 0;
+			}
 		}
 	}
 

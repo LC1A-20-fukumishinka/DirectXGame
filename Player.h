@@ -10,12 +10,13 @@
 #include <math.h>
 
 const int INVINCIBLE_COUNT = 60;					//–³“GŽžŠÔ
-const int STOP_TIME_COUNT = 30;						//Å‘åŽžŠÔ’âŽ~—Ê
+const int STOP_TIME_COUNT = 300;						//Å‘åŽžŠÔ’âŽ~—Ê
 const int STOP_TIME_DELAY = 30;						//UŒ‚‰Â”\‚Ü‚Å‚ÌƒN[ƒ‹ƒ^ƒCƒ€
 const int ATTACK_DELAY = 30;						//UŒ‚‚ÌÅ‘åCT
 const int MAX_HP = 3;								//HP
-const float MOVE_SPEED = 1.5f;						//“®‚­‘¬‚³
-const float MOVE_ANGLE = 7.0f;						//Œü‚«‚ð•Ï‚¦‚é‘¬‚³
+const float MOVE_SPEED = 2.5f;						//“®‚­‘¬‚³
+const float DASH_SPEED = 75.0f;					//ƒ_ƒbƒVƒ…
+const float MOVE_ANGLE = 10.0f;						//Œü‚«‚ð•Ï‚¦‚é‘¬‚³
 const float ATTACK_ANGLE = 90;						//UŒ‚”ÍˆÍŠp“x
 
 using namespace DirectX;
@@ -41,6 +42,7 @@ private:
 	int damagedCount;								//–³“GŽžŠÔŠÇ—
 	float angle;									//ˆÚ“®‚·‚éŠp“x
 	float easeTimer;								//ƒC[ƒWƒ“ƒO
+	float movePower;								//ˆÚ“®‚ÌŠµ«—p
 	bool attackFlag;								//UŒ‚‚µ‚Ä‚¢‚é‚©
 	bool stopTimeFlag;								//ŽžŠÔŽ~‚ß‚Ä‚¢‚é‚©
 	bool isHit;										//UŒ‚‚ª“–‚½‚Á‚½‚©
@@ -107,6 +109,18 @@ private:
 	}
 	float easeOutCubic(float t) {
 		return 1 - powf(1 - t, 3);
+	}
+	float RotateEarliestArc(float NowAngle, float EndAngle)
+	{
+		if (fabsf(EndAngle - NowAngle) > 180.0f) {
+			if (NowAngle < 180.0f) {
+				NowAngle += 360.0f;
+			}
+			else {
+				NowAngle -= 360.0f;
+			}
+		}
+		return EndAngle - NowAngle;
 	}
 };
 
