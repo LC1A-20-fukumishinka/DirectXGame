@@ -70,7 +70,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -84,13 +84,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -321,9 +321,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma region 画像初期化
 
-	//画像初期化
+	/*画像初期化*/
+	//再生ボタンみたいな
 	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
+	//時間停止ボタンみたいな
 	int stopGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/stop.png");
+	//Playerの攻撃範囲
 	int haniGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/hani.png");
 	int particleGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/effect1.png");
 	BombEffect::SetTexture(particleGH);
@@ -348,9 +351,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	spriteStop.color.w = 0.0f;
 	hani.color.w = 0.5f;
 
+	//敵にダメージ入ったかどうか
 	bool damaged = false;
+
+	//クリアしてるかどうか
 	bool isClear = false;
 
+	//タイトル画面
 	Sprite titleLogo;
 	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/TitleGraph.png");
 	titleLogo.Init(titleTex);
@@ -358,6 +365,86 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	titleLogo.position = { window_width / 2, window_height / 2 , 0.0f };
 	titleLogo.size = { window_width, window_height };
 	titleLogo.SpriteUpdate();
+
+	/*----------DEAD_CLEAR(CLEARとDEADはPlayerで管理済)----------*/
+	int CLEAR_CHOICE = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_CHOICE.png");
+	int CLEAR_FRAME_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_FRAME_DOWN.png");
+	int CLEAR_FRAME_UP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_FRAME_UP.png");
+	int DEAD_CHOICE = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_CHOICE.png");
+	int DEAD_FRAME_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_FRAME_DOWN.png");
+	int DEAD_FRAME_UP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_FRAME_UP.png");
+
+	Sprite clear_choise;
+	Sprite clear_frame_down;
+	Sprite clear_frame_up;
+	Sprite dead_choise;
+	Sprite dead_frame_down;
+	Sprite dead_frame_up;
+
+	clear_choise.Init(CLEAR_CHOICE);
+	clear_frame_down.Init(CLEAR_FRAME_DOWN);
+	clear_frame_up.Init(CLEAR_FRAME_UP);
+	dead_choise.Init(DEAD_CHOICE);
+	dead_frame_down.Init(DEAD_FRAME_DOWN);
+	dead_frame_up.Init(DEAD_FRAME_UP);
+
+	clear_choise.size = { window_width, window_height };
+	clear_frame_down.size = { window_width, window_height };
+	clear_frame_up.size = { window_width, window_height };
+	dead_choise.size = { window_width, window_height };
+	dead_frame_down.size = { window_width, window_height };
+	dead_frame_up.size = { window_width, window_height };
+
+
+	/*----------HUD----------*/
+	int HUD_BASE = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_BASE.png");
+	int HUD_LIFE_1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_LIFE_1.png");
+	int HUD_LIFE_2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_LIFE_2.png");
+	int HUD_LIFE_3 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_LIFE_3.png");
+	int HUD_PLAY = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_PLAY.png");
+	int HUD_STOP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_STOP.png");
+
+	Sprite hud_base;
+	Sprite hud_life_1;
+	Sprite hud_life_2;
+	Sprite hud_life_3;
+	Sprite hud_play;
+	Sprite hud_stop;
+
+	hud_base.Init(HUD_BASE);
+	hud_life_1.Init(HUD_LIFE_1);
+	hud_life_2.Init(HUD_LIFE_2);
+	hud_life_3.Init(HUD_LIFE_3);
+	hud_play.Init(HUD_PLAY);
+	hud_stop.Init(HUD_STOP);
+
+	hud_base.size = { window_width, window_height };
+	hud_life_1.size = { window_width, window_height };
+	hud_life_2.size = { window_width, window_height };
+	hud_life_3.size = { window_width, window_height };
+	hud_play.size = { window_width, window_height };
+	hud_stop.size = { window_width, window_height };
+
+	hud_base.position = XMFLOAT3(0, 0, 0);
+	hud_base.SpriteUpdate();
+
+
+	/*----------SCENE_CHANGE----------*/
+	int BACK_STICK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/SCENE_CHANGE/BACK_STICK.png");
+	int SCENE_GEAR_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/SCENE_CHANGE/SCENE_GEAR_DOWN.png");
+	int SCENE_GEAR_UP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/SCENE_CHANGE/SCENE_GEAR_UP.png");
+
+	Sprite back_stick;
+	Sprite scene_gear_down;
+	Sprite scene_gear_up;
+
+	back_stick.Init(BACK_STICK);
+	scene_gear_down.Init(SCENE_GEAR_DOWN);
+	scene_gear_up.Init(SCENE_GEAR_UP);
+
+	back_stick.size = { window_width, window_height };
+	scene_gear_down.size = { window_width, window_height };
+	scene_gear_up.size = { window_width, window_height };
 
 #pragma endregion
 
@@ -560,7 +647,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			while (true)
 			{
-			bool pushEnd;
+				bool pushEnd;
 				for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
 				{
 					if (input->Button(XINPUT_GAMEPAD_B))
@@ -763,9 +850,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			part.Draw(particleGH);
 
-			if (!player.IsDead()) { hani.SpriteDraw(); }
-			if (!player.IsDead() && !isStop) { spriteStart.SpriteDraw(); }
-			if (!player.IsDead() && isStop) { spriteStop.SpriteDraw(); }
+			//攻撃範囲
+			if (!player.IsDead() && !isClear) { hani.SpriteDraw(); }
+			//再生
+			if (!player.IsDead() && !isStop && !isClear) { spriteStart.SpriteDraw(); }
+			//一時停止
+			if (!player.IsDead() && isStop && !isClear) { spriteStop.SpriteDraw(); }
+
+			//UI(簡易)
+			hud_base.SpriteDraw();
 			break;
 
 #pragma endregion
