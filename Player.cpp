@@ -1,6 +1,6 @@
 #include "Player.h"
 #include "Shake.h"
-
+#include <cmath>
 Player::Player()
 {
 	pos = { 0,0,0 };
@@ -45,7 +45,7 @@ Player::~Player()
 {
 }
 
-void Player::Init(const Camera& camera, const XMFLOAT3& pos)
+void Player::Init(const Camera &camera, const XMFLOAT3 &pos)
 {
 	this->pos = pos;
 	//direction = { 0,0,0 };
@@ -75,7 +75,7 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	obj.color.w = 1.0f;
 }
 
-void Player::Input(const Camera& camera)
+void Player::Input(const Camera &camera)
 {
 	/*---コントローラー操作用---*/
 	if (input->isPadConnect())
@@ -182,7 +182,7 @@ void Player::Input(const Camera& camera)
 	}
 }
 
-void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
+void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
 {
 	if (!isDead)
 	{
@@ -206,9 +206,16 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 			pos.z += vec3.z;
 		}
 	}
-
 	attackFlag = false;
-	camera.position = pos;
+
+	Vector3 CameraPos = camera.position;
+	Vector3 cameraToPlayerVector = Vector3(pos.x, pos.y, pos.z) - camera.position;
+
+	cameraToPlayerVector *= 0.1f;
+	camera.position = CameraPos + cameraToPlayerVector;
+
+	Vector3 nowTargetPos = camera.target;
+
 	obj.position = pos;
 	obj.Update(camera);
 
@@ -359,7 +366,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	}
 }
 
-void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
+void Player::Draw(const PipeClass::PipelineSet &pipelineSet)
 {
 	//適当なモデルで代用する
 	//if (IsDead()) return;
@@ -383,7 +390,7 @@ void Player::Finalize()
 {
 }
 
-void Player::PushBack(const XMFLOAT3& enemyPos)
+void Player::PushBack(const XMFLOAT3 &enemyPos)
 {
 	//半径
 	float r = 13.0f + 14.0f;
@@ -410,7 +417,7 @@ void Player::PushBack(const XMFLOAT3& enemyPos)
 	}
 }
 
-void Player::DeathEffect(Camera& camera)
+void Player::DeathEffect(Camera &camera)
 {
 	if (IsDead())
 	{
@@ -429,7 +436,7 @@ void Player::DeathEffect(Camera& camera)
 	}
 }
 
-bool Player::SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRight)
+bool Player::SetGoalAndCheak(const XMFLOAT3 &lowerLeft, const XMFLOAT3 &upperRight)
 {
 	if (lowerLeft.x <= pos.x <= upperRight.x &&
 		lowerLeft.z <= pos.z <= upperRight.z)
@@ -439,7 +446,7 @@ bool Player::SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRig
 	return false;
 }
 
-void Player::ClearEffect(Camera& camera, bool setGoalAndCheak)
+void Player::ClearEffect(Camera &camera, bool setGoalAndCheak)
 {
 	if (setGoalAndCheak)
 	{
