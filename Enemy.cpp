@@ -66,13 +66,13 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 				XMFLOAT3 vec = { 0,0,0 };
 				//vec.x = enemyPos.x - obj.position.x;
 				vec.x = playerPos.x - nearBulletPos.x;
-				vec.z = playerPos.z - nearBulletPos.z;
+				vec.z = nearBulletPos.z - playerPos.z;
 				XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
 
 				//é©ã@ÇÃï˚å¸ÉxÉNÉgÉã
 				XMFLOAT3 myVec = { 0,0,0 };
 				float rad = angle;
-				XMConvertToRadians(rad);
+				rad = XMConvertToRadians(rad);
 				myVec.x = cosf(rad);
 				myVec.z = sinf(rad);
 
@@ -83,7 +83,7 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 				float cosTheta = dot / (absA * absB);
 				float theta = acosf(-cosTheta);
 
-				XMConvertToDegrees(theta);
+				theta = XMConvertToDegrees(theta);
 				//ConvertToDegree(dot);
 				float attackAngle = theta;
 				//float attackAngle = dot;
@@ -92,10 +92,10 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 				float distance = Distance3D(playerPos, nearBulletPos);
 
 				//îºåaÇÃçáåv
-				float r = 15.0f + 10.0f;
+				float r = 30.0f + enemyBullet->BULLET_RADIUS;
 
 				//â~Å~â~
-				if (attackAngle < 90.0f && distance < r)
+				if (attackAngle < 45.0f && distance < r)
 				{
 					enemyBullet[saveNum].status = enemyBullet->BULLET_STATUS_EXPLOSION;
 					enemyBullet[saveNum].bulletData.color = { 49,78,97,255 };
