@@ -2,7 +2,7 @@
 #include "Shake.h"
 #include <cmath>
 
-Player::Player()
+Player::Player(int deadGraph, int clearGraph)
 {
 	pos = { 0,0,0 };
 	//direction = { 0,0,0 };
@@ -31,12 +31,12 @@ Player::Player()
 	obj.scale = { 10.0f,10.0f,10.0f };
 	obj.rotation = { 0, angle + 90.0f, 0 };
 
-	GH1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_DEAD.png");
+	GH1 = deadGraph;
 	dead.Init(GH1, XMFLOAT2(0.0f, 0.0f));
 	dead.position = { 0,-720,0 };
 	dead.size = { 1280,720 };
 
-	GH2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_CLEAR.png");
+	GH2 = clearGraph;
 	clear.Init(GH2, XMFLOAT2(0.0f, 0.0f));
 	clear.position = { 0,-720,0 };
 	clear.size = { 1280,720 };
@@ -74,6 +74,13 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	obj.Init(camera);
 	obj.rotation = { 0, angle + 90.0f, 0 };
 	obj.color.w = 1.0f;
+
+	dead.position = { 0,-720,0 };
+	dead.size = { 1280,720 };
+	dead.SpriteUpdate();
+	clear.position = { 0,-720,0 };
+	clear.size = { 1280,720 };
+	clear.SpriteUpdate();
 }
 
 void Player::Input(const Camera& camera)
