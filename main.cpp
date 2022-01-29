@@ -158,6 +158,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma endregion
 
+	std::vector<Wall> outWall;
+	outWall.resize(4);
+	outWall[0].Init(cam, { -(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
+	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2 , 10, 10.0f / 2 });
+	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
+	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2, 10, 10.0f / 2 });
 #pragma region loom
 
 	std::vector<Wall> loomWalls;
@@ -208,6 +214,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	wall[13].Init(cam, { +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
 	loomWalls.push_back(wall[13]);
 
+	for (int i = 0; i < outWall.size(); i++)
+	{
+		loomWalls.push_back(outWall[i]);
+	}
 	WallMgr::Instance()->Init(loomWalls);
 
 #pragma endregion
@@ -260,14 +270,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	townWallData[10].Init(cam, { floor.scale.x / 2 - 75,floor.position.y ,floor.scale.z / 2 - 100 }, { 150, 500, 100 }, { 75, 10, 50 });
 	townWalls.push_back(townWallData[10]);
 
+	for (int i = 0; i < outWall.size(); i++)
+	{
+		townWalls.push_back(outWall[i]);
+	}
+
 	WallMgr::Instance()->Init(townWalls);
 	//wall
-	std::vector<Wall> outWall;
-	outWall.resize(4);
-	outWall[0].Init(cam, { -(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
-	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2 , 10, 10.0f / 2 });
-	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
-	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2, 10, 10.0f / 2 });
+
 
 	EnemyMgr::Instance()->Init(cam);
 
@@ -311,9 +321,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma region 画像初期化
 
-	//画像初期化
+	/*画像初期化*/
+	//再生ボタンみたいな
 	int startGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/start.png");
+	//時間停止ボタンみたいな
 	int stopGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/stop.png");
+	//Playerの攻撃範囲
 	int haniGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/hani.png");
 	int particleGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/effect1.png");
 	BombEffect::SetTexture(particleGH);
@@ -338,9 +351,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	spriteStop.color.w = 0.0f;
 	hani.color.w = 0.5f;
 
+	//敵にダメージ入ったかどうか
 	bool damaged = false;
 
+	//クリアしてるかどうか
+	bool isClear = false;
 
+	//タイトル画面
 	Sprite titleLogo;
 	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/TitleGraph.png");
 	titleLogo.Init(titleTex);
@@ -348,6 +365,86 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	titleLogo.position = { window_width / 2, window_height / 2 , 0.0f };
 	titleLogo.size = { window_width, window_height };
 	titleLogo.SpriteUpdate();
+
+	/*----------DEAD_CLEAR(CLEARとDEADはPlayerで管理済)----------*/
+	int CLEAR_CHOICE = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_CHOICE.png");
+	int CLEAR_FRAME_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_FRAME_DOWN.png");
+	int CLEAR_FRAME_UP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_FRAME_UP.png");
+	int DEAD_CHOICE = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_CHOICE.png");
+	int DEAD_FRAME_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_FRAME_DOWN.png");
+	int DEAD_FRAME_UP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_FRAME_UP.png");
+
+	Sprite clear_choise;
+	Sprite clear_frame_down;
+	Sprite clear_frame_up;
+	Sprite dead_choise;
+	Sprite dead_frame_down;
+	Sprite dead_frame_up;
+
+	clear_choise.Init(CLEAR_CHOICE);
+	clear_frame_down.Init(CLEAR_FRAME_DOWN);
+	clear_frame_up.Init(CLEAR_FRAME_UP);
+	dead_choise.Init(DEAD_CHOICE);
+	dead_frame_down.Init(DEAD_FRAME_DOWN);
+	dead_frame_up.Init(DEAD_FRAME_UP);
+
+	clear_choise.size = { window_width, window_height };
+	clear_frame_down.size = { window_width, window_height };
+	clear_frame_up.size = { window_width, window_height };
+	dead_choise.size = { window_width, window_height };
+	dead_frame_down.size = { window_width, window_height };
+	dead_frame_up.size = { window_width, window_height };
+
+
+	/*----------HUD----------*/
+	int HUD_BASE = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_BASE.png");
+	int HUD_LIFE_1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_LIFE_1.png");
+	int HUD_LIFE_2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_LIFE_2.png");
+	int HUD_LIFE_3 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_LIFE_3.png");
+	int HUD_PLAY = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_PLAY.png");
+	int HUD_STOP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_STOP.png");
+
+	Sprite hud_base;
+	Sprite hud_life_1;
+	Sprite hud_life_2;
+	Sprite hud_life_3;
+	Sprite hud_play;
+	Sprite hud_stop;
+
+	hud_base.Init(HUD_BASE);
+	hud_life_1.Init(HUD_LIFE_1);
+	hud_life_2.Init(HUD_LIFE_2);
+	hud_life_3.Init(HUD_LIFE_3);
+	hud_play.Init(HUD_PLAY);
+	hud_stop.Init(HUD_STOP);
+
+	hud_base.size = { window_width, window_height };
+	hud_life_1.size = { window_width, window_height };
+	hud_life_2.size = { window_width, window_height };
+	hud_life_3.size = { window_width, window_height };
+	hud_play.size = { window_width, window_height };
+	hud_stop.size = { window_width, window_height };
+
+	hud_base.position = XMFLOAT3(0, 0, 0);
+	hud_base.SpriteUpdate();
+
+
+	/*----------SCENE_CHANGE----------*/
+	int BACK_STICK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/SCENE_CHANGE/BACK_STICK.png");
+	int SCENE_GEAR_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/SCENE_CHANGE/SCENE_GEAR_DOWN.png");
+	int SCENE_GEAR_UP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/SCENE_CHANGE/SCENE_GEAR_UP.png");
+
+	Sprite back_stick;
+	Sprite scene_gear_down;
+	Sprite scene_gear_up;
+
+	back_stick.Init(BACK_STICK);
+	scene_gear_down.Init(SCENE_GEAR_DOWN);
+	scene_gear_up.Init(SCENE_GEAR_UP);
+
+	back_stick.size = { window_width, window_height };
+	scene_gear_down.size = { window_width, window_height };
+	scene_gear_up.size = { window_width, window_height };
 
 #pragma endregion
 
@@ -543,26 +640,44 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			XMFLOAT3 enemyPos = { 0,0,50 };
 			isdead = player.IsDead();
 			hp = player.GetHP();
-			if (!isdead) { player.Input(cam); }
+			if (!isdead && !isClear) { player.Input(cam); }
 
 			//フィールド上の壁
-			for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
+			XMFLOAT3 playerSpeed = player.GetVec3();
+
+			while (true)
 			{
-				XMFLOAT3 playerSpeed = player.GetVec3();
-				XMFLOAT3 push = WallMgr::Instance()->GetWalls()[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
-				playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
-				player.SetVec3(playerSpeed);
+				bool pushEnd;
+				for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
+				{
+					if (input->Button(XINPUT_GAMEPAD_B))
+					{
+						int b = 0;
+					}
+					Vector3 push;
+					push = WallMgr::Instance()->GetWalls()[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
+
+					playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
+					Vector3 ps;
+
+					pushEnd = push.length() <= 0;
+				}
+				if (pushEnd)
+				{
+					player.SetVec3(playerSpeed);
+					break;
+				}
 			}
 
-			//外周の壁
-			for (int i = 0; i < outWall.size(); i++)
-			{
-				XMFLOAT3 playerSpeed = player.GetVec3();
-				XMFLOAT3 push = outWall[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
-				playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
-				player.SetVec3(playerSpeed);
+			////外周の壁
+			//for (int i = 0; i < outWall.size(); i++)
+			//{
+			//	XMFLOAT3 playerSpeed = player.GetVec3();
+			//	XMFLOAT3 push = outWall[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
+			//	playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
+			//	player.SetVec3(playerSpeed);
 
-			}
+			//}
 
 			if (input->KeyTrigger(DIK_RETURN))
 			{
@@ -572,11 +687,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 			//敵と自機の押し戻し
-			if (!isdead) { player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos())); }
+			if (!isdead && !isClear) { player.PushBack(EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos())); }
 			//自機更新処理
 			player.Update(cam, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()));
-			//自機死亡演出
-			player.DeathEffect(cam);
 
 			bomb.Update();
 
@@ -617,6 +730,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				EnemyMgr::Instance()->DeadNearEnemy();
 			}
 
+			//自機死亡演出(シーン切り替えの直前に置く)
+			player.DeathEffect(cam);
 
 			//for (int i = 0; i < loomWalls.size(); i++)
 			//{
@@ -628,11 +743,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				outWall[i].Update();
 			}
 
-			if (player.GetPos().x >= 400)
+			//クリア遷移
+			XMFLOAT3 lowerLeft = { 350,0,-40 };
+			XMFLOAT3 upperRight = { 450,0,40 };
+			player.ClearEffect(cam, player.SetGoalAndCheak(lowerLeft, upperRight));
+			isClear = player.IsClear();
+			if (!player.IsEffect() && isClear)
 			{
 				nowScene = CLEAR;
 			}
 
+			//死亡遷移
 			/*if (player.IsDead())
 			{
 				nowScene = GAMEOVER;
@@ -649,7 +770,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region CLEAR_UPDATE
 
 		case CLEAR:
-			if (input->KeyTrigger(DIK_SPACE))
+			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
 				nowScene = TITLE;
 			}
@@ -660,7 +781,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region GAMEOVER_UPDATE
 
 		case GAMEOVER:
-			if (input->KeyTrigger(DIK_SPACE))
+			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
 				nowScene = TITLE;
 			}
@@ -729,9 +850,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			part.Draw(particleGH);
 
-			if (!player.IsDead()) { hani.SpriteDraw(); }
-			if (!player.IsDead() && !isStop) { spriteStart.SpriteDraw(); }
-			if (!player.IsDead() && isStop) { spriteStop.SpriteDraw(); }
+			//攻撃範囲
+			if (!player.IsDead() && !isClear) { hani.SpriteDraw(); }
+			//再生
+			if (!player.IsDead() && !isStop && !isClear) { spriteStart.SpriteDraw(); }
+			//一時停止
+			if (!player.IsDead() && isStop && !isClear) { spriteStop.SpriteDraw(); }
+
+			//UI(簡易)
+			hud_base.SpriteDraw();
 			break;
 
 #pragma endregion

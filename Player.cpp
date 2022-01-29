@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Shake.h"
+#include <cmath>
 
 Player::Player()
 {
@@ -15,6 +16,7 @@ Player::Player()
 	drawCount = 0;
 	angle = 0;
 	easeTimer = 0;
+	movePower = 0;
 	attackFlag = false;
 	stopTimeFlag = false;
 	isHit = false;
@@ -23,7 +25,7 @@ Player::Player()
 	spriteDeadFlag = false;
 	spriteClearFlag = false;
 	isEffect = false;
-	isOverTrigger = false;
+	isClear = false;
 
 	model.CreateModel("player");
 	obj.scale = { 10.0f,10.0f,10.0f };
@@ -35,7 +37,7 @@ Player::Player()
 	dead.size = { 1280,720 };
 
 	GH2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_CLEAR.png");
-	clear.Init(GH1, XMFLOAT2(0.0f, 0.0f));
+	clear.Init(GH2, XMFLOAT2(0.0f, 0.0f));
 	clear.position = { 0,-720,0 };
 	clear.size = { 1280,720 };
 }
@@ -58,6 +60,7 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	drawCount = 0;
 	angle = 0;
 	easeTimer = 0;
+	movePower = 0;
 	attackFlag = false;
 	stopTimeFlag = false;
 	isHit = false;
@@ -66,7 +69,7 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	spriteDeadFlag = false;
 	spriteClearFlag = false;
 	isEffect = false;
-	isOverTrigger = false;
+	isClear = false;
 
 	obj.Init(camera);
 	obj.rotation = { 0, angle + 90.0f, 0 };
@@ -79,80 +82,72 @@ void Player::Input(const Camera& camera)
 	if (input->isPadConnect())
 	{
 		//コントローラーの方向ベクトル
-		XMFLOAT3 vec = { 0,0,0 };
-		vec.x = input->LStick().x;
-		vec.z = input->LStick().y;
-		XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
+		XMFLOAT3 contVec = { 0,0,0 };
+		contVec.x = input->LStick().x;
+		contVec.z = input->LStick().y;
+
+		//正規化
+		XMStoreFloat3(&contVec, XMVector3Normalize(XMLoadFloat3(&contVec)));
 
 		//入力がある場合
-		if (vec.x != 0 && vec.z != 0)
+		if (contVec.x != 0 && contVec.z != 0)
 		{
+			//移動滑らか用
+			if (movePower < 1.0f) movePower += 0.03f;
+			if (movePower > 1.0f) movePower = 1.0f;
+
 			//自分の方向ベクトル
 			XMFLOAT3 myVec = { 0,0,0 };
-			float rotY = angle;
+			float rotY = obj.rotation.y - 90.0f;
 			ConvertToRadian(rotY);
 			myVec.x = cosf(-rotY);
 			myVec.z = sinf(-rotY);
 
 			//コントローラーのアングル
-			float contAngle = -atan2f(vec.z, vec.x);
+			float contAngle = -atan2f(contVec.z, contVec.x);
 			ConvertToDegree(contAngle);
 			if (contAngle < 0.0f) { contAngle += 360.0f; }
 
-			float vx1 = myVec.x - 0;
-			float vz1 = myVec.z - 0;
-			float vx2 = vec.x - 0;
-			float vz2 = vec.z - 0;
+			//自分のアングル
+			float myAngle = -atan2f(myVec.z, myVec.x);
+			ConvertToDegree(myAngle);
+			if (myAngle < 0.0f) { myAngle += 360.0f; }
+
+			//ダッシュ入力があった場合
+			if (input->ButtonTrigger(XINPUT_GAMEPAD_B)) { myAngle = contAngle; }
 
 			//近い方を判定
-			float cross = vx1 * vz2 - vz1 * vx2;
-			if (cross < 0)
-			{
-				angle += MOVE_ANGLE;
+			float hosei = RotateEarliestArc(myAngle, contAngle);
 
-				//nearかつオーバーした場合(0を跨いだ時のオーバー判定が微妙)
-				if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle > contAngle) {
-					isOverTrigger = true;
-				}
+			//計算
+			myAngle = myAngle + hosei / 10.0f;
+			obj.rotation.y = myAngle + 90.0f;
+			angle = myAngle;
+			ConvertToRadian(myAngle);
+			myVec.x = cosf(-myAngle);
+			myVec.z = sinf(-myAngle);
+			vec3 = myVec;
+
+			//ダッシュ入力があった場合
+			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
+			{
+				vec3.x *= DASH_SPEED;
+				vec3.z *= DASH_SPEED;
 			}
 			else
 			{
-				angle -= MOVE_ANGLE;
-
-				//nearかつオーバーした場合(0を跨いだ時のオーバー判定が微妙)
-				if (fabsf(fabsf(angle) - fabsf(contAngle)) <= MOVE_ANGLE && angle < contAngle) {
-					isOverTrigger = true;
-				}
+				vec3.x *= MOVE_SPEED * movePower;
+				vec3.z *= MOVE_SPEED * movePower;
 			}
-
-			if (angle >= 360.0f) { angle -= 360.0f; }
-			else if (angle < 0.0f) { angle += 360.0f; }
-
-			if (isOverTrigger)
-			{
-				//差分を計算
-				/*if (angle > contAngle) {
-					angle -= fabsf(fabsf(angle) - fabsf(contAngle));
-				}
-				else {
-					angle += fabsf(fabsf(angle) - fabsf(contAngle));
-				}*/
-
-				//直接書き換え
-				angle = contAngle;
-				isOverTrigger = false;
-			}
-
-			obj.rotation = { 0, angle + 90.0f, 0 };
-
-			myVec.x *= MOVE_SPEED;
-			myVec.z *= MOVE_SPEED;
-			//contVec3 = myVec;
-			vec3 = myVec;
 		}
+
+		//PAD未入力
 		else {
-			//contVec3 = { 0,0,0 };
-			vec3 = { 0,0,0 };
+			if (movePower > 0.0f) movePower -= 0.02f;
+			if (movePower < 0.0f) movePower = 0.0f;
+
+			vec3.x *= movePower;
+			vec3.z *= movePower;
 		}
 	}
 
@@ -161,39 +156,53 @@ void Player::Input(const Camera& camera)
 	else
 	{
 		/*移動*/
-		if (input->Key(DIK_D) || input->Key(DIK_A))
+		if (input->Key(DIK_D) || input->Key(DIK_A) || input->Key(DIK_W) || input->Key(DIK_S))
 		{
-			if (input->Key(DIK_D))
+			//角度変更
+			if (input->Key(DIK_D) || input->Key(DIK_A))
 			{
-				angle += MOVE_ANGLE;
-			}
-			if (input->Key(DIK_A))
-			{
-				angle -= MOVE_ANGLE;
+				if (input->Key(DIK_D))
+				{
+					angle += MOVE_ANGLE;
+				}
+				if (input->Key(DIK_A))
+				{
+					angle -= MOVE_ANGLE;
+				}
+
+				obj.rotation = { 0, angle + 90.0f, 0 };
 			}
 
-			obj.rotation = { 0, angle + 90.0f, 0 };
+			//前後移動
+			if (input->Key(DIK_W) || input->Key(DIK_S))
+			{
+				//移動滑らか用
+				if (movePower < 1.0f) movePower += 0.04;
+
+				float rotY = angle;
+				ConvertToRadian(rotY);
+				vec3.x = cosf(-rotY);
+				vec3.z = sinf(-rotY);
+
+				if (input->Key(DIK_W))
+				{
+					vec3.x *= MOVE_SPEED * movePower;
+					vec3.z *= MOVE_SPEED * movePower;
+				}
+				if (input->Key(DIK_S))
+				{
+					vec3.x *= -MOVE_SPEED * movePower;
+					vec3.z *= -MOVE_SPEED * movePower;
+				}
+			}
+			//移動する気ない時
+			else { vec3 = { 0.0f,0.0f,0.0f }; }
 		}
-
-		if (input->Key(DIK_W) || input->Key(DIK_S))
-		{
-			float rotY = angle;
-			ConvertToRadian(rotY);
-			vec3.x = cosf(-rotY);
-			vec3.z = sinf(-rotY);
-
-			if (input->Key(DIK_W))
-			{
-				vec3.x *= MOVE_SPEED;
-				vec3.z *= MOVE_SPEED;
-			}
-			if (input->Key(DIK_S))
-			{
-				vec3.x *= -MOVE_SPEED;
-				vec3.z *= -MOVE_SPEED;
-			}
+		//入力ない時
+		else {
+			if (movePower > 0.0f) movePower -= 0.06f;
+			if (movePower < 0.0f) movePower = 0.0f;
 		}
-		else { vec3 = { 0.0f,0.0f,0.0f }; }
 	}
 
 	//デバッグ用
@@ -205,19 +214,43 @@ void Player::Input(const Camera& camera)
 
 void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 {
-	if (input->isPadConnect())
+	//移動処理
+	if (!isDead && !isClear)
 	{
-		pos.x += vec3.x;
-		pos.z += vec3.z;
+		//コントローラー接続時
+		if (input->isPadConnect())
+		{
+			//ダッシュ入力があった場合
+			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
+			{
+				pos.x += vec3.x;
+				pos.z += vec3.z;
+			}
+			else
+			{
+				pos.x += vec3.x;
+				pos.z += vec3.z;
+			}
+		}
+
+		//未接続
+		else
+		{
+			pos.x += vec3.x;
+			pos.z += vec3.z;
+		}
 	}
-	else
-	{
-		pos.x += vec3.x;
-		pos.z += vec3.z;
-	}
+	attackFlag = false;
+
+	Vector3 CameraPos = camera.position;
+	Vector3 cameraToPlayerVector = Vector3(pos.x, pos.y, pos.z) - camera.position;
+
+	cameraToPlayerVector *= 0.1f;
+	camera.position = CameraPos + cameraToPlayerVector;
+
 
 	attackFlag = false;
-	camera.position = pos;
+
 	obj.position = pos;
 	obj.Update(camera);
 
@@ -264,7 +297,6 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	}
 
 	/*攻撃*/
-
 	//攻撃前
 	if (!attackFlag)
 	{
@@ -338,14 +370,18 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	//被ダメージ時シェイク
 	if (isDamaged)
 	{
-		camera.SetShift(Shake::GetShake(1.0f, true, false, true));
-		damagedCount++;
-		if (damagedCount > INVINCIBLE_COUNT)
+		if (!isDead)
 		{
-			isDamaged = false; damagedCount = 0;
+			camera.SetShift(Shake::GetShake(1.0f, true, false, true));
+			damagedCount++;
+			if (damagedCount > INVINCIBLE_COUNT)
+			{
+				isDamaged = false; damagedCount = 0;
+			}
 		}
 	}
 
+	//死亡画像処理
 	if (spriteDeadFlag)
 	{
 		XMFLOAT3 pos = dead.position;
@@ -355,6 +391,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		dead.SpriteUpdate();
 	}
 
+	//クリア画像処理
 	if (spriteClearFlag)
 	{
 		XMFLOAT3 pos = clear.position;
@@ -437,9 +474,12 @@ void Player::DeathEffect(Camera& camera)
 
 bool Player::SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRight)
 {
-	if (lowerLeft.x <= pos.x <= upperRight.x &&
-		lowerLeft.z <= pos.z <= upperRight.z)
+	if (lowerLeft.x <= pos.x &&
+		pos.x <= upperRight.x &&
+		lowerLeft.z <= pos.z &&
+		pos.z <= upperRight.z)
 	{
+		isClear = true;
 		return true;
 	}
 	return false;
@@ -449,7 +489,7 @@ void Player::ClearEffect(Camera& camera, bool setGoalAndCheak)
 {
 	if (setGoalAndCheak)
 	{
-		isEffect = true;
+		if (!spriteClearFlag) isEffect = true;
 		if (easeTimer < 1.0f)
 		{
 			easeTimer += 0.01f;
