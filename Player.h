@@ -60,7 +60,7 @@ private:
 	bool isEffect;									//エフェクト中か否か(true->エフェクト中)
 
 public:
-	Player();
+	Player(int deadGraph, int clearGraph);
 	~Player();
 	void Init(const Camera& camera, const XMFLOAT3& pos);
 	void Input(const Camera& camera);
