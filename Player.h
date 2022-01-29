@@ -8,6 +8,7 @@
 #include <DirectXMath.h>
 #include <math.h>
 #include "Vector3.h"
+#include "particleManager.h"
 const int INVINCIBLE_COUNT = 60;					//無敵時間
 const int STOP_TIME_COUNT = 300;						//最大時間停止量
 const int STOP_TIME_DELAY = 30;						//攻撃可能までのクールタイム
@@ -53,14 +54,17 @@ private:
 private:
 	int GH1;
 	int GH2;
+	int partGH;
 	Sprite dead;
 	Sprite clear;
 	bool spriteDeadFlag;							//UpdateとDrawに伝える用
 	bool spriteClearFlag;							//UpdateとDrawに伝える用
 	bool isEffect;									//エフェクト中か否か(true->エフェクト中)
+	ParticleManager shift;
 
+	Vector3 cameraToPlayer;
 public:
-	Player(int deadGraph, int clearGraph);
+	Player(int deadGraph, int clearGraph, int particle);
 	~Player();
 	void Init(const Camera& camera, const XMFLOAT3& pos);
 	void Input(const Camera& camera);
@@ -74,6 +78,7 @@ public:
 
 public:
 	XMFLOAT3 GetPos() { return pos; }									//ポジションを返す
+	XMFLOAT3 GetCameraToPlayer(){return cameraToPlayer;};
 	//XMFLOAT3 GetDirection() { return direction; }						//向いてる方向を返す
 	XMFLOAT3 GetVec3() { return vec3; }									//方向ベクトルを返す
 	void SetVec3(XMFLOAT3 vec3) { this->vec3 = vec3; }					//方向ベクトルをセット

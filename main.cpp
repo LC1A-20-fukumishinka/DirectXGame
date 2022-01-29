@@ -136,10 +136,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Wall::SetModel(boxModel);
 	int deadGraph = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_DEAD.png");
 	int clearGraph = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_CLEAR.png");
+
 	Sprite deadSprite;
 	Sprite clearSprite;
 	deadSprite.Init(deadGraph, { 0, 0 });
 	clearSprite.Init(clearGraph, { 0, 0 });
+
+	int particleGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/effect1.png");
+
 
 	deadSprite.size = deadSprite.texSize;
 
@@ -147,7 +151,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	deadSprite.SpriteUpdate();
 	clearSprite.SpriteUpdate();
-	Player player(deadGraph, clearGraph);
+	Player player(deadGraph, clearGraph, particleGH);
 	player.Init(cam, STAGE_1);
 	bool isdead;
 	int hp;
@@ -339,7 +343,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int stopGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/stop.png");
 	//Playerの攻撃範囲
 	int haniGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/hani.png");
-	int particleGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/effect1.png");
 	BombEffect::SetTexture(particleGH);
 
 	Sprite spriteStart;
@@ -580,17 +583,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		else { startDraw = false; }
 
 		//範囲の画像
-		hani.anchorpoint = { 1.0,1.0 };
+		hani.anchorpoint = { 0.5,0.5 };
 		hani.rotation = player.GetAngle() + 90.0f;
 
 		XMFLOAT3 vec3 = player.GetVec3();
 		float width = window_width;
 		float height = window_height;
-		hani.position = { width / 2 ,height / 2 ,0 };
 
+		XMFLOAT3 CtoP = player.GetCameraToPlayer();
+		hani.position = { width / 2 + (CtoP.x * 2) ,height / 2 - (CtoP.z * 2),0 };
 		if (!player.IsDead()) { spriteStart.SpriteUpdate(); }
 		if (!player.IsDead()) { spriteStop.SpriteUpdate(); }
 		if (!player.IsDead()) { hani.SpriteUpdate(); }
+
 
 #pragma endregion
 
@@ -693,7 +698,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//フィールド上の壁
 			XMFLOAT3 playerSpeed = player.GetVec3();
 
-			for (int i = 0;i < 10;i++)
+			for (int i = 0; i < 10; i++)
 			{
 				bool pushEnd;
 				for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
@@ -908,7 +913,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				}
 				hud_base_life.SpriteDraw();
 				hud_timestate.SpriteDraw();
-				if(isStop)
+				if (isStop)
 				{
 					hud_stop.SpriteDraw();
 				}
