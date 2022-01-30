@@ -9,6 +9,7 @@
 #include <math.h>
 #include "Vector3.h"
 #include "particleManager.h"
+#include "Sound.h"
 const int INVINCIBLE_COUNT = 60;					//無敵時間
 const int STOP_TIME_COUNT = 300;						//最大時間停止量
 const int STOP_TIME_DELAY = 30;						//攻撃可能までのクールタイム
@@ -63,8 +64,9 @@ private:
 	ParticleManager shift;
 
 	Vector3 cameraToPlayer;
+	Sound *damageSE;
 public:
-	Player(int deadGraph, int clearGraph, int particle);
+	Player(int deadGraph, int clearGraph, int particle, int DamageSound);
 	~Player();
 	void Init(const Camera& camera, const XMFLOAT3& pos);
 	void Input(const Camera& camera);
@@ -84,14 +86,8 @@ public:
 	void SetVec3(XMFLOAT3 vec3) { this->vec3 = vec3; }					//方向ベクトルをセット
 	void SetPos(XMFLOAT3 pos) { this->pos = pos; }
 
-	void Damaged()
-	{
-		isDamaged = true;
-		if (hp > 0 && damagedCount == 0) { hp--; }
-		if (hp <= 0) {
-			isDead = true;
-		}
-	}	//HPを減らす
+	void Damaged();
+
 
 	int GetHP() { return hp; }											//HPを返す
 	int GetStopTimeCount() { return stopTimeCount; }

@@ -2,7 +2,7 @@
 #include "Shake.h"
 #include <cmath>
 
-Player::Player(int deadGraph, int clearGraph, int particle)
+Player::Player(int deadGraph, int clearGraph, int particle, int DamageSound)
 {
 	pos = { 0,0,0 };
 	//direction = { 0,0,0 };
@@ -42,10 +42,12 @@ Player::Player(int deadGraph, int clearGraph, int particle)
 	clear.size = { 1280,720 };
 
 	partGH = particle;
+	damageSE = new Sound(DamageSound);
 }
 
 Player::~Player()
 {
+	delete damageSE;
 }
 
 void Player::Init(const Camera &camera, const XMFLOAT3 &pos)
@@ -237,12 +239,12 @@ void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
 					Vector3 shiftPos((((float)rand() / RAND_MAX * 2) - 1),
 						0,
 						(((float)rand() / RAND_MAX * 2) - 1));
-					shiftPos = shiftPos.normalaize() *((float)rand() / RAND_MAX) * 10;
+					shiftPos = shiftPos.normalaize() * ((float)rand() / RAND_MAX) * 10;
 
-					shiftPos.y =(((float)rand() / RAND_MAX * 2) - 1) * 10;
+					shiftPos.y = (((float)rand() / RAND_MAX * 2) - 1) * 10;
 
 					float scale = ((float)rand() / RAND_MAX) * 10;
-					shift.Add((int)(30 + (3 * scale)), Vector3(pos) + shiftPos, Vector3(), Vector3(), 10 + scale, 0, {1.0f, 1.0f, 1.0f, 1.0f}, { 1.0f, 1.0f, 1.0f, 1.0f });
+					shift.Add((int)(30 + (3 * scale)), Vector3(pos) + shiftPos, Vector3(), Vector3(), 10 + scale, 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
 				}
 				pos.x += vec3.x;
 				pos.z += vec3.z;
@@ -266,7 +268,7 @@ void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
 	Vector3 CameraPos = camera.position;
 	Vector3 cameraToPlayerVector = cameraToPlayer = Vector3(pos.x, pos.y, pos.z) - camera.position;
 
-	
+
 	cameraToPlayerVector *= 0.1f;
 	camera.position = CameraPos + cameraToPlayerVector;
 
@@ -495,6 +497,19 @@ void Player::DeathEffect(Camera &camera)
 		}
 	}
 }
+
+void Player::Damaged()
+{
+	isDamaged = true;
+	if (hp > 0 && damagedCount == 0)
+	{
+		hp--;
+		damageSE->Play();
+	}
+	if (hp <= 0) {
+		isDead = true;
+	}
+}	//HP‚ðŒ¸‚ç‚·
 
 bool Player::SetGoalAndCheak(const XMFLOAT3 &lowerLeft, const XMFLOAT3 &upperRight)
 {

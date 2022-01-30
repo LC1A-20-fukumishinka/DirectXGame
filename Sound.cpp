@@ -137,6 +137,8 @@ void Sound::Play()
 {
 	HRESULT result;
 
+	Stop();
+
 	//再生する波形データの設定
 	XAUDIO2_BUFFER buf{};
 	buf.pAudioData = soundData[soundIndex].pBuffer;

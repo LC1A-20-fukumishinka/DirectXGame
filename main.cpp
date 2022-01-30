@@ -77,10 +77,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region sound(xAudioInstance)
 
 	Sound::StaticInitialize();
-	int alarm = Sound::SoundLoadWave("Resources/Alarm01.wav");
-
+	int alarm = Sound::SoundLoadWave("Resources/sounds/Alarm01.wav");
+	int EnterData = Sound::SoundLoadWave("Resources/sounds/Enter.wav");
+	int DamageData = Sound::SoundLoadWave("Resources/sounds/Damage.wav");
+	int BGMData = Sound::SoundLoadWave("Resources/sounds/BGM.wav");
+	int SelectData = Sound::SoundLoadWave("Resources/sounds/Select.wav");
 	Sound voice(alarm);
-
+	Sound enterSE(EnterData);
+	Sound BGM(BGMData);
+	Sound SelectSE(SelectData);
 #pragma endregion
 
 	//DirectX‰Šú‰»ˆ— ‚±‚±‚Ü‚Å
@@ -151,7 +156,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	deadSprite.SpriteUpdate();
 	clearSprite.SpriteUpdate();
-	Player player(deadGraph, clearGraph, particleGH);
+	Player player(deadGraph, clearGraph, particleGH, DamageData);
 	player.Init(cam, STAGE_1);
 	bool isdead;
 	int hp;
@@ -628,7 +633,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				nowScene = STAGESELECT;
 
-
+				enterSE.Play();
 				//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
 			}
 			break;
@@ -661,7 +666,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				{
 					stageNum = 1;
 				}
-
+				SelectSE.Play();
 			}
 			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
@@ -681,6 +686,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					EnemyMgr::Instance()->Init(cam);
 					EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
 				}
+				enterSE.Play();
+				BGM.PlayLoop();
 				nowScene = GAME;
 			}
 			break;
@@ -754,7 +761,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				for (int i = 0; i < EnemyMgr::Instance()->MAX_ENEMY_COUNT; i++) {
 					if (EnemyMgr::Instance()->CheckEnemyAttackToPlayer(i))
 					{
-						if (!damaged) player.Damaged();
+						if (!damaged)
+						{
+							player.Damaged();
+						}
 						damaged = true;
 					}
 				}
@@ -795,6 +805,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (!player.IsEffect() && isClear)
 			{
 				nowScene = CLEAR;
+				BGM.Stop();
 			}
 
 			//Ž€–S‘JˆÚ
@@ -805,6 +816,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (!player.IsEffect() && player.IsDead())
 			{
 				nowScene = GAMEOVER;
+				BGM.Stop();
 			}
 
 			break;
@@ -817,6 +829,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
 				nowScene = TITLE;
+				enterSE.Play();
 			}
 			break;
 
@@ -828,6 +841,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
 				nowScene = TITLE;
+				enterSE.Play();
 			}
 			break;
 
