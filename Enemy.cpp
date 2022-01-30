@@ -54,117 +54,174 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 	//生成済みじゃなかったら生成する
 	if (!isAlive)return;
 
-	if (isStop)
+	//敵のステータスによって処理を分ける
+	if (!isEnemyTypeSeach)
 	{
-		XMFLOAT3 nearBulletPos = GetNearEnemyBulletPos(playerPos);
-		if (isAttack)
+		if (isStop)
 		{
-			if (enemyBullet[saveNum].isAlive)
+			XMFLOAT3 nearBulletPos = GetNearEnemyBulletPos(playerPos);
+			if (isAttack)
 			{
-				//判定
-				//敵への方向ベクトル
-				XMFLOAT3 vec = { 0,0,0 };
-				//vec.x = enemyPos.x - obj.position.x;
-				vec.x = playerPos.x - nearBulletPos.x;
-				vec.z = playerPos.z - nearBulletPos.z;
-				XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
-
-				//自機の方向ベクトル
-				XMFLOAT3 myVec = { 0,0,0 };
-				float rad = angle;
-				XMConvertToRadians(rad);
-				myVec.x = cosf(rad);
-				myVec.z = sinf(rad);
-
-				//計算
-				float dot = vec.x * myVec.x + vec.z * myVec.z;
-				float absA = sqrtf(vec.x * vec.x + vec.z * vec.z);
-				float absB = sqrtf(myVec.x * myVec.x + myVec.z * myVec.z);
-				float cosTheta = dot / (absA * absB);
-				float theta = acosf(-cosTheta);
-
-				XMConvertToDegrees(theta);
-				//ConvertToDegree(dot);
-				float attackAngle = theta;
-				//float attackAngle = dot;
-
-				//2点間の距離
-				float distance = Distance3D(playerPos, nearBulletPos);
-
-				//半径の合計
-				float r = 15.0f + 10.0f;
-
-				//円×円
-				if (attackAngle < 90.0f && distance < r)
+				if (enemyBullet[saveNum].isAlive)
 				{
-					enemyBullet[saveNum].status = enemyBullet->BULLET_STATUS_EXPLOSION;
-					enemyBullet[saveNum].bulletData.color = { 49,78,97,255 };
+					//判定
+					//敵への方向ベクトル
+					XMFLOAT3 vec = { 0,0,0 };
+					//vec.x = enemyPos.x - obj.position.x;
+					vec.x = playerPos.x - nearBulletPos.x;
+					vec.z = nearBulletPos.z - playerPos.z;
+					XMStoreFloat3(&vec, XMVector3Normalize(XMLoadFloat3(&vec)));
+
+					//自機の方向ベクトル
+					XMFLOAT3 myVec = { 0,0,0 };
+					float rad = angle;
+					rad = XMConvertToRadians(rad);
+					myVec.x = cosf(rad);
+					myVec.z = sinf(rad);
+
+					//計算
+					float dot = vec.x * myVec.x + vec.z * myVec.z;
+					float absA = sqrtf(vec.x * vec.x + vec.z * vec.z);
+					float absB = sqrtf(myVec.x * myVec.x + myVec.z * myVec.z);
+					float cosTheta = dot / (absA * absB);
+					float theta = acosf(-cosTheta);
+
+					theta = XMConvertToDegrees(theta);
+					//ConvertToDegree(dot);
+					float attackAngle = theta;
+					//float attackAngle = dot;
+
+					//2点間の距離
+					float distance = Distance3D(playerPos, nearBulletPos);
+
+					//半径の合計
+					float r = 30.0f + enemyBullet->BULLET_RADIUS;
+
+					//円×円
+					if (attackAngle < 45.0f && distance < r)
+					{
+						enemyBullet[saveNum].status = enemyBullet->BULLET_STATUS_EXPLOSION;
+						enemyBullet[saveNum].bulletData.color = { 49,78,97,255 };
+					}
 				}
 			}
 		}
-	}
 
+		else
+		{
+			isHit = false;
+			//弾の処理
+			for (int i = 0; i < MAX_BULLET; ++i)
+			{
+				if (!enemyBullet[i].isAlive)continue;
+				if (enemyBullet[i].status != enemyBullet->BULLET_STATUS_EXPLOSION)continue;
+				XMFLOAT3 enemyPos1 = enemyBullet[i].bulletData.position;
+				for (int j = 0; j < MAX_BULLET; ++j)
+				{
+					if (!enemyBullet[j].isAlive)continue;
+					if (enemyBullet[j].status != enemyBullet->BULLET_STATUS_ALIVE)continue;
+					if (i == j)continue;
+					XMFLOAT3 enemyPos2 = enemyBullet[j].bulletData.position;
+					//2点間の距離を求める
+					float distance = Distance3D(enemyPos1, enemyPos2);
+					//半径の和を求める
+					float r = enemyBullet[i].EXPLOSION_RADIUS + enemyBullet[j].BULLET_RADIUS;
+					if (distance < r)
+					{
+						enemyBullet[j].status = enemyBullet->BULLET_STATUS_EXPLOSION;
+					}
+				}
+				//敵との距離を求める
+				float distance = Distance3D(enemyPos1, enemyData.position);
+				float r = enemyBullet[i].EXPLOSION_RADIUS + ENEMY_RADIUS;
+				if (distance < r)
+				{
+					Dead();
+				}
+			}
+
+			//弾の処理
+			for (int i = 0; i < MAX_BULLET; ++i)
+			{
+				if (!enemyBullet[i].isAlive)continue;
+				if (enemyBullet[i].status != enemyBullet->BULLET_STATUS_ALIVE)continue;
+
+				XMFLOAT3 enemyPos1 = enemyBullet[i].bulletData.position;
+
+				//プレイヤーとの当たり判定
+				float pDistance = Distance3D(enemyPos1, playerPos);
+				float playerRadius = 8.0f;
+				float pR = enemyBullet->BULLET_RADIUS + playerRadius;
+				if (pDistance < pR)
+				{
+					isHit = true;
+				}
+			}
+
+			status = STATUS_ATTACK;
+
+			//ステータスによって処理を分ける
+			switch (status)
+			{
+			case STATUS_SEARCH:
+				//Searching(playerSphere);
+				break;
+			case STATUS_TARGET:
+				//Targeting(playerPos);
+				break;
+			case STATUS_ATTACK:
+				Attack();
+				break;
+			default:
+				break;
+			}
+
+			//正面ベクトルの更新
+			matRot = XMMatrixIdentity();
+			matRot *= XMMatrixRotationZ(XMConvertToRadians(enemyData.rotation.z));
+			matRot *= XMMatrixRotationX(XMConvertToRadians(enemyData.rotation.x));
+			matRot *= XMMatrixRotationY(XMConvertToRadians(enemyData.rotation.y));
+			UpdateForwardVec(forwardVec, matRot);
+
+
+			//レイの更新処理
+			//座標
+			forwardRay.start = XMLoadFloat3(&enemyData.position);
+			//方向
+			forwardRay.dir = XMLoadFloat3(&forwardVec);
+
+			//球座標の更新
+			sphere.center = XMLoadFloat3(&enemyData.position);
+
+			//三角形座標の更新
+			forwardTriangle.p0 = XMLoadFloat3(&enemyData.position);
+
+			//右上
+			XMFLOAT3 p1 = enemyData.position;
+			p1 = AddXMFLOAT3(p1, TRIANGLE_UPPER_RIGHT_POS);
+			p1 = MulXMFLOAT3(p1, forwardVec);
+			p1.y = 10;
+			forwardTriangle.p1 = XMLoadFloat3(&p1);
+
+			//左上
+			XMFLOAT3 p2 = enemyData.position;
+			p2 = AddXMFLOAT3(p2, TRIANGLE_UPPER_LEFT_POS);
+			p2 = MulXMFLOAT3(p2, forwardVec);
+			p2.y = 10;
+			forwardTriangle.p2 = XMLoadFloat3(&p2);
+		}
+	}
 	else
 	{
 		isHit = false;
-		//弾の処理
-		for (int i = 0; i < MAX_BULLET; ++i)
-		{
-			if (!enemyBullet[i].isAlive)continue;
-			if (enemyBullet[i].status != enemyBullet->BULLET_STATUS_EXPLOSION)continue;
-			XMFLOAT3 enemyPos1 = enemyBullet[i].bulletData.position;
-			for (int j = 0; j < MAX_BULLET; ++j)
-			{
-				if (!enemyBullet[j].isAlive)continue;
-				if (enemyBullet[j].status != enemyBullet->BULLET_STATUS_ALIVE)continue;
-				if (i == j)continue;
-				XMFLOAT3 enemyPos2 = enemyBullet[j].bulletData.position;
-				//2点間の距離を求める
-				float distance = Distance3D(enemyPos1, enemyPos2);
-				//半径の和を求める
-				float r = enemyBullet[i].EXPLOSION_RADIUS + enemyBullet[j].BULLET_RADIUS;
-				if (distance < r)
-				{
-					enemyBullet[j].status = enemyBullet->BULLET_STATUS_EXPLOSION;
-				}
-			}
-			//敵との距離を求める
-			float distance = Distance3D(enemyPos1, enemyData.position);
-			float r = enemyBullet[i].EXPLOSION_RADIUS + ENEMY_RADIUS;
-			if (distance < r)
-			{
-				Dead();
-			}
-		}
-
-		//弾の処理
-		for (int i = 0; i < MAX_BULLET; ++i)
-		{
-			if (!enemyBullet[i].isAlive)continue;
-			if (enemyBullet[i].status != enemyBullet->BULLET_STATUS_ALIVE)continue;
-
-			XMFLOAT3 enemyPos1 = enemyBullet[i].bulletData.position;
-
-			//プレイヤーとの当たり判定
-			float pDistance = Distance3D(enemyPos1, playerPos);
-			float playerRadius = 8.0f;
-			float pR = enemyBullet->BULLET_RADIUS + playerRadius;
-			if (pDistance < pR)
-			{
-				isHit = true;
-			}
-		}
-
-		status = STATUS_ATTACK;
-
 		//ステータスによって処理を分ける
 		switch (status)
 		{
 		case STATUS_SEARCH:
-			//Searching(playerSphere);
+			Searching(playerPos);
 			break;
 		case STATUS_TARGET:
-			//Targeting(playerPos);
+			Targeting(playerPos);
 			break;
 		case STATUS_ATTACK:
 			Attack();
@@ -226,125 +283,136 @@ void Enemy::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& m
 	}
 }
 
-//void Enemy::Searching(const Sphere& playerSphere)
-//{
-//	searchTimer++;
-//
-//	if (searchTimer >= MAX_SEARCH_TIMER)
-//	{
-//		//rotateStatus = GetRand(0, 4);
-//		rotateStatus = 0;
-//		searchTimer = 0;
-//	}
-//
-//	switch (rotateStatus)
-//	{
-//	case ROTATE_STATUS_RIGHT:
-//		enemyData.rotation.y += ROTATE_SPEED;
-//		break;
-//	case ROTATE_STATUS_LEFT:
-//		enemyData.rotation.y -= ROTATE_SPEED;
-//		break;
-//	case ROTATE_STATUS_STOP:
-//		break;
-//	default:
-//		enemyData.rotation.y += ROTATE_SPEED;
-//		break;
-//	}
-//
-//	//searchDelayTimer++;
-//
-//
-//	XMFLOAT3 playerPos = {};
-//	XMStoreFloat3(&playerPos, playerSphere.center);
-//	//正面レイ方向に壁がなく、敵がいたら
-//	if (Collision::CheckRay2Sphere(forwardRay, playerSphere) && !CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
-//	{
-//		//ステータスをターゲティングにする
-//		status = STATUS_TARGET;
-//		searchTimer = 30;
-//		searchDelayTimer = 0;
-//	}
-//
-//	
-//	//if (Collision::CheckSphere2Triangle(playerSphere, forwardTriangle))
-//	//{
-//	//	//ステータスをターゲティングにする
-//	//	status = STATUS_TARGET;
-//	//	searchTimer = 30;
-//	//	searchDelayTimer = 0;
-//	//}
-//}
+void Enemy::Searching(const XMFLOAT3& playerPos)
+{
+	searchTimer++;
 
-//void Enemy::Targeting(const XMFLOAT3& playerPos)
-//{
-//	XMFLOAT3 buff = XMFLOAT3(enemyData.position.x - playerPos.x, enemyData.position.y - playerPos.y, enemyData.position.z - playerPos.z);
-//	//正面ベクトルをプレイヤーの方向に向ける
-//	forwardVec = Normalize3D(buff);
-//
-//	//向いている方向
-//	XMFLOAT3 distance = {};
-//	UpdateForwardVec(distance, matRot);
-//
-//	float angle = Cross2D({ forwardVec.x,forwardVec.z }, { distance.x,distance.z });
-//
-//	if (angle < 0)
-//	{
-//		enemyData.rotation.y += XM_PI / 2.0f;
-//	}
-//	else
-//	{
-//		enemyData.rotation.y -= XM_PI / 2.0f;
-//	}
-//
-//	//追尾中に壁に隠れられたらステータスを捜索に変える
-//	if (CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
-//	{
-//		status = STATUS_SEARCH;
-//	}
-//
-//	//タイマーを進める
-//	targetingTimer++;
-//
-//	if (targetingTimer >= TARGET_TIMER_END)
-//	{
-//		targetingTimer = 0;
-//		//攻撃開始時のプレイヤー座標を保存
-//		prevPlayerPos = playerPos;
-//
-//		isAttack = true;
-//
-//		//enemyBullet.Generate(enemyData.position, forwardVec);
-//
-//		//ステータスを攻撃にする
-//		status = STATUS_ATTACK;
-//	}
-//}
+	if (searchTimer >= MAX_SEARCH_TIMER)
+	{
+		//rotateStatus = GetRand(0, 4);
+		rotateStatus = 0;
+		searchTimer = 0;
+	}
+
+	switch (rotateStatus)
+	{
+	case ROTATE_STATUS_RIGHT:
+		enemyData.rotation.y += ROTATE_SPEED;
+		break;
+	case ROTATE_STATUS_LEFT:
+		enemyData.rotation.y -= ROTATE_SPEED;
+		break;
+	case ROTATE_STATUS_STOP:
+		break;
+	default:
+		enemyData.rotation.y += ROTATE_SPEED;
+		break;
+	}
+
+	//searchDelayTimer++;
+
+
+	Sphere playerSphere = {};
+	playerSphere.center = XMLoadFloat3(&playerPos);
+	playerSphere.radius = 16;
+
+	//敵とプレイヤーの距離を計算
+	float distance = Distance3D(enemyData.position, playerPos);
+	float r = 16 + SEARCH_RADIUS;
+	//正面レイ方向に壁がなく、敵がいたら
+	if (Collision::CheckRay2Sphere(forwardRay, playerSphere) && !CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos) && distance < r)
+	{
+		//ステータスをターゲティングにする
+		status = STATUS_TARGET;
+		searchTimer = 30;
+		searchDelayTimer = 0;
+	}
+
+	
+	//if (Collision::CheckSphere2Triangle(playerSphere, forwardTriangle))
+	//{
+	//	//ステータスをターゲティングにする
+	//	status = STATUS_TARGET;
+	//	searchTimer = 30;
+	//	searchDelayTimer = 0;
+	//}
+}
+
+void Enemy::Targeting(const XMFLOAT3& playerPos)
+{
+	XMFLOAT3 buff = XMFLOAT3(enemyData.position.x - playerPos.x, enemyData.position.y - playerPos.y, enemyData.position.z - playerPos.z);
+	//正面ベクトルをプレイヤーの方向に向ける
+	forwardVec = Normalize3D(buff);
+
+	//向いている方向
+	XMFLOAT3 distance = {};
+	UpdateForwardVec(distance, matRot);
+
+	float angle = Cross2D({ forwardVec.x,forwardVec.z }, { distance.x,distance.z });
+
+	if (angle < 0)
+	{
+		enemyData.rotation.y += XM_PI / 2.0f;
+	}
+	else
+	{
+		enemyData.rotation.y -= XM_PI / 2.0f;
+	}
+
+	//追尾中に壁に隠れられたらステータスを捜索に変える
+	if (CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
+	{
+		status = STATUS_SEARCH;
+	}
+
+	//タイマーを進める
+	targetingTimer++;
+
+	if (targetingTimer >= TARGET_TIMER_END)
+	{
+		targetingTimer = 0;
+		//攻撃開始時のプレイヤー座標を保存
+		prevPlayerPos = playerPos;
+
+		isAttack = true;
+
+		//enemyBullet.Generate(enemyData.position, forwardVec);
+
+		//ステータスを攻撃にする
+		status = STATUS_ATTACK;
+	}
+}
 
 void Enemy::Attack()
 {
-	bulletTimer++;
-
-	if (bulletTimer > MAX_BULLET_TIMER)
+	if (!isEnemyTypeSeach)
 	{
-		bulletTimer = 0;
-		for (int i = 0; i < MAX_BULLET; i++)
+		bulletTimer++;
+
+		if (bulletTimer > MAX_BULLET_TIMER)
 		{
-			if (enemyBullet[i].isAlive)continue;
-			enemyBullet[i].Generate(enemyData.position, forwardVec);
-			break;
+			bulletTimer = 0;
+			for (int i = 0; i < MAX_BULLET; i++)
+			{
+				if (enemyBullet[i].isAlive)continue;
+				enemyBullet[i].Generate(enemyData.position, forwardVec);
+				break;
+			}
 		}
 	}
+	else
+	{
+		isAttack = false;
+		isHit = true;
 
-	//isAttack = false;
-	
-	//attackDelayTimer++;
+		attackDelayTimer++;
 
-	//if (attackDelayTimer >= ATTACK_DELAY_TIMER_END)
-	//{
-	//	attackDelayTimer = 0;
-	//	status = STATUS_SEARCH;
-	//}
+		if (attackDelayTimer >= ATTACK_DELAY_TIMER_END)
+		{
+			attackDelayTimer = 0;
+			status = STATUS_SEARCH;
+		}
+	}
 }
 
 void Enemy::UpdateForwardVec(XMFLOAT3& forwardVec, XMMATRIX& matRot)

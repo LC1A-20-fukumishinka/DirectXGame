@@ -44,6 +44,7 @@ private:
 
 	static const int MAX_BULLET = 20;
 	const int MAX_BULLET_TIMER = 10;			//射撃レート
+	const float SEARCH_RADIUS = 100.0f;			//索敵範囲
 
 public:
 	/*---- メンバ変数 ----*/
@@ -77,6 +78,9 @@ public:
 	bool isAttack;			//攻撃フラグ
 	int bulletTimer;		//射撃レート
 
+	//敵の種類判別用
+	bool isEnemyTypeSeach;
+
 public:
 	/*---- メンバ関数 ----*/
 
@@ -98,10 +102,10 @@ public:
 	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);
 
 	//索敵
-	//void Searching(const Sphere& playerSphere);
+	void Searching(const XMFLOAT3& playerPos);
 
 	//ターゲティング
-	//void Targeting(const XMFLOAT3& playerPos);
+	void Targeting(const XMFLOAT3& playerPos);
 
 	//攻撃
 	void Attack();
