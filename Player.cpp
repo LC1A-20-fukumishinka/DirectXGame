@@ -2,7 +2,7 @@
 #include "Shake.h"
 #include <cmath>
 
-Player::Player(int deadGraph, int clearGraph)
+Player::Player(int deadGraph, int clearGraph, int particle, int DamageSound)
 {
 	pos = { 0,0,0 };
 	//direction = { 0,0,0 };
@@ -40,13 +40,24 @@ Player::Player(int deadGraph, int clearGraph)
 	clear.Init(GH2, XMFLOAT2(0.0f, 0.0f));
 	clear.position = { 0,-720,0 };
 	clear.size = { 1280,720 };
+
+	partGH = particle;
+	damageSE = new Sound(DamageSound);
+	int ShiftData = Sound::SoundLoadWave("Resources/sounds/Shift.wav");
+	ShiftSE = new Sound(ShiftData);
+	int StopData = Sound::SoundLoadWave("Resources/sounds/Stop.wav");
+	StopSE = new Sound(StopData);
+
 }
 
 Player::~Player()
 {
+	delete damageSE;
+	delete ShiftSE;
+	delete StopSE;
 }
 
-void Player::Init(const Camera& camera, const XMFLOAT3& pos)
+void Player::Init(const Camera &camera, const XMFLOAT3 &pos)
 {
 	this->pos = pos;
 	//direction = { 0,0,0 };
@@ -83,7 +94,7 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	clear.SpriteUpdate();
 }
 
-void Player::Input(const Camera& camera)
+void Player::Input(const Camera &camera)
 {
 	/*---コントローラー操作用---*/
 	if (input->isPadConnect())
@@ -219,7 +230,7 @@ void Player::Input(const Camera& camera)
 	}
 }
 
-void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
+void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
 {
 	//移動処理
 	if (!isDead && !isClear)
@@ -230,6 +241,19 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 			//ダッシュ入力があった場合
 			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
 			{
+				for (int i = 0; i < 30; i++)
+				{
+					Vector3 shiftPos((((float)rand() / RAND_MAX * 2) - 1),
+						0,
+						(((float)rand() / RAND_MAX * 2) - 1));
+					shiftPos = shiftPos.normalaize() * ((float)rand() / RAND_MAX) * 10;
+
+					shiftPos.y = (((float)rand() / RAND_MAX * 2) - 1) * 10;
+
+					float scale = ((float)rand() / RAND_MAX) * 10;
+					shift.Add((int)(30 + (3 * scale)), Vector3(pos) + shiftPos, Vector3(), Vector3(), 10 + scale, 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+					ShiftSE->Play();
+				}
 				pos.x += vec3.x;
 				pos.z += vec3.z;
 			}
@@ -250,7 +274,8 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	attackFlag = false;
 
 	Vector3 CameraPos = camera.position;
-	Vector3 cameraToPlayerVector = Vector3(pos.x, pos.y, pos.z) - camera.position;
+	Vector3 cameraToPlayerVector = cameraToPlayer = Vector3(pos.x, pos.y, pos.z) - camera.position;
+
 
 	cameraToPlayerVector *= 0.1f;
 	camera.position = CameraPos + cameraToPlayerVector;
@@ -277,6 +302,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 				{
 					stopTImeDelay = 0;
 					stopTimeFlag = true;
+					StopSE->Play();
 				}
 			}
 			else
@@ -388,6 +414,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		}
 	}
 
+	shift.Update();
 	//死亡画像処理
 	if (spriteDeadFlag)
 	{
@@ -409,7 +436,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 	}
 }
 
-void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
+void Player::Draw(const PipeClass::PipelineSet &pipelineSet)
 {
 	//適当なモデルで代用する
 	//if (IsDead()) return;
@@ -425,6 +452,7 @@ void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
 
 	obj.modelDraw(model.GetModel(), pipelineSet);
 
+	shift.Draw(partGH);
 	if (spriteDeadFlag) { dead.SpriteDraw(); }
 	else if (spriteClearFlag) { clear.SpriteDraw(); }
 }
@@ -433,7 +461,7 @@ void Player::Finalize()
 {
 }
 
-void Player::PushBack(const XMFLOAT3& enemyPos)
+void Player::PushBack(const XMFLOAT3 &enemyPos)
 {
 	//半径
 	float r = 13.0f + 14.0f;
@@ -460,7 +488,7 @@ void Player::PushBack(const XMFLOAT3& enemyPos)
 	}
 }
 
-void Player::DeathEffect(Camera& camera)
+void Player::DeathEffect(Camera &camera)
 {
 	if (IsDead())
 	{
@@ -479,7 +507,20 @@ void Player::DeathEffect(Camera& camera)
 	}
 }
 
-bool Player::SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRight)
+void Player::Damaged()
+{
+	isDamaged = true;
+	if (hp > 0 && damagedCount == 0)
+	{
+		hp--;
+		damageSE->Play();
+	}
+	if (hp <= 0) {
+		isDead = true;
+	}
+}	//HPを減らす
+
+bool Player::SetGoalAndCheak(const XMFLOAT3 &lowerLeft, const XMFLOAT3 &upperRight)
 {
 	if (lowerLeft.x <= pos.x &&
 		pos.x <= upperRight.x &&
@@ -492,7 +533,7 @@ bool Player::SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRig
 	return false;
 }
 
-void Player::ClearEffect(Camera& camera, bool setGoalAndCheak)
+void Player::ClearEffect(Camera &camera, bool setGoalAndCheak)
 {
 	if (setGoalAndCheak)
 	{
