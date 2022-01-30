@@ -65,6 +65,8 @@ private:
 
 	Vector3 cameraToPlayer;
 	Sound *damageSE;
+	Sound *ShiftSE;
+	Sound *StopSE;
 public:
 	Player(int deadGraph, int clearGraph, int particle, int DamageSound);
 	~Player();
