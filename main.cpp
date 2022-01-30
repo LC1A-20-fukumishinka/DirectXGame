@@ -178,6 +178,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectX::XMFLOAT3 LHeightWallScale = { 80, 500, 150 };
 	DirectX::XMFLOAT3 LWidthWallScale = { 150, 500, 100 };
 
+
+#pragma region goal
+	//floor.scale = { 1000.0f, 2.0f, 300.0f };
+	XMFLOAT3 lowerLeft[2] ;
+	XMFLOAT3 upperRight[2];
+	lowerLeft[0] = { 350,0,-40 };
+		upperRight[0] = { 450,0,40 };
+
+		lowerLeft[1] = { 400,0, 100};
+		upperRight[1] = { 450,0,150 };
+#pragma endregion
+
 #pragma endregion
 
 	std::vector<Wall> outWall;
@@ -811,9 +823,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 			//ƒNƒŠƒA‘JˆÚ
-			XMFLOAT3 lowerLeft = { 350,0,-40 };
-			XMFLOAT3 upperRight = { 450,0,40 };
-			player.ClearEffect(cam, player.SetGoalAndCheak(lowerLeft, upperRight));
+
+			player.ClearEffect(cam, player.SetGoalAndCheak(lowerLeft[stageNum], upperRight[stageNum]));
 			isClear = player.IsClear();
 			if (!player.IsEffect() && isClear)
 			{
