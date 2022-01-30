@@ -596,7 +596,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		if (!player.IsDead()) { spriteStop.SpriteUpdate(); }
 		if (!player.IsDead()) { hani.SpriteUpdate(); }
 
-
+		if (input->ButtonTrigger(XINPUT_GAMEPAD_X))
+		{
+			int a = 0;
+		}
 #pragma endregion
 
 
