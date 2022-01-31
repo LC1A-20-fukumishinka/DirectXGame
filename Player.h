@@ -66,6 +66,9 @@ private:
 	ParticleManager shift;
 
 	Vector3 cameraToPlayer;
+	Sound *damageSE;
+	Sound *ShiftSE;
+	Sound *StopSE;
 	Sound* damageSE;
 public:
 	Player(int deadGraph, int clearGraph, int particle, int DamageSound);

@@ -44,11 +44,18 @@ Player::Player(int deadGraph, int clearGraph, int particle, int DamageSound)
 
 	partGH = particle;
 	damageSE = new Sound(DamageSound);
+	int ShiftData = Sound::SoundLoadWave("Resources/sounds/Shift.wav");
+	ShiftSE = new Sound(ShiftData);
+	int StopData = Sound::SoundLoadWave("Resources/sounds/Stop.wav");
+	StopSE = new Sound(StopData);
+
 }
 
 Player::~Player()
 {
 	delete damageSE;
+	delete ShiftSE;
+	delete StopSE;
 }
 
 void Player::Init(const Camera &camera, const XMFLOAT3 &pos)
@@ -249,6 +256,7 @@ void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
 
 					float scale = ((float)rand() / RAND_MAX) * 10;
 					shift.Add((int)(30 + (3 * scale)), Vector3(pos) + shiftPos, Vector3(), Vector3(), 10 + scale, 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+					ShiftSE->Play();
 				}
 				pos.x += vec3.x;
 				pos.z += vec3.z;
@@ -298,6 +306,7 @@ void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
 				{
 					stopTImeDelay = 0;
 					stopTimeFlag = true;
+					StopSE->Play();
 				}
 			}
 			else

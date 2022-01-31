@@ -88,10 +88,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int DamageData = Sound::SoundLoadWave("Resources/sounds/Damage.wav");
 	int BGMData = Sound::SoundLoadWave("Resources/sounds/BGM.wav");
 	int SelectData = Sound::SoundLoadWave("Resources/sounds/Select.wav");
+
 	Sound voice(alarm);
 	Sound enterSE(EnterData);
 	Sound BGM(BGMData);
 	Sound SelectSE(SelectData);
+	Sound EnemyDamageSE(DamageData);
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
@@ -182,6 +184,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectX::XMFLOAT3 LHeightWallScale = { 80, 500, 150 };
 	DirectX::XMFLOAT3 LWidthWallScale = { 150, 500, 100 };
 
+
+#pragma region goal
+	//floor.scale = { 1000.0f, 2.0f, 300.0f };
+	XMFLOAT3 lowerLeft[2] ;
+	XMFLOAT3 upperRight[2];
+	lowerLeft[0] = { 350,0,-40 };
+		upperRight[0] = { 450,0,40 };
+
+		lowerLeft[1] = { 400,0, 100};
+		upperRight[1] = { 450,0,150 };
+#pragma endregion
+
 #pragma endregion
 
 	std::vector<Wall> outWall;
@@ -190,7 +204,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2 , 10, 10.0f / 2 });
 	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
 	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2, 10, 10.0f / 2 });
-#pragma region loom
+#pragma region １面壁
 
 	std::vector<Wall> loomWalls;
 	Wall wall[14];
@@ -248,7 +262,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma endregion
 
-#pragma region 壁
+#pragma region 二面壁
 
 	std::vector<Wall> townWalls;
 	Wall townWallData[11];
@@ -560,6 +574,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	BombEffect bomb;
+
+	bool StickFlag = false;
+	bool StickOldFlag = false;
 	//if (FAILED(result))
 	//{
 	//	return result;
@@ -634,7 +651,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 
+		StickOldFlag = StickFlag;
+		if (fabs(input->LStick().x) > 0.0f)
+		{
+			StickFlag = true;
+		}
+		else
+		{
+			StickFlag = false;
+		}
 
+		bool stickTrigger = (StickFlag && !StickOldFlag);
 		//更新処理
 		if (input->KeyTrigger(DIK_X))
 		{
@@ -671,14 +698,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case STAGESELECT:
 
 
-			if (input->KeyTrigger(DIK_A) || input->KeyTrigger(DIK_D))
+			if ((input->KeyTrigger(DIK_A) || input->KeyTrigger(DIK_D)) || (stickTrigger))
 			{
 
-				if (input->KeyTrigger(DIK_A))
+				if (input->KeyTrigger(DIK_A) || input->LStick().x < 0.0f)
 				{
 					stageNum--;
 				}
-				if (input->KeyTrigger(DIK_D))
+				if (input->KeyTrigger(DIK_D) || input->LStick().x > 0.0f)
 				{
 					stageNum++;
 				}
@@ -739,10 +766,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				bool pushEnd;
 				for (int i = 0; i < WallMgr::Instance()->GetWalls().size(); i++)
 				{
-					if (input->Button(XINPUT_GAMEPAD_B))
-					{
-						int b = 0;
-					}
+
 					Vector3 push;
 					push = WallMgr::Instance()->GetWalls()[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
 
@@ -808,6 +832,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					part.Add(15, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()), tmp * power, XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
 				}
 				EnemyMgr::Instance()->DeadNearEnemy();
+				EnemyDamageSE.Play();
 			}
 
 			//自機死亡演出(シーン切り替えの直前に置く)
@@ -824,9 +849,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 			//クリア遷移
-			XMFLOAT3 lowerLeft = { 350,0,-40 };
-			XMFLOAT3 upperRight = { 450,0,40 };
-			player.ClearEffect(cam, player.SetGoalAndCheak(lowerLeft, upperRight));
+
+			player.ClearEffect(cam, player.SetGoalAndCheak(lowerLeft[stageNum], upperRight[stageNum]));
 			isClear = player.IsClear();
 			if (!player.IsEffect() && isClear)
 			{
