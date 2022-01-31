@@ -7,6 +7,7 @@ EnemyBullet::EnemyBullet()
 	isAlive = false;
 	bulletSphere = {};
 	desTimer = 0;
+	speed = 0;
 	status = BULLET_STATUS_ALIVE;
 }
 
@@ -17,10 +18,11 @@ void EnemyBullet::Init(const Camera &cam)
 	bulletSphere.radius = BULLET_RADIUS;
 	status = BULLET_STATUS_ALIVE;
 	desTimer = 0;
+	speed = 0;
 	isAlive = false;
 }
 
-void EnemyBullet::Generate(const XMFLOAT3 &generatePos, const XMFLOAT3 &forwardVec)
+void EnemyBullet::Generate(const XMFLOAT3 &generatePos, const XMFLOAT3 &forwardVec, const bool& isEnemyTypeSearch)
 {
 	//生成座標と正面ベクトルを設定
 	bulletData.position = generatePos;
@@ -28,6 +30,8 @@ void EnemyBullet::Generate(const XMFLOAT3 &generatePos, const XMFLOAT3 &forwardV
 	isAlive = true;
 	desTimer = 0;
 	bulletData.color = { 1, 1, 1, 1 };
+	if (isEnemyTypeSearch)speed = BULLET_SPEED_FAST;
+	else speed = BULLET_SPEED;
 }
 
 void EnemyBullet::Update()
@@ -46,9 +50,9 @@ void EnemyBullet::Update()
 			Dead();
 		}
 
-		moveVec.x = forwardVec.x * BULLET_SPEED;
-		moveVec.y = forwardVec.y * BULLET_SPEED;
-		moveVec.z = forwardVec.z * BULLET_SPEED;
+		moveVec.x = forwardVec.x * speed;
+		moveVec.y = forwardVec.y * speed;
+		moveVec.z = forwardVec.z * speed;
 
 		if (WallMgr::Instance()->CheckWallBullet(bulletData.position, moveVec))
 		{

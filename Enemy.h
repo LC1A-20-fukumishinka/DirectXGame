@@ -39,7 +39,7 @@ private:
 	const XMFLOAT3 TRIANGLE_UPPER_RIGHT_POS = { 50.0f,0.0f,100.0f };
 	const XMFLOAT3 TRIANGLE_UPPER_LEFT_POS = { -50.0f,0.0f,100.0f };
 
-	const float ROTATE_SPEED = XM_PI / 5.0f;	//‰ñ“]‘¬“x
+	const float ROTATE_SPEED = XM_PI / 2.0f;	//‰ñ“]‘¬“x
 	const float ENEMY_RADIUS = 32.0f;
 
 	static const int MAX_BULLET = 20;

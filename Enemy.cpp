@@ -18,6 +18,7 @@ Enemy::Enemy()
 	matRot = XMMatrixIdentity();
 	saveNum = 0;
 	isHit = false;
+	isEnemyTypeSeach = true;
 }
 
 void Enemy::Init(const Camera& cam)
@@ -289,8 +290,8 @@ void Enemy::Searching(const XMFLOAT3& playerPos)
 
 	if (searchTimer >= MAX_SEARCH_TIMER)
 	{
-		//rotateStatus = GetRand(0, 4);
-		rotateStatus = 0;
+		rotateStatus = GetRand(0, 3);
+		//rotateStatus = 0;
 		searchTimer = 0;
 	}
 
@@ -376,7 +377,9 @@ void Enemy::Targeting(const XMFLOAT3& playerPos)
 
 		isAttack = true;
 
-		//enemyBullet.Generate(enemyData.position, forwardVec);
+		XMFLOAT3 honraiForwardVec = { -forwardVec.x,-forwardVec.y,-forwardVec.z };
+
+		enemyBullet[0].Generate(enemyData.position, honraiForwardVec,isEnemyTypeSeach);
 
 		//ステータスを攻撃にする
 		status = STATUS_ATTACK;
@@ -395,7 +398,7 @@ void Enemy::Attack()
 			for (int i = 0; i < MAX_BULLET; i++)
 			{
 				if (enemyBullet[i].isAlive)continue;
-				enemyBullet[i].Generate(enemyData.position, forwardVec);
+				enemyBullet[i].Generate(enemyData.position, forwardVec, isEnemyTypeSeach);
 				break;
 			}
 		}
