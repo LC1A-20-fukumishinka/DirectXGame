@@ -47,6 +47,8 @@ using namespace Microsoft::WRL;
 	頑張っていこう！
 	こんにちは！
 */
+
+
 const int window_width = 1280;
 const int window_height = 720;
 
@@ -56,13 +58,17 @@ const XMFLOAT3 STAGE_2 = { -450.1f,0,-140.1f };
 const XMFLOAT3 STAGE_3 = { 0,0,0 };
 const XMFLOAT3 STAGE_4 = { 0,0,0 };
 
+//ステージ数
+const int MAX_STAGE_NUM = 2;
+
 enum Scenes
 {
 	TITLE,
 	STAGESELECT,
 	GAME,
 	CLEAR,
-	GAMEOVER
+	GAMEOVER,
+	CHOISE
 };
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
@@ -70,7 +76,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -89,13 +95,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -502,6 +508,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	scene_gear_down.size = { window_width, window_height };
 	scene_gear_up.size = { window_width, window_height };
 
+	/*----------ステージ選択----------*/
+	int SELECT_KEY = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_KEYBOARD.png");
+	int SELECT_CONT = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_CONTROLLER.png");
+
+	Sprite select_key;
+	Sprite select_cont;
+
+	select_key.Init(SELECT_KEY);
+	select_cont.Init(SELECT_CONT);
+
+	select_key.size = { window_width, window_height };
+	select_cont.size = { window_width, window_height };
+
+	select_key.position = { window_width / 2, window_height / 2,0 };
+	select_cont.position = { window_width / 2, window_height / 2,0 };
+
+	select_key.SpriteUpdate();
+	select_cont.SpriteUpdate();
+
+
 #pragma endregion
 
 #pragma region 敵
@@ -662,13 +688,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					stageNum = 0;
 				}
 
-				if (stageNum >= 2)
+				if (stageNum >= MAX_STAGE_NUM)
 				{
 					stageNum = 1;
 				}
 				SelectSE.Play();
 			}
-			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
+			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
 				if (stageNum == 0)
 				{
@@ -869,6 +895,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region STAGESELECT_DRAW
 
 		case STAGESELECT:
+
+			if (input->isPadConnect())
+			{
+				select_cont.SpriteDraw();
+			}
+			else
+			{
+				select_key.SpriteDraw();
+			}
+
 			debugText.Print("stageselect", 10, 10, 3);
 			if (stageNum == 0)
 			{

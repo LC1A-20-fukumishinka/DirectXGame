@@ -26,6 +26,7 @@ Player::Player(int deadGraph, int clearGraph, int particle, int DamageSound)
 	spriteClearFlag = false;
 	isEffect = false;
 	isClear = false;
+	isDash = false;
 
 	model.CreateModel("player");
 	obj.scale = { 10.0f,10.0f,10.0f };
@@ -74,6 +75,7 @@ void Player::Init(const Camera &camera, const XMFLOAT3 &pos)
 	spriteClearFlag = false;
 	isEffect = false;
 	isClear = false;
+	isDash = false;
 
 	obj.Init(camera);
 	obj.rotation = { 0, angle + 90.0f, 0 };
@@ -144,11 +146,13 @@ void Player::Input(const Camera &camera)
 			{
 				vec3.x *= DASH_SPEED;
 				vec3.z *= DASH_SPEED;
+				isDash = true;
 			}
 			else
 			{
 				vec3.x *= MOVE_SPEED * movePower;
 				vec3.z *= MOVE_SPEED * movePower;
+				isDash = false;
 			}
 		}
 
