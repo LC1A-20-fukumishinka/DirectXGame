@@ -30,6 +30,7 @@
 #include "Vector3.h"
 #include "Shake.h"
 #include "BombEffect.h"
+#include "SceneTransition.h"
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -68,7 +69,8 @@ enum Scenes
 	GAME,
 	CLEAR,
 	GAMEOVER,
-	CHOISE
+	CHOISE_DEAD,
+	CHOISE_CLEAR
 };
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
@@ -184,16 +186,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectX::XMFLOAT3 LHeightWallScale = { 80, 500, 150 };
 	DirectX::XMFLOAT3 LWidthWallScale = { 150, 500, 100 };
 
+	//シーン遷移のやつ
+	SceneTransition sceneTransition;
+	sceneTransition.Init();
+
 
 #pragma region goal
 	//floor.scale = { 1000.0f, 2.0f, 300.0f };
-	XMFLOAT3 lowerLeft[2] ;
+	XMFLOAT3 lowerLeft[2];
 	XMFLOAT3 upperRight[2];
 	lowerLeft[0] = { 350,0,-40 };
-		upperRight[0] = { 450,0,40 };
+	upperRight[0] = { 450,0,40 };
 
-		lowerLeft[1] = { 400,0, 100};
-		upperRight[1] = { 450,0,150 };
+	lowerLeft[1] = { 400,0, 100 };
+	upperRight[1] = { 450,0,150 };
 #pragma endregion
 
 #pragma endregion
@@ -434,6 +440,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	dead_frame_down.size = { window_width, window_height };
 	dead_frame_up.size = { window_width, window_height };
 
+	clear_choise.position = { window_width / 2, window_height / 2 , 0.0f };
+	clear_frame_down.position = { window_width / 2, window_height / 2 , 0.0f };
+	clear_frame_up.position = { window_width / 2, window_height / 2 , 0.0f };
+	dead_choise.position = { window_width / 2, window_height / 2 , 0.0f };
+	dead_frame_down.position = { window_width / 2, window_height / 2 , 0.0f };
+	dead_frame_up.position = { window_width / 2, window_height / 2 , 0.0f };
+
+	clear_choise.SpriteUpdate();
+	dead_choise.SpriteUpdate();
+
 
 	/*----------HUD----------*/
 	int HUD_CONTROLL_PAD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_BASE_PAD.png");
@@ -547,6 +563,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region 敵
 
 	int stageNum = 0;
+	bool choiseNum = false;
 
 	Vector3 up(0, 0, 1), left(-1, 0, 0);
 
@@ -878,7 +895,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case CLEAR:
 			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
-				nowScene = TITLE;
+				nowScene = CHOISE_CLEAR;
 				enterSE.Play();
 			}
 			break;
@@ -890,10 +907,86 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case GAMEOVER:
 			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
 			{
-				nowScene = TITLE;
+				nowScene = CHOISE_DEAD;
 				enterSE.Play();
 			}
 			break;
+
+#pragma endregion
+
+#pragma region CHOISE_UPDATE
+
+			//死亡後セレクト
+		case CHOISE_DEAD:
+
+			dead_frame_down.SpriteUpdate();
+			dead_frame_up.SpriteUpdate();
+
+			if (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S) || (stickTrigger))
+			{
+				if (input->KeyTrigger(DIK_S) || input->LStick().y < 0.0f)
+				{
+					enterSE.Play();
+					choiseNum = false;
+				}
+				if (input->KeyTrigger(DIK_W) || input->LStick().y > 0.0f)
+				{
+					enterSE.Play();
+					choiseNum = true;
+				}
+			}
+
+			//まだNEXTできない
+			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+			{
+				if (choiseNum)
+				{
+					enterSE.Play();
+					nowScene = STAGESELECT;
+				}
+				else
+				{
+					enterSE.Play();
+					nowScene = TITLE;
+				}
+			}
+
+
+			//クリア後セレクト
+		case CHOISE_CLEAR:
+
+			clear_frame_down.SpriteUpdate();
+			clear_frame_up.SpriteUpdate();
+
+			if (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S) || (stickTrigger))
+			{
+				if (input->KeyTrigger(DIK_S) || input->LStick().y < 0.0f)
+				{
+					enterSE.Play();
+					choiseNum = false;
+				}
+				if (input->KeyTrigger(DIK_W) || input->LStick().y > 0.0f)
+				{
+					enterSE.Play();
+					choiseNum = true;
+				}
+			}
+
+			//まだNEXTできない
+			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+			{
+				if (choiseNum)
+				{
+					enterSE.Play();
+					nowScene = STAGESELECT;
+				}
+				else
+				{
+					enterSE.Play();
+					nowScene = TITLE;
+				}
+			}
+
 
 #pragma endregion
 
@@ -1025,6 +1118,38 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			deadSprite.SpriteDraw();
 			debugText.Print("game over", window_width / 2, window_height / 2, 5);
 			break;
+
+#pragma endregion
+
+#pragma region CHOISE_DRAW
+
+			//死亡後セレクト
+		case CHOISE_DEAD:
+
+			dead_choise.SpriteDraw();
+
+			if (choiseNum)
+			{
+				dead_frame_up.SpriteDraw();
+			}
+			else
+			{
+				dead_frame_down.SpriteDraw();
+			}
+
+			//クリア後セレクト
+		case CHOISE_CLEAR:
+
+			clear_choise.SpriteDraw();
+
+			if (choiseNum)
+			{
+				clear_frame_up.SpriteDraw();
+			}
+			else
+			{
+				clear_frame_down.SpriteDraw();
+			}
 
 #pragma endregion
 

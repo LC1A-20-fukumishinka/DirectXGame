@@ -69,7 +69,8 @@ private:
 	Sound *damageSE;
 	Sound *ShiftSE;
 	Sound *StopSE;
-	Sound* damageSE;
+	//Sound* damageSE;
+
 public:
 	Player(int deadGraph, int clearGraph, int particle, int DamageSound);
 	~Player();
