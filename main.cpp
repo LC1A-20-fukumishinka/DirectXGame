@@ -54,10 +54,6 @@ const int window_width = 1280;
 const int window_height = 720;
 
 //Player初期位置(簡易)
-const XMFLOAT3 STAGE_1 = { -450.1f,0,0 };
-const XMFLOAT3 STAGE_2 = { -450.1f,0,-140.1f };
-const XMFLOAT3 STAGE_3 = { 0,0,0 };
-const XMFLOAT3 STAGE_4 = { 0,0,0 };
 
 //ステージ数
 const int MAX_STAGE_NUM = 2;
@@ -160,6 +156,37 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int particleGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/effect1.png");
 
 
+
+
+#pragma region startPos
+
+	std::vector<XMFLOAT3> StartPositions;
+	const XMFLOAT3 STAGE_1 = { -450.1f,0,0 };
+	const XMFLOAT3 STAGE_2 = { -450.1f,0,-140.1f };
+	const XMFLOAT3 STAGE_3 = { 0,0,0 };
+	const XMFLOAT3 STAGE_4 = { 0,0,0 };
+
+	StartPositions.push_back(STAGE_1);
+	StartPositions.push_back(STAGE_2);
+	StartPositions.push_back(STAGE_3);
+	StartPositions.push_back(STAGE_4);
+
+#pragma endregion
+#pragma region goal
+	//floor.scale = { 1000.0f, 2.0f, 300.0f };
+	XMFLOAT3 lowerLeft[2];
+	XMFLOAT3 upperRight[2];
+	lowerLeft[0] = { 350,0,-40 };
+	upperRight[0] = { 450,0,40 };
+
+	lowerLeft[1] = { 400,0, 100 };
+	upperRight[1] = { 450,0,150 };
+#pragma endregion
+
+
+
+
+
 	deadSprite.size = deadSprite.texSize;
 
 	clearSprite.size = clearSprite.texSize;
@@ -167,7 +194,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	deadSprite.SpriteUpdate();
 	clearSprite.SpriteUpdate();
 	Player player(deadGraph, clearGraph, particleGH, DamageData);
-	player.Init(cam, STAGE_1);
+	player.Init(cam, StartPositions[0]);
 	bool isdead;
 	int hp;
 
@@ -185,22 +212,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	DirectX::XMFLOAT3 heightWallScale = { 10, 500, 100 };
 	DirectX::XMFLOAT3 LHeightWallScale = { 80, 500, 150 };
 	DirectX::XMFLOAT3 LWidthWallScale = { 150, 500, 100 };
-
-	//シーン遷移のやつ
-	SceneTransition sceneTransition;
-	sceneTransition.Init();
-
-
-#pragma region goal
-	//floor.scale = { 1000.0f, 2.0f, 300.0f };
-	XMFLOAT3 lowerLeft[2];
-	XMFLOAT3 upperRight[2];
-	lowerLeft[0] = { 350,0,-40 };
-	upperRight[0] = { 450,0,40 };
-
-	lowerLeft[1] = { 400,0, 100 };
-	upperRight[1] = { 450,0,150 };
-#pragma endregion
 
 #pragma endregion
 
@@ -426,30 +437,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sprite dead_frame_down;
 	Sprite dead_frame_up;
 
-	clear_choise.Init(CLEAR_CHOICE);
-	clear_frame_down.Init(CLEAR_FRAME_DOWN);
-	clear_frame_up.Init(CLEAR_FRAME_UP);
-	dead_choise.Init(DEAD_CHOICE);
-	dead_frame_down.Init(DEAD_FRAME_DOWN);
-	dead_frame_up.Init(DEAD_FRAME_UP);
+	clear_choise.Init(CLEAR_CHOICE, { 0.0f, 0.0f });
+	clear_frame_down.Init(CLEAR_FRAME_DOWN, { 0.0f, 0.0f });
+	clear_frame_up.Init(CLEAR_FRAME_UP, { 0.0f, 0.0f });
+	dead_choise.Init(DEAD_CHOICE, { 0.0f, 0.0f });
+	dead_frame_down.Init(DEAD_FRAME_DOWN, { 0.0f, 0.0f });
+	dead_frame_up.Init(DEAD_FRAME_UP, { 0.0f, 0.0f });
 
 	clear_choise.size = { window_width, window_height };
-	clear_frame_down.size = { window_width, window_height };
-	clear_frame_up.size = { window_width, window_height };
-	dead_choise.size = { window_width, window_height };
-	dead_frame_down.size = { window_width, window_height };
-	dead_frame_up.size = { window_width, window_height };
-
-	clear_choise.position = { window_width / 2, window_height / 2 , 0.0f };
-	clear_frame_down.position = { window_width / 2, window_height / 2 , 0.0f };
-	clear_frame_up.position = { window_width / 2, window_height / 2 , 0.0f };
-	dead_choise.position = { window_width / 2, window_height / 2 , 0.0f };
-	dead_frame_down.position = { window_width / 2, window_height / 2 , 0.0f };
-	dead_frame_up.position = { window_width / 2, window_height / 2 , 0.0f };
-
 	clear_choise.SpriteUpdate();
+	clear_frame_down.size = { window_width, window_height };
+	clear_frame_down.SpriteUpdate();
+	clear_frame_up.size = { window_width, window_height };
+	clear_frame_up.SpriteUpdate();
+	dead_choise.size = { window_width, window_height };
 	dead_choise.SpriteUpdate();
-
+	dead_frame_down.size = { window_width, window_height };
+	dead_frame_down.SpriteUpdate();
+	dead_frame_up.size = { window_width, window_height };
+	dead_frame_up.SpriteUpdate();
 
 	/*----------HUD----------*/
 	int HUD_CONTROLL_PAD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_BASE_PAD.png");
@@ -538,26 +544,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	scene_gear_down.size = { window_width, window_height };
 	scene_gear_up.size = { window_width, window_height };
 
-	/*----------ステージ選択----------*/
-	int SELECT_KEY = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_KEYBOARD.png");
-	int SELECT_CONT = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_CONTROLLER.png");
+	/*-------STAGE_SELECT-------*/
+	int STAGE_SELECT_GRAPH_PAD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_CONTROLLER.png");
+	int STAGE_SELECT_GRAPH_KEYBOARD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_KEYBOARD.png");
 
-	Sprite select_key;
-	Sprite select_cont;
+	Sprite stage_select_pad;
+	Sprite stage_select_keys;
+	stage_select_pad.Init(STAGE_SELECT_GRAPH_PAD, { 0.0f, 0.0f });
+	stage_select_keys.Init(STAGE_SELECT_GRAPH_KEYBOARD, { 0.0f, 0.0f });
 
-	select_key.Init(SELECT_KEY);
-	select_cont.Init(SELECT_CONT);
-
-	select_key.size = { window_width, window_height };
-	select_cont.size = { window_width, window_height };
-
-	select_key.position = { window_width / 2, window_height / 2,0 };
-	select_cont.position = { window_width / 2, window_height / 2,0 };
-
-	select_key.SpriteUpdate();
-	select_cont.SpriteUpdate();
-
-
+	stage_select_pad.size = { window_width, window_height };
+	stage_select_keys.size = { window_width, window_height };
+	stage_select_pad.SpriteUpdate();
+	stage_select_keys.SpriteUpdate();
 #pragma endregion
 
 #pragma region 敵
@@ -594,6 +593,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	bool StickFlag = false;
 	bool StickOldFlag = false;
+	bool resultFlag = false;
+	int resultSelect = 0;
 	//if (FAILED(result))
 	//{
 	//	return result;
@@ -715,6 +716,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case STAGESELECT:
 
 
+			if (input->KeyTrigger(DIK_B))
+			{
+				nowScene = TITLE;
+				enterSE.Play();
+			}
 			if ((input->KeyTrigger(DIK_A) || input->KeyTrigger(DIK_D)) || (stickTrigger))
 			{
 
@@ -742,16 +748,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				if (stageNum == 0)
 				{
-					player.Init(cam, STAGE_1);
-					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), STAGE_1, { 0,0,1 });
+					player.Init(cam, StartPositions[stageNum]);
+					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
 					WallMgr::Instance()->Init(loomWalls);
 					EnemyMgr::Instance()->Init(cam);
 					EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
 				}
 				else if (stageNum == 1)
 				{
-					player.Init(cam, STAGE_2);
-					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), STAGE_2, { 0,0,1 });
+					player.Init(cam, StartPositions[stageNum]);
+					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
 					WallMgr::Instance()->Init(townWalls);
 					EnemyMgr::Instance()->Init(cam);
 					EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
@@ -893,11 +899,74 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region CLEAR_UPDATE
 
 		case CLEAR:
-			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
+
+			if (resultFlag)
 			{
-				nowScene = CHOISE_CLEAR;
-				enterSE.Play();
+				if (fabs(input->LStick().y) > 0.0f)
+				{
+					if (input->LStick().y > 0.0f)
+					{
+						resultSelect--;
+					}
+					else if (input->LStick().y < 0.0f)
+					{
+						resultSelect++;
+					}
+					SelectSE.Play();
+				}
+				if (resultSelect >= 2)
+				{
+					resultSelect = 1;
+				}
+				if (resultSelect <= -1)
+				{
+					resultSelect = 0;
+				}
+				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+				{
+					if (resultSelect <= 0)
+					{
+						stageNum += 1;
+						if (stageNum > 1)
+						{
+							stageNum = 0;
+						}
+						player.Init(cam, StartPositions[stageNum]);
+						cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+
+						if (stageNum == 0)
+						{
+							WallMgr::Instance()->Init(loomWalls);
+							EnemyMgr::Instance()->Init(cam);
+							EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
+						}
+						else if (stageNum == 1)
+						{
+							WallMgr::Instance()->Init(townWalls);
+							EnemyMgr::Instance()->Init(cam);
+							EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
+						}
+						nowScene = GAME;
+						enterSE.Play();
+					}
+					else
+					{
+						nowScene = STAGESELECT;
+						enterSE.Play();
+					}
+					resultFlag = false;
+					resultSelect = 0;
+				}
 			}
+			else
+			{
+				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+				{
+					resultFlag = true;
+				}
+			}
+
+
 			break;
 
 #pragma endregion
@@ -905,87 +974,69 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region GAMEOVER_UPDATE
 
 		case GAMEOVER:
-			if (input->KeyTrigger(DIK_SPACE) || input->Button(XINPUT_GAMEPAD_A))
+			if (resultFlag)
 			{
-				nowScene = CHOISE_DEAD;
-				enterSE.Play();
+				if (fabs(input->LStick().y) > 0.0f)
+				{
+					if (input->LStick().y > 0.0f)
+					{
+						resultSelect--;
+					}
+					else if (input->LStick().y < 0.0f)
+					{
+						resultSelect++;
+					}
+					SelectSE.Play();
+				}
+				if (resultSelect >= 2)
+				{
+					resultSelect = 1;
+				}
+				if (resultSelect <= -1)
+				{
+					resultSelect = 0;
+				}
+				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+				{
+					if (resultSelect <= 0)
+					{
+						player.Init(cam, StartPositions[stageNum]);
+						cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+
+						if (stageNum == 0)
+						{
+							WallMgr::Instance()->Init(loomWalls);
+							EnemyMgr::Instance()->Init(cam);
+							EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
+						}
+						else if (stageNum == 1)
+						{
+							WallMgr::Instance()->Init(townWalls);
+							EnemyMgr::Instance()->Init(cam);
+							EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
+						}
+						nowScene = GAME;
+						enterSE.Play();
+					}
+					else
+					{
+						nowScene = STAGESELECT;
+						enterSE.Play();
+					}
+					resultFlag = false;
+					resultSelect = 0;
+				}
 			}
+			else
+			{
+				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+				{
+					resultFlag = true;
+				}
+			}
+
+
 			break;
-
-#pragma endregion
-
-#pragma region CHOISE_UPDATE
-
-			//死亡後セレクト
-		case CHOISE_DEAD:
-
-			dead_frame_down.SpriteUpdate();
-			dead_frame_up.SpriteUpdate();
-
-			if (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S) || (stickTrigger))
-			{
-				if (input->KeyTrigger(DIK_S) || input->LStick().y < 0.0f)
-				{
-					enterSE.Play();
-					choiseNum = false;
-				}
-				if (input->KeyTrigger(DIK_W) || input->LStick().y > 0.0f)
-				{
-					enterSE.Play();
-					choiseNum = true;
-				}
-			}
-
-			//まだNEXTできない
-			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
-			{
-				if (choiseNum)
-				{
-					enterSE.Play();
-					nowScene = STAGESELECT;
-				}
-				else
-				{
-					enterSE.Play();
-					nowScene = TITLE;
-				}
-			}
-
-
-			//クリア後セレクト
-		case CHOISE_CLEAR:
-
-			clear_frame_down.SpriteUpdate();
-			clear_frame_up.SpriteUpdate();
-
-			if (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S) || (stickTrigger))
-			{
-				if (input->KeyTrigger(DIK_S) || input->LStick().y < 0.0f)
-				{
-					enterSE.Play();
-					choiseNum = false;
-				}
-				if (input->KeyTrigger(DIK_W) || input->LStick().y > 0.0f)
-				{
-					enterSE.Play();
-					choiseNum = true;
-				}
-			}
-
-			//まだNEXTできない
-			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
-			{
-				if (choiseNum)
-				{
-					enterSE.Play();
-					nowScene = STAGESELECT;
-				}
-				else
-				{
-					enterSE.Play();
-					nowScene = TITLE;
-				}
-			}
 
 
 #pragma endregion
@@ -1015,11 +1066,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (input->isPadConnect())
 			{
-				select_cont.SpriteDraw();
+				stage_select_pad.SpriteDraw();
 			}
 			else
 			{
-				select_key.SpriteDraw();
+				stage_select_keys.SpriteDraw();
 			}
 
 			debugText.Print("stageselect", 10, 10, 3);
@@ -1105,8 +1156,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region CLEAR_DRAW
 
 		case CLEAR:
-			clearSprite.SpriteDraw();
-			debugText.Print("clear", window_width / 2, window_height / 2, 5);
+			if (resultFlag)
+			{
+				clear_choise.SpriteDraw();
+				if (resultSelect == 0)
+				{
+					clear_frame_up.SpriteDraw();
+				}
+				else
+				{
+					clear_frame_down.SpriteDraw();
+				}
+			}
+			else
+			{
+				clearSprite.SpriteDraw();
+			}
 			break;
 
 #pragma endregion
@@ -1114,9 +1179,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region GAMEOVER_DRAW
 
 		case GAMEOVER:
-
-			deadSprite.SpriteDraw();
-			debugText.Print("game over", window_width / 2, window_height / 2, 5);
+			if (resultFlag)
+			{
+				dead_choise.SpriteDraw();
+				if (resultSelect == 0)
+				{
+					dead_frame_up.SpriteDraw();
+				}
+				else
+				{
+					dead_frame_down.SpriteDraw();
+				}
+			}
+			else
+			{
+				deadSprite.SpriteDraw();
+			}
 			break;
 
 #pragma endregion
