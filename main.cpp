@@ -74,7 +74,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -99,13 +99,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -118,7 +118,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 #pragma region Init
-const float wallHeight = 50;
+	const float wallHeight = 50;
 	ParticleManager part;
 
 	cam.Init(Vector3(0, 250, 0), Vector3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
@@ -342,7 +342,7 @@ const float wallHeight = 50;
 	townWalls.push_back(townWallData[10]);
 
 	//壁抜け対策
-	townWallData[11].Init(cam, { -floor.scale.x / 2 ,floor.position.y ,-floor.scale.z/2 }, { 40, wallHeight, 40 });
+	townWallData[11].Init(cam, { -floor.scale.x / 2 ,floor.position.y ,-floor.scale.z / 2 }, { 40, wallHeight, 40 });
 	townWalls.push_back(townWallData[11]);
 
 	for (int i = 0; i < outWall.size(); i++)
@@ -391,7 +391,7 @@ const float wallHeight = 50;
 	Wall thirdStageWallData[9];
 
 	//入口壁
-	thirdStageWallData[0].Init(cam, Vector3(-floor.scale.x/2 + 50, -20, floor.scale.z / 2 - 50), Vector3(100, wallHeight, 100));
+	thirdStageWallData[0].Init(cam, Vector3(-floor.scale.x / 2 + 50, -20, floor.scale.z / 2 - 50), Vector3(100, wallHeight, 100));
 	thirdStageWalls.push_back(thirdStageWallData[0]);
 	thirdStageWallData[1].Init(cam, Vector3(-floor.scale.x / 2 + 50, -20, -floor.scale.z / 2 + 50), Vector3(100, wallHeight, 100));
 	thirdStageWalls.push_back(thirdStageWallData[1]);
@@ -416,7 +416,7 @@ const float wallHeight = 50;
 
 
 	//右上横壁
-	thirdStageWallData[7].Init(cam, Vector3(-floor.scale.x / 2 + 650, -20,-55), Vector3(40, wallHeight, 220));
+	thirdStageWallData[7].Init(cam, Vector3(-floor.scale.x / 2 + 650, -20, -55), Vector3(40, wallHeight, 220));
 	thirdStageWalls.push_back(thirdStageWallData[7]);
 
 	//ゴール壁
@@ -1095,7 +1095,8 @@ const float wallHeight = 50;
 				//シーン遷移挟んだ移行処理
 				if (sceneTransition.Change() && isTrigger)
 				{
-						stageNum += 1;
+					isTrigger = false;
+					stageNum += 1;
 					if (resultSelect <= 0)
 					{
 						stageNum += 1;
