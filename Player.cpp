@@ -60,7 +60,7 @@ Player::~Player()
 	delete StopSE;
 }
 
-void Player::Init(const Camera &camera, const XMFLOAT3 &pos)
+void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 {
 	this->pos = pos;
 	//direction = { 0,0,0 };
@@ -98,7 +98,7 @@ void Player::Init(const Camera &camera, const XMFLOAT3 &pos)
 	clear.SpriteUpdate();
 }
 
-void Player::Input(const Camera &camera)
+void Player::Input(const Camera& camera)
 {
 	/*---コントローラー操作用---*/
 	if (input->isPadConnect())
@@ -236,7 +236,7 @@ void Player::Input(const Camera &camera)
 	}
 }
 
-void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
+void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 {
 	//移動処理
 	if (!isDead && !isClear)
@@ -292,7 +292,7 @@ void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
 	obj.position = pos;
 	obj.Update(camera);
 
-	/*---キー操作用---*/
+	/*-----操作-----*/
 	/*時間停止*/
 
 	//時間停止外
@@ -444,7 +444,7 @@ void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
 	}
 }
 
-void Player::Draw(const PipeClass::PipelineSet &pipelineSet)
+void Player::Draw(const PipeClass::PipelineSet& pipelineSet)
 {
 	//適当なモデルで代用する
 	//if (IsDead()) return;
@@ -469,7 +469,7 @@ void Player::Finalize()
 {
 }
 
-void Player::PushBack(const XMFLOAT3 &enemyPos)
+void Player::PushBack(const XMFLOAT3& enemyPos)
 {
 	//半径
 	float r = 13.0f + 14.0f;
@@ -496,7 +496,7 @@ void Player::PushBack(const XMFLOAT3 &enemyPos)
 	}
 }
 
-void Player::DeathEffect(Camera &camera)
+void Player::DeathEffect(Camera& camera)
 {
 	if (IsDead())
 	{
@@ -528,7 +528,7 @@ void Player::Damaged()
 	}
 }	//HPを減らす
 
-bool Player::SetGoalAndCheak(const XMFLOAT3 &lowerLeft, const XMFLOAT3 &upperRight)
+bool Player::SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRight)
 {
 	if (lowerLeft.x <= pos.x &&
 		pos.x <= upperRight.x &&
@@ -541,7 +541,7 @@ bool Player::SetGoalAndCheak(const XMFLOAT3 &lowerLeft, const XMFLOAT3 &upperRig
 	return false;
 }
 
-void Player::ClearEffect(Camera &camera, bool setGoalAndCheak)
+void Player::ClearEffect(Camera& camera, bool setGoalAndCheak)
 {
 	if (setGoalAndCheak)
 	{

@@ -602,9 +602,6 @@ const float wallHeight = 50;
 	hud_stop.SpriteUpdate();
 
 	hud_base_life.SpriteUpdate();
-	hud_life_1.SpriteUpdate();
-	hud_life_2.SpriteUpdate();
-	hud_life_3.SpriteUpdate();
 
 	/*----------SCENE_CHANGE----------*/
 	int BACK_STICK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/SCENE_CHANGE/BACK_STICK.png");
@@ -636,11 +633,20 @@ const float wallHeight = 50;
 	stage_select_keys.size = { window_width, window_height };
 	stage_select_pad.SpriteUpdate();
 	stage_select_keys.SpriteUpdate();
+
+	int MASK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/mask_circle.png");
+	Sprite mask;
+	mask.Init(MASK);
+	mask.size = { 0,0 };
+	mask.position = { window_width / 2,window_height / 2,0 };
+	mask.color.w = 0.1f;
+	float easeTimer = 0.0f;
+
 #pragma endregion
 
 #pragma region 敵
 
-	int stageNum = 2;
+	int stageNum = 0;
 	bool choiseNum = false;
 
 
@@ -672,7 +678,13 @@ const float wallHeight = 50;
 	bool resultFlag = false;
 	int resultSelect = 0;
 
+	//トリガー判定用
 	bool isTrigger = false;
+	//HP管理用
+	bool hp_1to0 = false;
+	bool hp_2to1 = false;;
+	bool hp_3to2 = false;;
+
 	OutBgm.PlayLoop();
 	//if (FAILED(result))
 	//{
@@ -745,6 +757,21 @@ const float wallHeight = 50;
 		{
 			int a = 0;
 		}
+
+		if (isStop)
+		{
+			if (easeTimer < 1.0f) { easeTimer += 0.02f; }
+			mask.size.x = (1920 - 0) * player.easeOutCubic(easeTimer) + 0;
+			mask.size.y = (1920 - 0) * player.easeOutCubic(easeTimer) + 0;
+		}
+		else
+		{
+			if (easeTimer > 0.0f) { easeTimer -= 0.02f; }
+			mask.size.x = (0 - 1920) * player.easeOutCubic(1 - easeTimer) + 1920;
+			mask.size.y = (0 - 1920) * player.easeOutCubic(1 - easeTimer) + 1920;
+		}
+		mask.SpriteUpdate();
+
 #pragma endregion
 
 
@@ -824,13 +851,16 @@ const float wallHeight = 50;
 				SelectSE.Play();
 			}
 
-			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && !isTrigger)
+			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
-				sceneTransition.On();
-				enterSE.Play();
-				BGM.PlayLoop();
-				OutBgm.Stop();
-				isTrigger = true;
+				if (!isTrigger)
+				{
+					sceneTransition.On();
+					enterSE.Play();
+					BGM.PlayLoop();
+					OutBgm.Stop();
+					isTrigger = true;
+				}
 			}
 
 			if (sceneTransition.Change() && isTrigger)
@@ -935,12 +965,41 @@ const float wallHeight = 50;
 						if (!damaged)
 						{
 							player.Damaged();
+							hp = player.GetHP();
+							//サイズ調整用
+							if (hp == 2) { hp_3to2 = true; }
+							if (hp == 1) { hp_2to1 = true; }
+							if (hp == 0) { hp_1to0 = true; }
 						}
 						damaged = true;
 					}
 				}
 				damaged = false;
 			}
+
+			//サイズ調整処理
+			if (hp_3to2)
+			{
+				if (hud_life_3.color.w > 0.0f) { hud_life_3.color.w -= 0.03f; }
+				else { hud_life_3.color.w = 0.0f;  hp_3to2 = false; }
+			}
+			if (hp_2to1)
+			{
+				if (hud_life_2.color.w > 0.0f) { hud_life_2.color.w -= 0.03f; }
+				else { hud_life_2.color.w = 0.0f; hp_2to1 = false; }
+			}
+			if (hp_1to0)
+			{
+				if (hud_life_1.color.w > 0.0f) { hud_life_1.color.w -= 0.03f; }
+				else { hud_life_1.color.w = 0.0f; hp_1to0 = false; }
+			}
+
+
+			//HP画像Update
+			hud_life_1.SpriteUpdate();
+			hud_life_2.SpriteUpdate();
+			hud_life_3.SpriteUpdate();
+
 			if (player.IsHit())
 			{
 				for (int i = 0; i < 50; i++)
@@ -1026,8 +1085,17 @@ const float wallHeight = 50;
 				{
 					resultSelect = 0;
 				}
-				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && !isTrigger)
 				{
+					sceneTransition.On();
+					isTrigger = true;
+					enterSE.Play();
+				}
+
+				//シーン遷移挟んだ移行処理
+				if (sceneTransition.Change() && isTrigger)
+				{
+						stageNum += 1;
 					if (resultSelect <= 0)
 					{
 						stageNum += 1;
@@ -1058,14 +1126,11 @@ const float wallHeight = 50;
 						}
 						nowScene = GAME;
 						enterSE.Play();
-						OutBgm.Stop();
-						BGM.PlayLoop();
-
 					}
 					else
 					{
 						nowScene = STAGESELECT;
-						enterSE.Play();
+						//enterSE.Play();
 					}
 					resultFlag = false;
 					resultSelect = 0;
@@ -1081,6 +1146,13 @@ const float wallHeight = 50;
 				}
 			}
 
+			//HPのAlpha値を戻す
+			if (hud_life_1.color.w != 1.0f)
+			{
+				hud_life_1.color.w = 1.0f;
+				hud_life_2.color.w = 1.0f;
+				hud_life_3.color.w = 1.0f;
+			}
 
 			break;
 
@@ -1111,8 +1183,17 @@ const float wallHeight = 50;
 				{
 					resultSelect = 0;
 				}
-				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && !isTrigger)
 				{
+					sceneTransition.On();
+					isTrigger = true;
+					enterSE.Play();
+				if (sceneTransition.Change() && isTrigger)
+
+				//シーン遷移挟んだ処理
+				if (sceneTransition.Change() && isTrigger)
+				{
+					isTrigger = false;
 					if (resultSelect <= 0)
 					{
 						player.Init(cam, StartPositions[stageNum]);
@@ -1138,13 +1219,11 @@ const float wallHeight = 50;
 						}
 						nowScene = GAME;
 						enterSE.Play();
-						OutBgm.Stop();
-						BGM.PlayLoop();
 					}
 					else
 					{
 						nowScene = STAGESELECT;
-						enterSE.Play();
+						//enterSE.Play();
 					}
 					resultFlag = false;
 					resultSelect = 0;
@@ -1159,6 +1238,13 @@ const float wallHeight = 50;
 				}
 			}
 
+			//HPのAlpha値を戻す
+			if (hud_life_1.color.w != 1.0f)
+			{
+				hud_life_1.color.w = 1.0f;
+				hud_life_2.color.w = 1.0f;
+				hud_life_3.color.w = 1.0f;
+			}
 
 			break;
 
@@ -1213,6 +1299,7 @@ const float wallHeight = 50;
 #pragma region GAME_DRAW
 
 		case GAME:
+
 			//if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 
@@ -1243,7 +1330,8 @@ const float wallHeight = 50;
 			//一時停止
 			if (!player.IsDead() && isStop && !isClear) { spriteStop.SpriteDraw(); }
 
-
+			//時間停止,解除時の演出
+			mask.SpriteDraw();
 
 			if (!isClear && !player.IsDead())
 			{
@@ -1267,12 +1355,17 @@ const float wallHeight = 50;
 					hud_play.SpriteDraw();
 				}
 
-				if (player.GetHP() >= 1) { hud_life_1.SpriteDraw(); }
+				/*if (player.GetHP() >= 1) { hud_life_1.SpriteDraw(); }
 				if (player.GetHP() >= 2) { hud_life_2.SpriteDraw(); }
-				if (player.GetHP() >= 3) { hud_life_3.SpriteDraw(); }
+				if (player.GetHP() >= 3) { hud_life_3.SpriteDraw(); }*/
+
+				hud_life_1.SpriteDraw();
+				hud_life_2.SpriteDraw();
+				hud_life_3.SpriteDraw();
 			}
 			//hud_play.SpriteDraw();
 			//hud_stop.SpriteDraw();
+
 			break;
 
 #pragma endregion
