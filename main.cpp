@@ -493,6 +493,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//クリアしてるかどうか
 	bool isClear = false;
 	bool isDead = false;
+
 	//タイトル画面
 	Sprite titleLogo;
 	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/TitleGraph.png");
@@ -501,6 +502,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	titleLogo.position = { window_width / 2, window_height / 2 , 0.0f };
 	titleLogo.size = { window_width, window_height };
 	titleLogo.SpriteUpdate();
+
+	//タイトルのボタン表示
+	int TITLE_KEYS = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/TITLE_KEYBOARD.png");
+	int TITLE_PAD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/TITLE_CONTROLLER.png");
+
+	Sprite title_keys;
+	Sprite title_pad;
+
+	title_keys.Init(TITLE_KEYS);
+	title_pad.Init(TITLE_PAD);
+
+	title_keys.position = { window_width / 2,540,0 };
+	title_pad.position = { window_width / 2,540,0 };
+
+	title_keys.size = { 640,64 };
+	title_pad.size = { 640,64 };
 
 	/*----------DEAD_CLEAR(CLEARとDEADはPlayerで管理済)----------*/
 	int CLEAR_CHOICE = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_CHOICE.png");
@@ -800,6 +817,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		case TITLE:
 			titleLogo.SpriteTransferVertexBuffer();
+			if (input->isPadConnect())
+			{
+				title_pad.SpriteUpdate();
+			}
+			else
+			{
+				title_keys.SpriteUpdate();
+			}
 
 			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
