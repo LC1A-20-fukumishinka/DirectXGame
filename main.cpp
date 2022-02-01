@@ -1188,8 +1188,7 @@ const float wallHeight = 50;
 					sceneTransition.On();
 					isTrigger = true;
 					enterSE.Play();
-				if (sceneTransition.Change() && isTrigger)
-
+				}
 				//ƒV[ƒ“‘JˆÚ‹²‚ñ‚¾ˆ—
 				if (sceneTransition.Change() && isTrigger)
 				{
