@@ -556,6 +556,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	stage_select_keys.size = { window_width, window_height };
 	stage_select_pad.SpriteUpdate();
 	stage_select_keys.SpriteUpdate();
+
+	int MASK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/mask_circle.png");
+	Sprite mask;
+	mask.Init(MASK);
+	mask.size = { 0,0 };
+	mask.position = { window_width / 2,window_height / 2,0 };
+	mask.color.w = 0.1f;
+	float easeTimer = 0.0f;
+
 #pragma endregion
 
 #pragma region 敵
@@ -595,7 +604,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	bool resultFlag = false;
 	int resultSelect = 0;
 
+	//トリガー判定用
 	bool isTrigger = false;
+	//HP管理用
+	bool hp_1to0 = false;
+	bool hp_2to1 = false;;
+	bool hp_3to2 = false;;
+
 	//if (FAILED(result))
 	//{
 	//	return result;
@@ -667,6 +682,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 			int a = 0;
 		}
+
+		if (isStop)
+		{
+			if (easeTimer < 1.0f) { easeTimer += 0.02f; }
+			mask.size.x = (1920 - 0) * player.easeOutCubic(easeTimer) + 0;
+			mask.size.y = (1920 - 0) * player.easeOutCubic(easeTimer) + 0;
+		}
+		else
+		{
+			if (easeTimer > 0.0f) { easeTimer -= 0.02f; }
+			mask.size.x = (0 - 1920) * player.easeOutCubic(1 - easeTimer) + 1920;
+			mask.size.y = (0 - 1920) * player.easeOutCubic(1 - easeTimer) + 1920;
+		}
+		mask.SpriteUpdate();
 
 #pragma endregion
 
@@ -859,16 +888,35 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 						if (!damaged)
 						{
 							player.Damaged();
+							hp = player.GetHP();
 							//サイズ調整用
-							//if(hp==3)
-							//if(hp==2)
-							//if(hp==1)
+							if (hp == 2) { hp_3to2 = true; }
+							if (hp == 1) { hp_2to1 = true; }
+							if (hp == 0) { hp_1to0 = true; }
 						}
 						damaged = true;
 					}
 				}
 				damaged = false;
 			}
+
+			//サイズ調整処理
+			if (hp_3to2)
+			{
+				if (hud_life_3.color.w > 0.0f) { hud_life_3.color.w -= 0.03f; }
+				else { hud_life_3.color.w = 0.0f;  hp_3to2 = false; }
+			}
+			if (hp_2to1)
+			{
+				if (hud_life_2.color.w > 0.0f) { hud_life_2.color.w -= 0.03f; }
+				else { hud_life_2.color.w = 0.0f; hp_2to1 = false; }
+			}
+			if (hp_1to0)
+			{
+				if (hud_life_1.color.w > 0.0f) { hud_life_1.color.w -= 0.03f; }
+				else { hud_life_1.color.w = 0.0f; hp_1to0 = false; }
+			}
+
 
 			//HP画像Update
 			hud_life_1.SpriteUpdate();
@@ -1007,6 +1055,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				}
 			}
 
+			//HPのAlpha値を戻す
+			if (hud_life_1.color.w != 1.0f)
+			{
+				hud_life_1.color.w = 1.0f;
+				hud_life_2.color.w = 1.0f;
+				hud_life_3.color.w = 1.0f;
+			}
 
 			break;
 
@@ -1037,7 +1092,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				{
 					resultSelect = 0;
 				}
-				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A)&&!isTrigger)
+				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && !isTrigger)
 				{
 					sceneTransition.On();
 					isTrigger = true;
@@ -1085,6 +1140,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				}
 			}
 
+			//HPのAlpha値を戻す
+			if (hud_life_1.color.w != 1.0f)
+			{
+				hud_life_1.color.w = 1.0f;
+				hud_life_2.color.w = 1.0f;
+				hud_life_3.color.w = 1.0f;
+			}
 
 			break;
 
@@ -1139,6 +1201,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region GAME_DRAW
 
 		case GAME:
+
 			//if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 
@@ -1169,7 +1232,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//一時停止
 			if (!player.IsDead() && isStop && !isClear) { spriteStop.SpriteDraw(); }
 
-
+			//時間停止,解除時の演出
+			mask.SpriteDraw();
 
 			if (!isClear && !player.IsDead())
 			{
@@ -1203,6 +1267,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			//hud_play.SpriteDraw();
 			//hud_stop.SpriteDraw();
+
 			break;
 
 #pragma endregion
