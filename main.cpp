@@ -525,9 +525,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	hud_stop.SpriteUpdate();
 
 	hud_base_life.SpriteUpdate();
-	hud_life_1.SpriteUpdate();
-	hud_life_2.SpriteUpdate();
-	hud_life_3.SpriteUpdate();
 
 	/*----------SCENE_CHANGE----------*/
 	int BACK_STICK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/SCENE_CHANGE/BACK_STICK.png");
@@ -670,6 +667,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		{
 			int a = 0;
 		}
+
 #pragma endregion
 
 
@@ -757,12 +755,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				SelectSE.Play();
 			}
 
-			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && isTrigger)
+			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
-				sceneTransition.On();
-				enterSE.Play();
-				BGM.PlayLoop();
-				isTrigger = true;
+				if (!isTrigger)
+				{
+					sceneTransition.On();
+					enterSE.Play();
+					BGM.PlayLoop();
+					isTrigger = true;
+				}
 			}
 
 			if (sceneTransition.Change() && isTrigger)
@@ -858,12 +859,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 						if (!damaged)
 						{
 							player.Damaged();
+							//サイズ調整用
+							//if(hp==3)
+							//if(hp==2)
+							//if(hp==1)
 						}
 						damaged = true;
 					}
 				}
 				damaged = false;
 			}
+
+			//HP画像Update
+			hud_life_1.SpriteUpdate();
+			hud_life_2.SpriteUpdate();
+			hud_life_3.SpriteUpdate();
+
 			if (player.IsHit())
 			{
 				for (int i = 0; i < 50; i++)
@@ -943,8 +954,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				{
 					resultSelect = 0;
 				}
-				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && !isTrigger)
 				{
+					sceneTransition.On();
+					isTrigger = true;
+					enterSE.Play();
+				}
+
+				//シーン遷移挟んだ移行処理
+				if (sceneTransition.Change() && isTrigger)
+				{
+					isTrigger = false;
 					if (resultSelect <= 0)
 					{
 						stageNum += 1;
@@ -968,12 +988,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 							EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
 						}
 						nowScene = GAME;
-						enterSE.Play();
+						//enterSE.Play();
 					}
 					else
 					{
 						nowScene = STAGESELECT;
-						enterSE.Play();
+						//enterSE.Play();
 					}
 					resultFlag = false;
 					resultSelect = 0;
@@ -1017,8 +1037,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				{
 					resultSelect = 0;
 				}
-				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A)&&!isTrigger)
 				{
+					sceneTransition.On();
+					isTrigger = true;
+					enterSE.Play();
+				}
+
+				//シーン遷移挟んだ処理
+				if (sceneTransition.Change() && isTrigger)
+				{
+					isTrigger = false;
 					if (resultSelect <= 0)
 					{
 						player.Init(cam, StartPositions[stageNum]);
@@ -1037,12 +1066,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 							EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
 						}
 						nowScene = GAME;
-						enterSE.Play();
+						//enterSE.Play();
 					}
 					else
 					{
 						nowScene = STAGESELECT;
-						enterSE.Play();
+						//enterSE.Play();
 					}
 					resultFlag = false;
 					resultSelect = 0;
@@ -1164,9 +1193,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					hud_play.SpriteDraw();
 				}
 
-				if (player.GetHP() >= 1) { hud_life_1.SpriteDraw(); }
+				/*if (player.GetHP() >= 1) { hud_life_1.SpriteDraw(); }
 				if (player.GetHP() >= 2) { hud_life_2.SpriteDraw(); }
-				if (player.GetHP() >= 3) { hud_life_3.SpriteDraw(); }
+				if (player.GetHP() >= 3) { hud_life_3.SpriteDraw(); }*/
+
+				hud_life_1.SpriteDraw();
+				hud_life_2.SpriteDraw();
+				hud_life_3.SpriteDraw();
 			}
 			//hud_play.SpriteDraw();
 			//hud_stop.SpriteDraw();
