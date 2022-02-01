@@ -56,7 +56,7 @@ const int window_height = 720;
 //Player初期位置(簡易)
 
 //ステージ数
-const int MAX_STAGE_NUM = 2;
+const int MAX_STAGE_NUM = 3;
 
 enum Scenes
 {
@@ -74,34 +74,38 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
 #pragma region sound(xAudioInstance)
 
 	Sound::StaticInitialize();
-	int alarm = Sound::SoundLoadWave("Resources/sounds/Alarm01.wav");
-	int EnterData = Sound::SoundLoadWave("Resources/sounds/Enter.wav");
-	int DamageData = Sound::SoundLoadWave("Resources/sounds/Damage.wav");
-	int BGMData = Sound::SoundLoadWave("Resources/sounds/BGM.wav");
-	int SelectData = Sound::SoundLoadWave("Resources/sounds/Select.wav");
-
-	Sound voice(alarm);
+	int EnterData = Sound::SoundLoadWave("Resources/sounds/SE_Enter.wav");
+	int DamageData = Sound::SoundLoadWave("Resources/sounds/SE_Damage.wav");
+	int BGMData = Sound::SoundLoadWave("Resources/sounds/BGM_Ingame.wav");
+	int SelectData = Sound::SoundLoadWave("Resources/sounds/SE_Choice.wav");
+	int AttackData = Sound::SoundLoadWave("Resources/sounds/SE_Attack.wav");
+	int OutBGMData = Sound::SoundLoadWave("Resources/sounds/BGM_OutGame.wav");
+	int ClearData = Sound::SoundLoadWave("Resources/sounds/SE_Clear.wav");
+	int GameoverData = Sound::SoundLoadWave("Resources/sounds/SE_Gameover.wav");
+	Sound OutBgm(OutBGMData);
 	Sound enterSE(EnterData);
 	Sound BGM(BGMData);
 	Sound SelectSE(SelectData);
-	Sound EnemyDamageSE(DamageData);
+	Sound EnemyDamageSE(AttackData);
+	Sound ClearSE(ClearData);
+	Sound GameoverSE(GameoverData);
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
+	Input *input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -114,6 +118,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 #pragma region Init
+const float wallHeight = 50;
 	ParticleManager part;
 
 	cam.Init(Vector3(0, 250, 0), Vector3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
@@ -158,14 +163,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	SceneTransition sceneTransition;
 	//sceneTransition.Init();
 
+	Vector3 up(0, 0, 1), left(-1, 0, 0);
 
+	Vector3 down = -up;
+	Vector3 right = -left;
 
 #pragma region startPos
 
 	std::vector<XMFLOAT3> StartPositions;
 	const XMFLOAT3 STAGE_1 = { -450.1f,0,0 };
-	const XMFLOAT3 STAGE_2 = { -450.1f,0,-140.1f };
-	const XMFLOAT3 STAGE_3 = { 0,0,0 };
+	const XMFLOAT3 STAGE_2 = { -450.1f,0,-125.1f };
+	const XMFLOAT3 STAGE_3 = { -450.1f,0,0 };
 	const XMFLOAT3 STAGE_4 = { 0,0,0 };
 
 	StartPositions.push_back(STAGE_1);
@@ -176,13 +184,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 #pragma region goal
 	//floor.scale = { 1000.0f, 2.0f, 300.0f };
-	XMFLOAT3 lowerLeft[2];
-	XMFLOAT3 upperRight[2];
+	XMFLOAT3 lowerLeft[3];
+	XMFLOAT3 upperRight[3];
 	lowerLeft[0] = { 350,0,-40 };
 	upperRight[0] = { 450,0,40 };
 
 	lowerLeft[1] = { 400,0, 100 };
 	upperRight[1] = { 450,0,150 };
+
+	lowerLeft[2] = { 400,0, -150 };
+	upperRight[2] = { 500,0,-100 };
+
 #pragma endregion
 
 
@@ -208,21 +220,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	floor.Init(cam);
 
 
-	DirectX::XMFLOAT3 pillarScale = { 10, 500, 10 };
-	DirectX::XMFLOAT3 LPillarScale = { 50, 500, 50 };
-	DirectX::XMFLOAT3 wideWallScale = { 200, 500, 10 };
-	DirectX::XMFLOAT3 heightWallScale = { 10, 500, 100 };
-	DirectX::XMFLOAT3 LHeightWallScale = { 80, 500, 150 };
-	DirectX::XMFLOAT3 LWidthWallScale = { 150, 500, 100 };
+	DirectX::XMFLOAT3 pillarScale = { 10, wallHeight, 10 };
+	DirectX::XMFLOAT3 LPillarScale = { 50, wallHeight, 50 };
+	DirectX::XMFLOAT3 wideWallScale = { 200, wallHeight, 10 };
+	DirectX::XMFLOAT3 heightWallScale = { 10, wallHeight, 100 };
+	DirectX::XMFLOAT3 LHeightWallScale = { 80, wallHeight, 150 };
+	DirectX::XMFLOAT3 LWidthWallScale = { 150, wallHeight, 100 };
 
 #pragma endregion
 
 	std::vector<Wall> outWall;
 	outWall.resize(4);
-	outWall[0].Init(cam, { -(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
-	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2 , 10, 10.0f / 2 });
-	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 500, floor.scale.z }, { 10.0f / 2, 10, floor.scale.z / 2 });
-	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 500, 10 }, { floor.scale.x / 2, 10, 10.0f / 2 });
+	outWall[0].Init(cam, { -(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 1000, floor.scale.z });
+	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 1000, 10 });
+	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 1000, floor.scale.z });
+	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 1000, 10 });
 #pragma region １面壁
 
 	std::vector<Wall> loomWalls;
@@ -230,47 +242,47 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 
-	wall[0].Init(cam, { 0.0f,floor.position.y ,0.0f }, pillarScale, { pillarScale.x / 4, 10, pillarScale.z / 4 });
+	wall[0].Init(cam, { 0.0f,floor.position.y ,0.0f }, pillarScale);
 	loomWalls.push_back(wall[0]);
 
 	//入口奥
-	wall[1].Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	wall[1].Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale);
 	loomWalls.push_back(wall[1]);
-	wall[2].Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	wall[2].Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale);
 	loomWalls.push_back(wall[2]);
 
 	//入口手前
-	wall[3].Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	wall[3].Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale);
 	loomWalls.push_back(wall[3]);
-	wall[4].Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	wall[4].Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale);
 	loomWalls.push_back(wall[4]);
 
 	//入り口側中央柱
-	wall[5].Init(cam, { -180,floor.position.y ,0 }, LHeightWallScale, { LHeightWallScale.x / 2, 10, LHeightWallScale.z / 2 });
+	wall[5].Init(cam, { -180,floor.position.y ,0 }, LHeightWallScale);
 	loomWalls.push_back(wall[5]);
 
 	//出口側二本柱
-	wall[6].Init(cam, { +200,floor.position.y ,-80 }, LPillarScale, { LPillarScale.x / 2, 10, LPillarScale.z / 2 });
+	wall[6].Init(cam, { +200,floor.position.y ,-80 }, LPillarScale);
 	loomWalls.push_back(wall[6]);
-	wall[7].Init(cam, { +200,floor.position.y ,+80 }, LPillarScale, { LPillarScale.x / 2, 10, LPillarScale.z / 2 });
+	wall[7].Init(cam, { +200,floor.position.y ,+80 }, LPillarScale);
 	loomWalls.push_back(wall[7]);
 
 	//中間通路壁
-	wall[8].Init(cam, { 0,floor.position.y ,floor.scale.z / 2 - 50 }, LWidthWallScale, { LWidthWallScale.x / 2, 10, LWidthWallScale.z / 2 });
+	wall[8].Init(cam, { 0,floor.position.y ,floor.scale.z / 2 - 50 }, LWidthWallScale);
 	loomWalls.push_back(wall[8]);
-	wall[9].Init(cam, { 0,floor.position.y ,-floor.scale.z / 2 + 50 }, LWidthWallScale, { LWidthWallScale.x / 2, 10, LWidthWallScale.z / 2 });
+	wall[9].Init(cam, { 0,floor.position.y ,-floor.scale.z / 2 + 50 }, LWidthWallScale);
 	loomWalls.push_back(wall[9]);
 
 	//出口奥
-	wall[10].Init(cam, { floor.scale.x / 2 - 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	wall[10].Init(cam, { floor.scale.x / 2 - 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale);
 	loomWalls.push_back(wall[10]);
-	wall[11].Init(cam, { floor.scale.x / 2 - 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	wall[11].Init(cam, { floor.scale.x / 2 - 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale);
 	loomWalls.push_back(wall[11]);
 
 	//出口手前
-	wall[12].Init(cam, { +floor.scale.x / 2 - 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale, { wideWallScale.x / 2, 10, wideWallScale.z / 2 });
+	wall[12].Init(cam, { +floor.scale.x / 2 - 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale);
 	loomWalls.push_back(wall[12]);
-	wall[13].Init(cam, { +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale, { heightWallScale.x / 2, 10, heightWallScale.z / 2 });
+	wall[13].Init(cam, { +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale);
 	loomWalls.push_back(wall[13]);
 
 	for (int i = 0; i < outWall.size(); i++)
@@ -284,50 +296,54 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region 二面壁
 
 	std::vector<Wall> townWalls;
-	Wall townWallData[11];
+	Wall townWallData[12];
 
 	//初期地点右上
-	townWallData[0].Init(cam, { -floor.scale.x / 2 + 75,floor.position.y, -75.0f }, { 50, 500, 50 }, { 25, 10, 25 });
+	townWallData[0].Init(cam, { -floor.scale.x / 2 + 75,floor.position.y, -75.0f }, { 50, wallHeight, 50 });
 	townWalls.push_back(townWallData[0]);
 
 	//左壁沿い
-	townWallData[1].Init(cam, { -floor.scale.x / 2 + 25,floor.position.y ,25.0f }, { 50, 500, 50 }, { 25, 10, 25 });
+	townWallData[1].Init(cam, { -floor.scale.x / 2 + 25,floor.position.y ,25.0f }, { 50, wallHeight, 50 });
 	townWalls.push_back(townWallData[1]);
 
 	//初期地点右右上
-	townWallData[2].Init(cam, { -floor.scale.x / 2 + 250,floor.position.y, -75.0f }, { 50, 500, 50 }, { 25, 10, 25 });
+	townWallData[2].Init(cam, { -floor.scale.x / 2 + 250,floor.position.y, -75.0f }, { 50, wallHeight, 50 });
 	townWalls.push_back(townWallData[2]);
 
 	//初期地点側上部縦長壁
-	townWallData[3].Init(cam, { -floor.scale.x / 2 + 180,floor.position.y, 40.0f }, { 50, 500, 100 }, { 25, 10, 50 });
+	townWallData[3].Init(cam, { -floor.scale.x / 2 + 180,floor.position.y, 40.0f }, { 50, wallHeight, 100 });
 	townWalls.push_back(townWallData[3]);
 
 	//中央上部左横長壁
-	townWallData[4].Init(cam, { -140,floor.position.y ,floor.scale.z / 2 - 80 }, { 150, 500, 75 }, { 75, 10, 37.5f });
+	townWallData[4].Init(cam, { -140,floor.position.y ,floor.scale.z / 2 - 80 }, { 150, wallHeight, 75 });
 	townWalls.push_back(townWallData[4]);
 
 	//中央下部大壁
-	townWallData[5].Init(cam, { -20,floor.position.y ,-floor.scale.z / 2 + 50 }, { 140, 500, 100 }, { 70, 10, 50 });
+	townWallData[5].Init(cam, { -20,floor.position.y ,-floor.scale.z / 2 + 50 }, { 140, wallHeight, 100 });
 	townWalls.push_back(townWallData[5]);
 
 	//中央上部右大壁
-	townWallData[6].Init(cam, { +100,floor.position.y ,60.0f }, { 150, 500, 120 }, { 75, 10, 60 });
+	townWallData[6].Init(cam, { +100,floor.position.y ,60.0f }, { 150, wallHeight, 120 });
 	townWalls.push_back(townWallData[6]);
 
 	//右側下段壁
-	townWallData[7].Init(cam, { +200,floor.position.y ,-80 }, { 150, 500, 50 }, { 75.0f, 10, 25 });
+	townWallData[7].Init(cam, { +200,floor.position.y ,-80 }, { 150, wallHeight, 50 });
 	townWalls.push_back(townWallData[7]);
 
 	//右上隔離壁縦
-	townWallData[8].Init(cam, { floor.scale.x / 2 - 230,floor.position.y ,floor.scale.z / 2 - 50 }, { 50, 500, 100 }, { 25, 10, 50 });
+	townWallData[8].Init(cam, { floor.scale.x / 2 - 230,floor.position.y ,floor.scale.z / 2 - 50 }, { 50, wallHeight, 100 });
 	townWalls.push_back(townWallData[8]);
 	//右下端壁
-	townWallData[9].Init(cam, { floor.scale.x / 2 - 75,floor.position.y ,-floor.scale.z / 2 + 100 }, { 150, 500, 200 }, { 75, 10, 100 });
+	townWallData[9].Init(cam, { floor.scale.x / 2 - 75,floor.position.y ,-floor.scale.z / 2 + 100 }, { 150, wallHeight, 200 });
 	townWalls.push_back(townWallData[9]);
 
 	//隔離部屋内壁
-	townWallData[10].Init(cam, { floor.scale.x / 2 - 75,floor.position.y ,floor.scale.z / 2 - 100 }, { 150, 500, 100 }, { 75, 10, 50 });
+	townWallData[10].Init(cam, { floor.scale.x / 2 - 75,floor.position.y ,floor.scale.z / 2 - 100 }, { 150, wallHeight, 100 });
 	townWalls.push_back(townWallData[10]);
+
+	//壁抜け対策
+	townWallData[11].Init(cam, { -floor.scale.x / 2 ,floor.position.y ,-floor.scale.z/2 }, { 40, wallHeight, 40 });
+	townWalls.push_back(townWallData[11]);
 
 	for (int i = 0; i < outWall.size(); i++)
 	{
@@ -349,23 +365,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	loomEnemyGeneratePos.push_back(XMFLOAT3{ 130, 0, -50 });
 	loomEnemyGeneratePos.push_back(XMFLOAT3{ 130, 0, 50 });
 	loomEnemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 0 });
-	std::vector<XMFLOAT3> townEnemyGeneratePos;
-	townEnemyGeneratePos.push_back(XMFLOAT3{ -336, 0, -70 });
-	townEnemyGeneratePos.push_back(XMFLOAT3{ -396, 0, 64 });
-	townEnemyGeneratePos.push_back(XMFLOAT3{ -148, 0, -26 });
-	townEnemyGeneratePos.push_back(XMFLOAT3{ -23, 0, 66 });
-	townEnemyGeneratePos.push_back(XMFLOAT3{ 88, 0, -80 });
-	townEnemyGeneratePos.push_back(XMFLOAT3{ 304, 0, 0 });
-	//std::vector<XMFLOAT3> enemyGeneratePos;
-	//enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, 105 });
-	//enemyGeneratePos.push_back(XMFLOAT3{ -255, 0, -105 });
-	//enemyGeneratePos.push_back(XMFLOAT3{ -85, 0, 0 });
-	//enemyGeneratePos.push_back(XMFLOAT3{ 130, 0, -50 });
-	////enemyGeneratePos.push_back(XMFLOAT3{ , 0, -30 });
-	//enemyGeneratePos.push_back(XMFLOAT3{ 130, 0, 50 });
-	////enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, -120 });
-	//enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 0 });
-	////enemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 120 });
 	std::vector<XMFLOAT3> enemyForwardVec;
 	enemyForwardVec.push_back(XMFLOAT3(0, 0, -1));
 	enemyForwardVec.push_back(XMFLOAT3(0, 0, 1));
@@ -373,6 +372,85 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
 	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
 	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0));
+
+	std::vector<XMFLOAT3> townEnemyGeneratePos;
+	townEnemyGeneratePos.push_back(XMFLOAT3{ -336, 0, -70 });
+	townEnemyGeneratePos.push_back(XMFLOAT3{ -396, 0, 64 });
+	townEnemyGeneratePos.push_back(XMFLOAT3{ -148, 0, -26 });
+	townEnemyGeneratePos.push_back(XMFLOAT3{ -23, 0, 66 });
+	townEnemyGeneratePos.push_back(XMFLOAT3{ 88, 0, -80 });
+	townEnemyGeneratePos.push_back(XMFLOAT3{ 304, 0, 0 });
+
+
+
+
+#pragma endregion
+
+#pragma region 3面壁
+	std::vector<Wall> thirdStageWalls;
+	Wall thirdStageWallData[9];
+
+	//入口壁
+	thirdStageWallData[0].Init(cam, Vector3(-floor.scale.x/2 + 50, -20, floor.scale.z / 2 - 50), Vector3(100, wallHeight, 100));
+	thirdStageWalls.push_back(thirdStageWallData[0]);
+	thirdStageWallData[1].Init(cam, Vector3(-floor.scale.x / 2 + 50, -20, -floor.scale.z / 2 + 50), Vector3(100, wallHeight, 100));
+	thirdStageWalls.push_back(thirdStageWallData[1]);
+
+	//鍵壁
+	thirdStageWallData[2].Init(cam, Vector3(-floor.scale.x / 2 + 150, -20, -60), Vector3(150, wallHeight, 20));
+	thirdStageWalls.push_back(thirdStageWallData[2]);
+	thirdStageWallData[3].Init(cam, Vector3(-floor.scale.x / 2 + 215, -20, 0), Vector3(20, wallHeight, 100));
+	thirdStageWalls.push_back(thirdStageWallData[3]);
+
+	//中央縦壁
+	thirdStageWallData[4].Init(cam, Vector3(-floor.scale.x / 2 + 350, -20, 40), Vector3(40, wallHeight, 220));
+	thirdStageWalls.push_back(thirdStageWallData[4]);
+
+	//中央でっぱり
+	thirdStageWallData[5].Init(cam, Vector3(-floor.scale.x / 2 + 410, -20, +60), Vector3(80, wallHeight, 20));
+	thirdStageWalls.push_back(thirdStageWallData[5]);
+
+	//ゴール側竪壁
+	thirdStageWallData[6].Init(cam, Vector3(-floor.scale.x / 2 + 700, -20, +60), Vector3(300, wallHeight, 20));
+	thirdStageWalls.push_back(thirdStageWallData[6]);
+
+
+	//右上横壁
+	thirdStageWallData[7].Init(cam, Vector3(-floor.scale.x / 2 + 650, -20,-55), Vector3(40, wallHeight, 220));
+	thirdStageWalls.push_back(thirdStageWallData[7]);
+
+	//ゴール壁
+	thirdStageWallData[8].Init(cam, Vector3(floor.scale.x / 2 - 80, -20, -100), Vector3(200, wallHeight, 20));
+	thirdStageWalls.push_back(thirdStageWallData[8]);
+	for (int i = 0; i < outWall.size(); i++)
+	{
+		thirdStageWalls.push_back(outWall[i]);
+	}
+
+	std::vector<XMFLOAT3> thirdStageEnemyGeneratePos;
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -346, 0, 97 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -222, 0, 97 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -222, 0, -7 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -365, 0, -106 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 2, 0, -100 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -89, 0, 10 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -89, 0, -55 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 87, 0, 10 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 87, 0, -55 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -89, 0, 108 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 87, 0, 108 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 228, 0, 108 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 430, 0, 107 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 430, 0, -47 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 342, 0, -47 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 211, 0, 16 });
+	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 221, 0, -102 });
+	std::vector<XMFLOAT3> thirdStageEnemyGenerateAngle;
+	thirdStageEnemyGenerateAngle.resize(thirdStageEnemyGeneratePos.size());
+	for (int i = 0; i < thirdStageEnemyGenerateAngle.size(); i++)
+	{
+		thirdStageEnemyGenerateAngle[i] = up;
+	}
 
 #pragma endregion
 
@@ -414,7 +492,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//クリアしてるかどうか
 	bool isClear = false;
-
+	bool isDead = false;
 	//タイトル画面
 	Sprite titleLogo;
 	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/TitleGraph.png");
@@ -438,7 +516,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sprite dead_choise;
 	Sprite dead_frame_down;
 	Sprite dead_frame_up;
-
 	clear_choise.Init(CLEAR_CHOICE, { 0.0f, 0.0f });
 	clear_frame_down.Init(CLEAR_FRAME_DOWN, { 0.0f, 0.0f });
 	clear_frame_up.Init(CLEAR_FRAME_UP, { 0.0f, 0.0f });
@@ -563,13 +640,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma region 敵
 
-	int stageNum = 0;
+	int stageNum = 2;
 	bool choiseNum = false;
 
-	Vector3 up(0, 0, 1), left(-1, 0, 0);
 
-	Vector3 down = -up;
-	Vector3 right = -left;
 
 	std::vector<XMFLOAT3> loomEnemyAngles;
 	loomEnemyAngles.push_back(down);
@@ -599,6 +673,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int resultSelect = 0;
 
 	bool isTrigger = false;
+	OutBgm.PlayLoop();
 	//if (FAILED(result))
 	//{
 	//	return result;
@@ -685,14 +760,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		bool stickTrigger = (StickFlag && !StickOldFlag);
 		//更新処理
-		if (input->KeyTrigger(DIK_X))
-		{
-			voice.PlayLoop();
-		}
-		if (input->KeyTrigger(DIK_Z))
-		{
-			voice.Stop();
-		}
 		cam.Update();
 
 		//遷移Update
@@ -728,7 +795,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case STAGESELECT:
 
 
-			if (input->KeyTrigger(DIK_B))
+			if (input->ButtonTrigger(XINPUT_GAMEPAD_B) || input->KeyTrigger(DIK_ESCAPE))
 			{
 				nowScene = TITLE;
 				enterSE.Play();
@@ -752,16 +819,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 				if (stageNum >= MAX_STAGE_NUM)
 				{
-					stageNum = 1;
+					stageNum = MAX_STAGE_NUM - 1;
 				}
 				SelectSE.Play();
 			}
 
-			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && isTrigger)
+			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && !isTrigger)
 			{
 				sceneTransition.On();
 				enterSE.Play();
 				BGM.PlayLoop();
+				OutBgm.Stop();
 				isTrigger = true;
 			}
 
@@ -785,6 +853,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					EnemyMgr::Instance()->Init(cam);
 					EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
 				}
+				else if (stageNum == 2)
+				{
+					player.Init(cam, StartPositions[stageNum]);
+					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+					WallMgr::Instance()->Init(thirdStageWalls);
+					EnemyMgr::Instance()->Init(cam);
+					EnemyMgr::Instance()->Generate(thirdStageEnemyGeneratePos, thirdStageEnemyGenerateAngle, cam);
+				}
+
 			}
 
 			break;
@@ -895,22 +972,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//クリア遷移
 
 			player.ClearEffect(cam, player.SetGoalAndCheak(lowerLeft[stageNum], upperRight[stageNum]));
+
+			if (!isClear && player.IsClear())
+			{
+				BGM.Stop();
+				ClearSE.Play();
+			}
 			isClear = player.IsClear();
+
 			if (!player.IsEffect() && isClear)
 			{
 				nowScene = CLEAR;
-				BGM.Stop();
 			}
 
-			//死亡遷移
-			/*if (player.IsDead())
+			if (!isDead && player.IsDead())
 			{
-				nowScene = GAMEOVER;
-			}*/
-			if (!player.IsEffect() && player.IsDead())
-			{
-				nowScene = GAMEOVER;
 				BGM.Stop();
+				GameoverSE.Play();
+			}
+			isDead = player.IsDead();
+			if (!player.IsEffect() && isDead)
+			{
+				nowScene = GAMEOVER;
 			}
 
 			break;
@@ -923,13 +1006,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (resultFlag)
 			{
-				if (fabs(input->LStick().y) > 0.0f)
+				if (stickTrigger || (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S)))
 				{
-					if (input->LStick().y > 0.0f)
+					if (input->LStick().y > 0.0f || input->KeyTrigger(DIK_W))
 					{
 						resultSelect--;
 					}
-					else if (input->LStick().y < 0.0f)
+					else if (input->LStick().y < 0.0f || input->KeyTrigger(DIK_S))
 					{
 						resultSelect++;
 					}
@@ -948,7 +1031,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					if (resultSelect <= 0)
 					{
 						stageNum += 1;
-						if (stageNum > 1)
+						if (stageNum >= MAX_STAGE_NUM)
 						{
 							stageNum = 0;
 						}
@@ -967,8 +1050,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 							EnemyMgr::Instance()->Init(cam);
 							EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
 						}
+						else if (stageNum == 2)
+						{
+							WallMgr::Instance()->Init(thirdStageWalls);
+							EnemyMgr::Instance()->Init(cam);
+							EnemyMgr::Instance()->Generate(thirdStageEnemyGeneratePos, thirdStageEnemyGenerateAngle, cam);
+						}
 						nowScene = GAME;
 						enterSE.Play();
+						OutBgm.Stop();
+						BGM.PlayLoop();
+
 					}
 					else
 					{
@@ -984,6 +1076,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 				{
 					resultFlag = true;
+					ClearSE.Stop();
+					OutBgm.Play();
 				}
 			}
 
@@ -997,13 +1091,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case GAMEOVER:
 			if (resultFlag)
 			{
-				if (fabs(input->LStick().y) > 0.0f)
+				if (stickTrigger || (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S)))
 				{
-					if (input->LStick().y > 0.0f)
+					if (input->LStick().y > 0.0f || input->KeyTrigger(DIK_W))
 					{
 						resultSelect--;
 					}
-					else if (input->LStick().y < 0.0f)
+					else if (input->LStick().y < 0.0f || input->KeyTrigger(DIK_S))
 					{
 						resultSelect++;
 					}
@@ -1036,8 +1130,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 							EnemyMgr::Instance()->Init(cam);
 							EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
 						}
+						else if (stageNum == 2)
+						{
+							WallMgr::Instance()->Init(thirdStageWalls);
+							EnemyMgr::Instance()->Init(cam);
+							EnemyMgr::Instance()->Generate(thirdStageEnemyGeneratePos, thirdStageEnemyGenerateAngle, cam);
+						}
 						nowScene = GAME;
 						enterSE.Play();
+						OutBgm.Stop();
+						BGM.PlayLoop();
 					}
 					else
 					{
@@ -1053,6 +1155,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 				{
 					resultFlag = true;
+					OutBgm.Play();
 				}
 			}
 
@@ -1094,14 +1197,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				stage_select_keys.SpriteDraw();
 			}
 
-			//debugText.Print("stageselect", 10, 10, 3);
+			debugText.Print("stageselect", 10, 10, 3);
 			if (stageNum == 0)
 			{
-				//debugText.Print("stage 1", 10, 100, 3);
+				debugText.Print("stage 1", 10, 100, 3);
 			}
 			if (stageNum == 1)
 			{
-				//debugText.Print("stage 2", 10, 100, 3);
+				debugText.Print("stage 2", 10, 100, 3);
 			}
 			break;
 
