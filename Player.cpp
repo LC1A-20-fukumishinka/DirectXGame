@@ -170,6 +170,8 @@ void Player::Input(const Camera& camera)
 			if (movePower > 0.0f) movePower -= 0.02f;
 			if (movePower < 0.0f) movePower = 0.0f;
 
+			if (isDash) { isDash = false; }
+
 			vec3.x *= movePower;
 			vec3.z *= movePower;
 		}
