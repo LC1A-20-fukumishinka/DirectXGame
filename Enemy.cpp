@@ -214,56 +214,59 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 	}
 	else
 	{
-		isHit = false;
-		//ステータスによって処理を分ける
-		switch (status)
+		if (!isStop)
 		{
-		case STATUS_SEARCH:
-			Searching(playerPos);
-			break;
-		case STATUS_TARGET:
-			Targeting(playerPos);
-			break;
-		case STATUS_ATTACK:
-			Attack();
-			break;
-		default:
-			break;
+			isHit = false;
+			//ステータスによって処理を分ける
+			switch (status)
+			{
+			case STATUS_SEARCH:
+				Searching(playerPos);
+				break;
+			case STATUS_TARGET:
+				Targeting(playerPos);
+				break;
+			case STATUS_ATTACK:
+				Attack();
+				break;
+			default:
+				break;
+			}
+
+			//正面ベクトルの更新
+			matRot = XMMatrixIdentity();
+			matRot *= XMMatrixRotationZ(XMConvertToRadians(enemyData.rotation.z));
+			matRot *= XMMatrixRotationX(XMConvertToRadians(enemyData.rotation.x));
+			matRot *= XMMatrixRotationY(XMConvertToRadians(enemyData.rotation.y));
+			UpdateForwardVec(forwardVec, matRot);
+
+
+			//レイの更新処理
+			//座標
+			forwardRay.start = XMLoadFloat3(&enemyData.position);
+			//方向
+			forwardRay.dir = XMLoadFloat3(&forwardVec);
+
+			//球座標の更新
+			sphere.center = XMLoadFloat3(&enemyData.position);
+
+			//三角形座標の更新
+			forwardTriangle.p0 = XMLoadFloat3(&enemyData.position);
+
+			//右上
+			XMFLOAT3 p1 = enemyData.position;
+			p1 = AddXMFLOAT3(p1, TRIANGLE_UPPER_RIGHT_POS);
+			p1 = MulXMFLOAT3(p1, forwardVec);
+			p1.y = 10;
+			forwardTriangle.p1 = XMLoadFloat3(&p1);
+
+			//左上
+			XMFLOAT3 p2 = enemyData.position;
+			p2 = AddXMFLOAT3(p2, TRIANGLE_UPPER_LEFT_POS);
+			p2 = MulXMFLOAT3(p2, forwardVec);
+			p2.y = 10;
+			forwardTriangle.p2 = XMLoadFloat3(&p2);
 		}
-
-		//正面ベクトルの更新
-		matRot = XMMatrixIdentity();
-		matRot *= XMMatrixRotationZ(XMConvertToRadians(enemyData.rotation.z));
-		matRot *= XMMatrixRotationX(XMConvertToRadians(enemyData.rotation.x));
-		matRot *= XMMatrixRotationY(XMConvertToRadians(enemyData.rotation.y));
-		UpdateForwardVec(forwardVec, matRot);
-
-
-		//レイの更新処理
-		//座標
-		forwardRay.start = XMLoadFloat3(&enemyData.position);
-		//方向
-		forwardRay.dir = XMLoadFloat3(&forwardVec);
-
-		//球座標の更新
-		sphere.center = XMLoadFloat3(&enemyData.position);
-
-		//三角形座標の更新
-		forwardTriangle.p0 = XMLoadFloat3(&enemyData.position);
-
-		//右上
-		XMFLOAT3 p1 = enemyData.position;
-		p1 = AddXMFLOAT3(p1, TRIANGLE_UPPER_RIGHT_POS);
-		p1 = MulXMFLOAT3(p1, forwardVec);
-		p1.y = 10;
-		forwardTriangle.p1 = XMLoadFloat3(&p1);
-
-		//左上
-		XMFLOAT3 p2 = enemyData.position;
-		p2 = AddXMFLOAT3(p2, TRIANGLE_UPPER_LEFT_POS);
-		p2 = MulXMFLOAT3(p2, forwardVec);
-		p2.y = 10;
-		forwardTriangle.p2 = XMLoadFloat3(&p2);
 	}
 }
 
@@ -290,8 +293,8 @@ void Enemy::Searching(const XMFLOAT3& playerPos)
 
 	if (searchTimer >= MAX_SEARCH_TIMER)
 	{
-		rotateStatus = GetRand(0, 3);
-		//rotateStatus = 0;
+		//rotateStatus = GetRand(0, 3);
+		rotateStatus = 0;
 		searchTimer = 0;
 	}
 
@@ -320,6 +323,18 @@ void Enemy::Searching(const XMFLOAT3& playerPos)
 	//敵とプレイヤーの距離を計算
 	float distance = Distance3D(enemyData.position, playerPos);
 	float r = 16 + SEARCH_RADIUS;
+
+	float sR = 16 + SENSING_RADIUS;
+
+	//ある一定の距離以上近くにプレイヤーがいたら
+	if (distance < sR)
+	{
+		//ステータスをターゲティングにする
+		status = STATUS_TARGET;
+		searchTimer = 30;
+		searchDelayTimer = 0;
+	}
+
 	//正面レイ方向に壁がなく、敵がいたら
 	if (Collision::CheckRay2Sphere(forwardRay, playerSphere) && !CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos) && distance < r)
 	{
@@ -353,17 +368,29 @@ void Enemy::Targeting(const XMFLOAT3& playerPos)
 
 	if (angle < 0)
 	{
-		enemyData.rotation.y += XM_PI / 2.0f;
+		enemyData.rotation.y += XM_PI;
 	}
 	else
 	{
-		enemyData.rotation.y -= XM_PI / 2.0f;
+		enemyData.rotation.y -= XM_PI;
+	}
+
+	if (angle > 0.75 && angle < 1)
+	{
+		status = STATUS_SEARCH;
+		targetingTimer = 0;
+	}
+	else if (angle < -0.75 && angle > -1)
+	{
+		status = STATUS_SEARCH;
+		targetingTimer = 0;
 	}
 
 	//追尾中に壁に隠れられたらステータスを捜索に変える
 	if (CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
 	{
 		status = STATUS_SEARCH;
+		targetingTimer = 0;
 	}
 
 	//タイマーを進める
