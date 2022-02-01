@@ -46,6 +46,14 @@ public:
 
 	void On() { nowStatus = now; }
 	int GetNowStatus() { return nowStatus; }
-	bool Change() { return isTransitionMiddle; }
+	bool Change()
+	{
+		if (isTransitionMiddle)
+		{
+			isTransitionMiddle = false;
+			return true;
+		}
+		else { return false; }
+	}
 };
 

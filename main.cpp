@@ -597,6 +597,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	bool StickOldFlag = false;
 	bool resultFlag = false;
 	int resultSelect = 0;
+
+	bool isTrigger = false;
 	//if (FAILED(result))
 	//{
 	//	return result;
@@ -712,7 +714,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				enterSE.Play();
 				//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
 			}
-			if (sceneTransition.Change()) {
+			if (sceneTransition.Change())
+			{
 				nowScene = STAGESELECT;
 			}
 
@@ -753,36 +756,37 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				}
 				SelectSE.Play();
 			}
-			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
+
+			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && isTrigger)
 			{
 				sceneTransition.On();
+				enterSE.Play();
+				BGM.PlayLoop();
+				isTrigger = true;
+			}
 
+			if (sceneTransition.Change() && isTrigger)
+			{
+				isTrigger = false;
+				nowScene = GAME;
 				if (stageNum == 0)
 				{
-					if (sceneTransition.Change())
-					{
-						player.Init(cam, StartPositions[stageNum]);
-						cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
-						WallMgr::Instance()->Init(loomWalls);
-						EnemyMgr::Instance()->Init(cam);
-						EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
-					}
+					player.Init(cam, StartPositions[stageNum]);
+					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+					WallMgr::Instance()->Init(loomWalls);
+					EnemyMgr::Instance()->Init(cam);
+					EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
 				}
 				else if (stageNum == 1)
 				{
-					if (sceneTransition.Change())
-					{
-						player.Init(cam, StartPositions[stageNum]);
-						cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
-						WallMgr::Instance()->Init(townWalls);
-						EnemyMgr::Instance()->Init(cam);
-						EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
-					}
+					player.Init(cam, StartPositions[stageNum]);
+					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+					WallMgr::Instance()->Init(townWalls);
+					EnemyMgr::Instance()->Init(cam);
+					EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
 				}
-				enterSE.Play();
-				BGM.PlayLoop();
-				nowScene = GAME;
 			}
+
 			break;
 
 #pragma endregion
