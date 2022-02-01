@@ -85,7 +85,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int DamageData = Sound::SoundLoadWave("Resources/sounds/SE_Damage.wav");
 	int BGMData = Sound::SoundLoadWave("Resources/sounds/BGM_Ingame.wav");
 	int SelectData = Sound::SoundLoadWave("Resources/sounds/SE_Choice.wav");
-	int AttackData = Sound::SoundLoadWave("Resources/sounds/SE_Attack.wav");
+	int BreakData = Sound::SoundLoadWave("Resources/sounds/SE_Break.wav");
 	int OutBGMData = Sound::SoundLoadWave("Resources/sounds/BGM_OutGame.wav");
 	int ClearData = Sound::SoundLoadWave("Resources/sounds/SE_Clear.wav");
 	int GameoverData = Sound::SoundLoadWave("Resources/sounds/SE_Gameover.wav");
@@ -93,7 +93,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Sound enterSE(EnterData);
 	Sound BGM(BGMData);
 	Sound SelectSE(SelectData);
-	Sound EnemyDamageSE(AttackData);
+	Sound EnemyDamageSE(BreakData);
 	Sound ClearSE(ClearData);
 	Sound GameoverSE(GameoverData);
 #pragma endregion
