@@ -155,6 +155,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	int particleGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/effect1.png");
 
+	SceneTransition sceneTransition;
+	//sceneTransition.Init();
 
 
 
@@ -691,6 +693,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		cam.Update();
 
+		//ëJà⁄Update
+		sceneTransition.Update();
+
 
 		switch (nowScene)
 		{
@@ -702,11 +707,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
-				nowScene = STAGESELECT;
+				sceneTransition.On();
 
 				enterSE.Play();
 				//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
 			}
+			if (sceneTransition.Change()) {
+				nowScene = STAGESELECT;
+			}
+
 			break;
 
 #pragma endregion
@@ -746,21 +755,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
+				sceneTransition.On();
+
 				if (stageNum == 0)
 				{
-					player.Init(cam, StartPositions[stageNum]);
-					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
-					WallMgr::Instance()->Init(loomWalls);
-					EnemyMgr::Instance()->Init(cam);
-					EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
+					if (sceneTransition.Change())
+					{
+						player.Init(cam, StartPositions[stageNum]);
+						cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+						WallMgr::Instance()->Init(loomWalls);
+						EnemyMgr::Instance()->Init(cam);
+						EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
+					}
 				}
 				else if (stageNum == 1)
 				{
-					player.Init(cam, StartPositions[stageNum]);
-					cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
-					WallMgr::Instance()->Init(townWalls);
-					EnemyMgr::Instance()->Init(cam);
-					EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
+					if (sceneTransition.Change())
+					{
+						player.Init(cam, StartPositions[stageNum]);
+						cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+						WallMgr::Instance()->Init(townWalls);
+						EnemyMgr::Instance()->Init(cam);
+						EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
+					}
 				}
 				enterSE.Play();
 				BGM.PlayLoop();
@@ -1073,14 +1090,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				stage_select_keys.SpriteDraw();
 			}
 
-			debugText.Print("stageselect", 10, 10, 3);
+			//debugText.Print("stageselect", 10, 10, 3);
 			if (stageNum == 0)
 			{
-				debugText.Print("stage 1", 10, 100, 3);
+				//debugText.Print("stage 1", 10, 100, 3);
 			}
 			if (stageNum == 1)
 			{
-				debugText.Print("stage 2", 10, 100, 3);
+				//debugText.Print("stage 2", 10, 100, 3);
 			}
 			break;
 
@@ -1234,6 +1251,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		default:
 			break;
 		}
+
+		//ëJà⁄Draw
+		sceneTransition.Draw();
 
 		//ê[ìxínÉäÉZÉbÉg
 		DepthReset();
