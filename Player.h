@@ -66,9 +66,9 @@ private:
 	ParticleManager shift;
 
 	Vector3 cameraToPlayer;
-	Sound *damageSE;
-	Sound *ShiftSE;
-	Sound *StopSE;
+	Sound* damageSE;
+	Sound* ShiftSE;
+	Sound* StopSE;
 	//Sound* damageSE;
 
 public:
@@ -116,9 +116,13 @@ private:
 	{
 		radian = radian * 180.0f / XM_PI;
 	}
+
+public:
 	float easeOutCubic(float t) {
 		return 1 - powf(1 - t, 3);
 	}
+
+private:
 	float RotateEarliestArc(float NowAngle, float EndAngle)
 	{
 		if (fabsf(EndAngle - NowAngle) > 180.0f) {
