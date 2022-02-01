@@ -21,7 +21,7 @@ Enemy::Enemy()
 	isEnemyTypeSeach = true;
 }
 
-void Enemy::Init(const Camera& cam)
+void Enemy::Init(const Camera &cam)
 {
 	status = STATUS_SEARCH;
 	forwardVec = { 0,0,1 };
@@ -42,7 +42,7 @@ void Enemy::Init(const Camera& cam)
 	}
 }
 
-void Enemy::Generate(const Camera& cam, const XMFLOAT3& generatePos, const XMFLOAT3& forwardVec)
+void Enemy::Generate(const Camera &cam, const XMFLOAT3 &generatePos, const XMFLOAT3 &forwardVec)
 {
 	//Init(cam);
 	isAlive = true;
@@ -50,7 +50,7 @@ void Enemy::Generate(const Camera& cam, const XMFLOAT3& generatePos, const XMFLO
 	this->forwardVec = forwardVec;
 }
 
-void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& isAttack, const bool& isStop)
+void Enemy::Update(const XMFLOAT3 &playerPos, const float &angle, const bool &isAttack, const bool &isStop)
 {
 	//生成済みじゃなかったら生成する
 	if (!isAlive)return;
@@ -107,7 +107,6 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 				}
 			}
 		}
-
 		else
 		{
 			isHit = false;
@@ -171,7 +170,7 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 				//Targeting(playerPos);
 				break;
 			case STATUS_ATTACK:
-				Attack();
+				Attack(playerPos);
 				break;
 			default:
 				break;
@@ -212,7 +211,7 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 			forwardTriangle.p2 = XMLoadFloat3(&p2);
 		}
 	}
-	else
+	else//ここから
 	{
 		isHit = false;
 		//ステータスによって処理を分ける
@@ -225,7 +224,7 @@ void Enemy::Update(const XMFLOAT3& playerPos, const float& angle, const bool& is
 			Targeting(playerPos);
 			break;
 		case STATUS_ATTACK:
-			Attack();
+			Attack(playerPos);
 			break;
 		default:
 			break;
@@ -276,7 +275,7 @@ void Enemy::BulletUpdate()
 	}
 }
 
-void Enemy::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model)
+void Enemy::Draw(const PipeClass::PipelineSet &pipelineSet, const ModelObject &model)
 {
 	if (isAlive)
 	{
@@ -284,7 +283,7 @@ void Enemy::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& m
 	}
 }
 
-void Enemy::Searching(const XMFLOAT3& playerPos)
+void Enemy::Searching(const XMFLOAT3 &playerPos)
 {
 	searchTimer++;
 
@@ -329,7 +328,7 @@ void Enemy::Searching(const XMFLOAT3& playerPos)
 		searchDelayTimer = 0;
 	}
 
-	
+
 	//if (Collision::CheckSphere2Triangle(playerSphere, forwardTriangle))
 	//{
 	//	//ステータスをターゲティングにする
@@ -339,7 +338,7 @@ void Enemy::Searching(const XMFLOAT3& playerPos)
 	//}
 }
 
-void Enemy::Targeting(const XMFLOAT3& playerPos)
+void Enemy::Targeting(const XMFLOAT3 &playerPos)
 {
 	XMFLOAT3 buff = XMFLOAT3(enemyData.position.x - playerPos.x, enemyData.position.y - playerPos.y, enemyData.position.z - playerPos.z);
 	//正面ベクトルをプレイヤーの方向に向ける
@@ -364,6 +363,7 @@ void Enemy::Targeting(const XMFLOAT3& playerPos)
 	if (CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
 	{
 		status = STATUS_SEARCH;
+		targetingTimer = 0;
 	}
 
 	//タイマーを進める
@@ -379,14 +379,14 @@ void Enemy::Targeting(const XMFLOAT3& playerPos)
 
 		XMFLOAT3 honraiForwardVec = { -forwardVec.x,-forwardVec.y,-forwardVec.z };
 
-		enemyBullet[0].Generate(enemyData.position, honraiForwardVec,isEnemyTypeSeach);
+		//enemyBullet[0].Generate(enemyData.position, distance, isEnemyTypeSeach);
 
 		//ステータスを攻撃にする
 		status = STATUS_ATTACK;
 	}
 }
 
-void Enemy::Attack()
+void Enemy::Attack(const XMFLOAT3 &playerPos)
 {
 	if (!isEnemyTypeSeach)
 	{
@@ -406,19 +406,28 @@ void Enemy::Attack()
 	else
 	{
 		isAttack = false;
-		isHit = true;
+
 
 		attackDelayTimer++;
 
 		if (attackDelayTimer >= ATTACK_DELAY_TIMER_END)
 		{
+			enemyBullet[0].Generate(enemyData.position, forwardVec, isEnemyTypeSeach);
+
 			attackDelayTimer = 0;
+			Sphere playerSphere = {};
+			playerSphere.center = XMLoadFloat3(&playerPos);
+			playerSphere.radius = 16;
+			if (Collision::CheckRay2Sphere(forwardRay, playerSphere) && !CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
+			{
+				isHit = true;
+			}
 			status = STATUS_SEARCH;
 		}
 	}
 }
 
-void Enemy::UpdateForwardVec(XMFLOAT3& forwardVec, XMMATRIX& matRot)
+void Enemy::UpdateForwardVec(XMFLOAT3 &forwardVec, XMMATRIX &matRot)
 {
 	//正面ベクトルのフォーマット
 	XMFLOAT3 honraiForwardVec = { 0,0,1 };
@@ -434,7 +443,7 @@ void Enemy::UpdateForwardVec(XMFLOAT3& forwardVec, XMMATRIX& matRot)
 	XMStoreFloat3(&forwardVec, honraiForwardVector);
 }
 
-bool Enemy::CheckRay2Walls(const Ray& ray, std::vector<Wall>& walls, const XMFLOAT3& playerPos)
+bool Enemy::CheckRay2Walls(const Ray &ray, std::vector<Wall> &walls, const XMFLOAT3 &playerPos)
 {
 	//正面レイ方向に壁があったら
 	//壁一つ一つ回す
@@ -455,7 +464,7 @@ bool Enemy::CheckRay2Walls(const Ray& ray, std::vector<Wall>& walls, const XMFLO
 	return false;
 }
 
-XMFLOAT3 Enemy::GetNearEnemyBulletPos(const XMFLOAT3& playerPos)
+XMFLOAT3 Enemy::GetNearEnemyBulletPos(const XMFLOAT3 &playerPos)
 {
 	XMFLOAT3 savePos = {};
 	float saveDistance = 10000.0f;

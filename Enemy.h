@@ -5,6 +5,7 @@
 #include"Collision.h"
 #include"EnemyBullet.h"
 #include"WallMgr.h"
+#include "Sound.h"
 //using XMFLOAT3 = DirectX::XMFLOAT3;
 //using XMMATRIX = DirectX::XMMATRIX;
 //using XMVECTOR = DirectX::XMVECTOR;
@@ -32,7 +33,7 @@ private:
 	};
 
 	const int TARGET_TIMER_END = 100;			//プレイヤーを見つけた後攻撃するまでの待機時間
-	const int ATTACK_DELAY_TIMER_END = 100;		//攻撃後の硬直時間
+	const int ATTACK_DELAY_TIMER_END = 10;		//攻撃後の硬直時間
 	const int SEARCH_DELAY_TIMER_END = 300;		//索敵開始した後のディレイタイマー(debug)
 	const int MAX_SEARCH_TIMER = 100;			//索敵時左右切り替え用のタイマー
 
@@ -73,6 +74,7 @@ public:
 	int targetingTimer;
 	XMFLOAT3 prevPlayerPos;	//攻撃時
 
+	XMFLOAT3 AttackVec;
 	//攻撃用
 	int attackDelayTimer;	//攻撃後の硬直時間
 	bool isAttack;			//攻撃フラグ
@@ -108,7 +110,7 @@ public:
 	void Targeting(const XMFLOAT3& playerPos);
 
 	//攻撃
-	void Attack();
+	void Attack(const XMFLOAT3 &playerPos);
 
 	//正面ベクトル更新
 	void UpdateForwardVec(XMFLOAT3& forwardVec, XMMATRIX& matRot);
