@@ -19,7 +19,7 @@ Wall::~Wall()
 {
 }
 
-void Wall::Init(Camera &cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, DirectX::XMFLOAT3 collisionScale)
+void Wall::Init(Camera &cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale)
 {
 	this->cam = &cam;
 	wallObj.position = pos;
@@ -27,7 +27,7 @@ void Wall::Init(Camera &cam, DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale, Dir
 	//wallObj.color.w = 0.5f;
 	wallObj.color.w = 1.0f;
 	wallObj.Init(*this->cam);
-	this->collisionScale = collisionScale;
+	this->collisionScale = Vector3(scale) / 2;
 	sphere.radius = 20.0f;
 	SetFace(pos, scale);
 
