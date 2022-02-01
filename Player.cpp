@@ -50,7 +50,8 @@ Player::Player(int deadGraph, int clearGraph, int particle, int DamageSound)
 	StopSE = new Sound(StopData);
 	int PlayData = Sound::SoundLoadWave("Resources/sounds/SE_Play.wav");
 	PlaySE = new Sound(PlayData);
-
+	int AttackData = Sound::SoundLoadWave("Resources/sounds/SE_Attack.wav");
+	AttackSE = new Sound(AttackData);
 }
 
 Player::~Player()
@@ -58,6 +59,8 @@ Player::~Player()
 	delete damageSE;
 	delete ShiftSE;
 	delete StopSE;
+	delete PlaySE;
+	delete AttackSE;
 }
 
 void Player::Init(const Camera& camera, const XMFLOAT3& pos)
@@ -153,6 +156,19 @@ void Player::Input(const Camera& camera)
 			//ダッシュ入力があった場合
 			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
 			{
+				for (int i = 0; i < 30; i++)
+				{
+					Vector3 shiftPos((((float)rand() / RAND_MAX * 2) - 1),
+						0,
+						(((float)rand() / RAND_MAX * 2) - 1));
+					shiftPos = shiftPos.normalaize() * ((float)rand() / RAND_MAX) * 10;
+
+					shiftPos.y = (((float)rand() / RAND_MAX * 2) - 1) * 10;
+
+					float scale = ((float)rand() / RAND_MAX) * 10;
+					shift.Add((int)(30 + (3 * scale)), Vector3(pos) + shiftPos, Vector3(), Vector3(), 10 + scale, 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+				}
+				ShiftSE->Play();
 				vec3.x *= DASH_SPEED;
 				vec3.z *= DASH_SPEED;
 				isDash = true;
@@ -247,19 +263,6 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 			//ダッシュ入力があった場合
 			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
 			{
-				for (int i = 0; i < 30; i++)
-				{
-					Vector3 shiftPos((((float)rand() / RAND_MAX * 2) - 1),
-						0,
-						(((float)rand() / RAND_MAX * 2) - 1));
-					shiftPos = shiftPos.normalaize() * ((float)rand() / RAND_MAX) * 10;
-
-					shiftPos.y = (((float)rand() / RAND_MAX * 2) - 1) * 10;
-
-					float scale = ((float)rand() / RAND_MAX) * 10;
-					shift.Add((int)(30 + (3 * scale)), Vector3(pos) + shiftPos, Vector3(), Vector3(), 10 + scale, 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
-					ShiftSE->Play();
-				}
 				pos.x += vec3.x;
 				pos.z += vec3.z;
 			}
@@ -344,14 +347,21 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		isHit = false;
 		if (input->isPadConnect())
 		{
-			if (input->RTrigger() >= 0.3 && attackDelay == 0) {
+			if (input->RTrigger() >= 0.3 && attackDelay == 0)
+			{
 				attackFlag = true;
+				AttackSE->Play();
 			}
 			else if (attackDelay > 0) { attackDelay--; }
 		}
 		else
 		{
-			if (input->KeyTrigger(DIK_SPACE) && attackDelay == 0) { attackFlag = true; }
+			if (input->KeyTrigger(DIK_SPACE) && attackDelay == 0)
+			{
+			attackFlag = true;
+			AttackSE->Play();
+
+			}
 			else if (attackDelay > 0) { attackDelay--; }
 		}
 	}

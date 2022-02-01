@@ -70,6 +70,7 @@ private:
 	Sound *ShiftSE;
 	Sound *StopSE;
 	Sound *PlaySE;
+	Sound *AttackSE;
 	//Sound* damageSE;
 
 public:
