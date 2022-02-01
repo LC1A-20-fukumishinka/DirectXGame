@@ -69,6 +69,7 @@ private:
 	Sound *damageSE;
 	Sound *ShiftSE;
 	Sound *StopSE;
+	Sound *PlaySE;
 	//Sound* damageSE;
 
 public:

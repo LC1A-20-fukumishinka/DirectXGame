@@ -44,10 +44,12 @@ Player::Player(int deadGraph, int clearGraph, int particle, int DamageSound)
 
 	partGH = particle;
 	damageSE = new Sound(DamageSound);
-	int ShiftData = Sound::SoundLoadWave("Resources/sounds/Shift.wav");
+	int ShiftData = Sound::SoundLoadWave("Resources/sounds/SE_Dash.wav");
 	ShiftSE = new Sound(ShiftData);
-	int StopData = Sound::SoundLoadWave("Resources/sounds/Stop.wav");
+	int StopData = Sound::SoundLoadWave("Resources/sounds/SE_Stop.wav");
 	StopSE = new Sound(StopData);
+	int PlayData = Sound::SoundLoadWave("Resources/sounds/SE_Play.wav");
+	PlaySE = new Sound(PlayData);
 
 }
 
@@ -315,6 +317,7 @@ void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
 				{
 					stopTImeDelay = 0;
 					stopTimeFlag = true;
+					StopSE->Play();
 				}
 			}
 		}
@@ -329,6 +332,7 @@ void Player::Update(Camera &camera, const XMFLOAT3 &enemyPos)
 		{
 			stopTimeCount = 0;
 			stopTimeFlag = false;
+			PlaySE->Play();
 		}
 		else { stopTimeCount++; }
 	}
