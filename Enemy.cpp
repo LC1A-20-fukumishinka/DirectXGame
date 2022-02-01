@@ -19,6 +19,16 @@ Enemy::Enemy()
 	saveNum = 0;
 	isHit = false;
 	isEnemyTypeSeach = true;
+	int FindData = Sound::SoundLoadWave("Resources/sounds/SE_Find.wav");
+	int shotData = Sound::SoundLoadWave("Resources/sounds/SE_Shot.wav");
+	findSE = new Sound(FindData);
+	shotSE = new Sound(shotData);
+}
+
+Enemy::~Enemy()
+{
+	delete findSE;
+	delete shotSE;
 }
 
 void Enemy::Init(const Camera &cam)
@@ -339,6 +349,7 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 	{
 		//ステータスをターゲティングにする
 		status = STATUS_TARGET;
+		findSE->Play();
 		searchTimer = 30;
 		searchDelayTimer = 0;
 	}
@@ -402,7 +413,7 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 		prevPlayerPos = playerPos;
 
 		isAttack = true;
-
+		shotSE->Play();
 		XMFLOAT3 honraiForwardVec = { -forwardVec.x,-forwardVec.y,-forwardVec.z };
 
 		//enemyBullet[0].Generate(enemyData.position, distance, isEnemyTypeSeach);
