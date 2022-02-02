@@ -250,9 +250,6 @@ void Enemy::Update(Camera& cam,const XMFLOAT3 &playerPos, const float &angle, co
 			//カメラのシェイク処理
 			Shake(cam);
 
-			//パーティクルの更新処理
-			effect.Update();
-
 			//レイの更新処理
 			//座標
 			forwardRay.start = XMLoadFloat3(&enemyData.position);
@@ -532,7 +529,7 @@ void Enemy::Attack(const XMFLOAT3 &playerPos)
 				tmp = tmp.normalaize();
 				XMFLOAT3 generatePos = GetPosRay2Walls(bulletRay, WallMgr::Instance()->GetWalls());
 
-				XMFLOAT3 shiftVec = enemyBullet[0].forwardVec * -30.0f;
+				XMFLOAT3 shiftVec = enemyBullet[0].forwardVec * -10.0f;
 
 				effect.Add(15, generatePos + shiftVec, tmp * power, XMFLOAT3(0, 0, 0), 10.0f, 0.0f, { 1,0,0,1 }, { 1,0,0,1 });
 			}
