@@ -757,9 +757,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	stage_frame.position = { half_Width,half_height,0 };
 
 	//ステージレイアウト
-	int LAYOUT_1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_1.png");
-	int LAYOUT_2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_2.png");
-	int LAYOUT_3 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_3.png");
+	int LAYOUT_1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_1_1.png");
+	int LAYOUT_2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_2_1.png");
+	int LAYOUT_3 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_3_1.png");
 
 	Sprite layout_1;
 	Sprite layout_2;
@@ -769,11 +769,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	layout_2.Init(LAYOUT_2);
 	layout_3.Init(LAYOUT_3);
 
-	float late = 1.4f;
+	float late = 1.6f;
 
 	layout_1.size = { 600 * late,300 * late };
 	layout_2.size = { 600 * late,300 * late };
 	layout_3.size = { 600 * late,300 * late };
+
+	/*layout_1.size = { 600.0f,300.0f };
+	layout_2.size = { 600.0f,300.0f };
+	layout_3.size = { 600.0f,300.0f };*/
 
 	layout_1.position = { half_Width,half_height,0 };
 	layout_2.position = { half_Width,half_height,0 };
@@ -1713,16 +1717,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (stageNum == 0 && !isMove)
 			{
 				debugText.Print("stage 1", 10, 100, 3);
+				layout_1.color = { 1,1,1,1 };
 				layout_1.SpriteDraw();
 			}
 			if (stageNum == 1 && !isMove)
 			{
 				debugText.Print("stage 2", 10, 100, 3);
+				layout_2.color = { 1,1,1,1 };
 				layout_2.SpriteDraw();
 			}
 			if (stageNum == 2 && !isMove)
 			{
 				debugText.Print("stage 3", 10, 100, 3);
+				layout_3.color = { 1,1,1,1 };
 				layout_3.SpriteDraw();
 			}
 
