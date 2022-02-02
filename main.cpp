@@ -672,7 +672,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	scene_gear_up.size = { window_width, window_height };
 
 	/*-------STAGE_SELECT-------*/
-	int BACK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/back.png");
+	int BACK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/back_2.png");
 	int STAGE_SELECT = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_SELECT.png");
 	int STAGE_SELECT_GRAPH_PAD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_ENTER_PAD.png");
 	int STAGE_SELECT_GRAPH_KEYBOARD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_ENTER_KEY.png");
@@ -783,6 +783,44 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	layout_2.position = { half_Width,half_height,0 };
 	layout_3.position = { half_Width,half_height,0 };
 
+	//ギア
+	int GEAR_1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/GEARS/GEAR_1.png");
+	int GEAR_2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/GEARS/GEAR_2.png");
+	int GEAR_3 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/GEARS/GEAR_3.png");
+	int GEAR_4 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/GEARS/GEAR_4.png");
+	int GEAR_5 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/GEARS/GEAR_5.png");
+	int GEAR_6 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/GEARS/GEAR_6.png");
+	int GEAR_7 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/GEARS/GEAR_7.png");
+
+	Sprite gears[7];
+
+	gears[0].Init(GEAR_1);
+	gears[1].Init(GEAR_2);
+	gears[2].Init(GEAR_3);
+	gears[3].Init(GEAR_4);
+	gears[4].Init(GEAR_5);
+	gears[5].Init(GEAR_6);
+	gears[6].Init(GEAR_7);
+
+	float gear_late = 5.0f;
+
+	gears[0].size = { 96 * gear_late,96 * gear_late };
+	gears[1].size = { 96 * gear_late,96 * gear_late };
+	gears[2].size = { 96 * gear_late,96 * gear_late };
+	gears[3].size = { 96 * gear_late,96 * gear_late };
+	gears[4].size = { 96 * gear_late,96 * gear_late };
+	gears[5].size = { 96 * gear_late,96 * gear_late };
+	gears[6].size = { 96 * gear_late,96 * gear_late };
+
+	gears[0].position = { 0,0,0 };
+	gears[1].position = { 1000,720,0 };
+	gears[2].position = { 400,0,0 };
+	gears[3].position = { 1280,100,0 };
+	gears[4].position = { 0,600,0 };
+	gears[5].position = { 300,720,0 };
+	gears[6].position = { 800,0,0 };
+
+	/*----------その他----------*/
 	//開始時の文字
 	int GO = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/go.png");
 	Sprite go;
@@ -1008,6 +1046,32 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		if (easeTimer_START >= 0.7f) { UpdateStart = true; }
 		go.SpriteUpdate();
+
+		//ギア処理
+		if (isMove)
+		{
+			if (!direction)
+			{
+				for (int i = 0; i < 7; i++)
+				{
+					if (i % 2 == 0) { gears[i].rotation += 5.0f; }
+					else { gears[i].rotation -= 5.0f; }
+					//gears[i].SpriteUpdate();
+				}
+			}
+
+			else
+			{
+				for (int i = 0; i < 7; i++)
+				{
+					if (i % 2 == 0) { gears[i].rotation -= 5.0f; }
+					else { gears[i].rotation += 5.0f; }
+					//gears[i].SpriteUpdate();
+				}
+			}
+		}
+
+		for (int i = 0; i < 7; i++) { gears[i].SpriteUpdate(); }
 
 #pragma endregion
 
@@ -1716,6 +1780,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case STAGESELECT:
 
 			back.SpriteDraw();
+
+			for (int i = 0; i < 7; i++)
+			{
+				gears[i].SpriteDraw();
+			}
 
 			debugText.Print("stageselect", 10, 10, 3);
 			if (stageNum == 0 && !isMove)
