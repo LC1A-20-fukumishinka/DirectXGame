@@ -650,7 +650,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	hud_life_3.position = XMFLOAT3(32 + (64 * 2), window_height - 32, 0);
 	hud_timestate.position = XMFLOAT3(window_width - 32, 32, 0);
 	hud_play.position = XMFLOAT3(window_width - 32, 32, 0);
-	hud_stop.position = XMFLOAT3(window_width - 32, 0, 0);
+	hud_stop.position = XMFLOAT3(window_width - 32, 32, 0);
 	hud_base_pad.SpriteUpdate();
 	hud_base_keys.SpriteUpdate();
 
@@ -1938,15 +1938,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 					//É~ÉXÇ¡ÇΩÇ©Ç‡(â∫ÇÕÇ›èoÇÈ)
-					hud_stop.position.y = (32) * player.easeOutCubic(easeTimer) + 0;
-					hud_play.position.y = (32) * player.easeOutCubic(easeTimer) + 32;
+					//hud_stop.position.y = (32) * player.easeOutCubic(easeTimer) + 0;
+					//hud_play.position.y = (32) * player.easeOutCubic(easeTimer) + 32;
 
-					if (easeTimer < 0.0f) { hud_stop.position.y = 0; hud_play.position.y = 32; }
-					if (easeTimer > 1.0f) { hud_stop.position.y = 32; hud_play.position.y = 64; }
+					//if (easeTimer < 0.0f) { hud_stop.position.y = 0; hud_play.position.y = 32; }
+					//if (easeTimer > 1.0f) { hud_stop.position.y = 32; hud_play.position.y = 64; }
 
 					if (isStop)
 					{
 						//hud_stop.position.y = 32;
+						hud_play.color.w = 0;
+						hud_stop.color.w += 0.1f;
 						hud_stop.SpriteDraw();
 						//hud_play_stop.position.y = (32 - 0) * player.easeOutCubic(easeTimer) + 32;
 					}
@@ -1954,6 +1956,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					{
 						//hud_play.position.y = 32;
 						//hud_play_stop.position.y = (64 - 96) * player.easeOutCubic(1 - easeTimer) + 64;
+						hud_stop.color.w = 0;
+						hud_play.color.w += 0.1f;
 						hud_play.SpriteDraw();
 					}
 
