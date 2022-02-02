@@ -23,6 +23,8 @@ Enemy::Enemy()
 	targetSE = new Sound(targetData);
 	int shotData = Sound::SoundLoadWave("Resources/sounds/SE_Shot.wav");
 	shotSE = new Sound(shotData);
+	scale = 10.0f;
+	addScale = 0.25f;
 }
 
 
@@ -36,7 +38,7 @@ void Enemy::Init(const Camera &cam)
 {
 	status = STATUS_SEARCH;
 	forwardVec = { 0,0,1 };
-	enemyData.scale = { 10.0f, 10.0f, 10.0f };
+	enemyData.scale = { scale, scale, scale };
 	enemyData.position = { 0,10,0 };
 	enemyData.Init(cam);
 	enemyData.type = Object3D::Box;
@@ -194,6 +196,8 @@ void Enemy::Update(const XMFLOAT3 &playerPos, const float &angle, const bool &is
 			matRot *= XMMatrixRotationY(XMConvertToRadians(enemyData.rotation.y));
 			UpdateForwardVec(forwardVec, matRot);
 
+			//スケールの更新
+			enemyData.scale = { scale, scale, scale };
 
 			//レイの更新処理
 			//座標
@@ -234,6 +238,8 @@ void Enemy::Update(const XMFLOAT3 &playerPos, const float &angle, const bool &is
 			matRot *= XMMatrixRotationY(XMConvertToRadians(enemyData.rotation.y));
 			UpdateForwardVec(forwardVec, matRot);
 
+			//スケールの更新
+			enemyData.scale = { scale, scale, scale };
 
 			//レイの更新処理
 			//座標
@@ -300,6 +306,8 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 
 	//索敵時は一定方向に回転し続ける
 	enemyData.rotation.y += ROTATE_SPEED;
+
+	scale = 10.0f;
 
 	//当たり判定に使うプレイヤーの当たり判定
 	Sphere playerSphere = {};
@@ -425,6 +433,14 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 		targetingTimer = 0;
 		//音止める
 		targetSE->Stop();
+	}
+
+	//スケールを加算する
+	scale += addScale;
+
+	if (scale >= 12.0f || scale <= 8.0f)
+	{
+		addScale *= -1;
 	}
 
 	//タイマーを進める

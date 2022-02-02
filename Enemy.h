@@ -33,7 +33,7 @@ private:
 	};
 
 	const int TARGET_TIMER_END = 100;			//プレイヤーを見つけた後攻撃するまでの待機時間
-	const int ATTACK_DELAY_TIMER_END = 100;		//攻撃後の硬直時間
+	const int ATTACK_DELAY_TIMER_END = 10;		//攻撃後の硬直時間
 	const int SEARCH_DELAY_TIMER_END = 300;		//索敵開始した後のディレイタイマー(debug)
 	const int MAX_SEARCH_TIMER = 100;			//索敵時左右切り替え用のタイマー
 
@@ -67,6 +67,8 @@ public:
 	int searchDelayTimer;	//索敵ディレイタイマー
 	int searchTimer;		//索敵する時間
 	int rotateStatus;		//索敵時のステータス
+	float scale;
+	float addScale;			
 
 	//ターゲティング用
 	int targetingTimer;
@@ -105,6 +107,7 @@ public:
 
 	//弾の更新処理
 	void BulletUpdate();
+
 	//描画処理
 	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);
 
