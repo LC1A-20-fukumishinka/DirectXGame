@@ -32,6 +32,12 @@ Enemy::~Enemy()
 	delete shotSE;
 }
 
+Enemy::~Enemy()
+{
+	delete findSE;
+	delete shotSE;
+}
+
 void Enemy::Init(const Camera &cam)
 {
 	status = STATUS_SEARCH;
@@ -432,7 +438,7 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 		prevPlayerPos = playerPos;
 
 		isAttack = true;
-
+		shotSE->Play();
 		XMFLOAT3 honraiForwardVec = { -forwardVec.x,-forwardVec.y,-forwardVec.z };
 
 		//enemyBullet[0].Generate(enemyData.position, distance, isEnemyTypeSeach);
