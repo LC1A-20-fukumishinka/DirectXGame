@@ -40,8 +40,10 @@ private:
 	const XMFLOAT3 TRIANGLE_UPPER_RIGHT_POS = { 50.0f,0.0f,100.0f };
 	const XMFLOAT3 TRIANGLE_UPPER_LEFT_POS = { -50.0f,0.0f,100.0f };
 
-	const float ROTATE_SPEED = XM_PI / 2.0f;	//回転速度
+	const float ROTATE_SPEED = 8.0f;;	//回転速度
 	const float ENEMY_RADIUS = 32.0f;
+
+	const float TARGET_ROTATE_SPEED = 30.0f;
 
 	static const int MAX_BULLET = 20;
 	const int MAX_BULLET_TIMER = 10;			//射撃レート
@@ -180,4 +182,9 @@ inline XMFLOAT3 MulXMFLOAT3(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
 //3D座標軸での二点間の距離を求める
 inline float Distance3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
 	return sqrtf(powf(lhs.x - rhs.x, 2.0f) + powf(lhs.y - rhs.y, 2.0f) + powf(lhs.z - rhs.z, 2.0f));
+}
+
+inline float calAngle(const XMFLOAT3& rhs, const XMFLOAT3& lhs)
+{
+	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));
 }

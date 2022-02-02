@@ -58,10 +58,10 @@ public:
 
 };
 
-inline float calAngle(const XMFLOAT3& rhs, const XMFLOAT3& lhs)
-{
-	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));
-}
+//inline float calAngle(const XMFLOAT3& rhs, const XMFLOAT3& lhs)
+//{
+//	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));
+//}
 
 ////3DÀ•W²‚Å‚Ì“ñ“_ŠÔ‚Ì‹——£‚ğ‹‚ß‚é
 //inline float Distance3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
