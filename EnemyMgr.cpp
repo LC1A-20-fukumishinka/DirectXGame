@@ -14,13 +14,13 @@ void EnemyMgr::Init(const Camera& cam)
 	}
 }
 
-void EnemyMgr::Update(const XMFLOAT3& playerPos, const float& angle, const bool& isStop, const bool& isAttack)
+void EnemyMgr::Update(Camera& cam, const XMFLOAT3& playerPos, const float& angle, const bool& isStop, const bool& isAttack)
 {
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
 		if (enemy[i].isAlive)
 		{
-			enemy[i].Update(playerPos, angle, isAttack, isStop);
+			enemy[i].Update(cam,playerPos, angle, isAttack, isStop);
 		}
 	}
 }
@@ -40,7 +40,7 @@ void EnemyMgr::UpdateData(const Camera& cam)
 	}
 }
 
-void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& bulletModel)
+void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& bulletModel, int particleGH)
 {
 	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
 	{
@@ -50,7 +50,7 @@ void EnemyMgr::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject
 			EnemyMgr::Instance()->enemy[i].enemyBullet[j].Draw(pipelineSet, bulletModel);
 		}
 		if (!enemy[i].isAlive)continue;
-		enemy[i].Draw(pipelineSet, enemyModel.GetModel());
+		enemy[i].Draw(pipelineSet, enemyModel.GetModel(), particleGH);
 	}
 }
 

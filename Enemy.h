@@ -5,7 +5,9 @@
 #include"Collision.h"
 #include"EnemyBullet.h"
 #include"WallMgr.h"
-#include "Sound.h"
+#include"Sound.h"
+#include"Shake.h"
+#include"particleManager.h"
 //using XMFLOAT3 = DirectX::XMFLOAT3;
 //using XMMATRIX = DirectX::XMMATRIX;
 //using XMVECTOR = DirectX::XMVECTOR;
@@ -45,7 +47,9 @@ private:
 	const int MAX_BULLET_TIMER = 10;			//射撃レート
 	const float SEARCH_RADIUS = 150.0f;			//索敵範囲
 	const float SENSING_RADIUS = 50.0f;			//索敵時にこれ以上近づいたら感知するよ～範囲
-	const float ADD_SCALE_AMOUNT = 0.01;
+	const float ADD_SCALE_AMOUNT = 0.015;
+
+	const int MAX_SHAKE_TIMER = 5;				//シェイクさせる時間
 
 public:
 	/*---- メンバ変数 ----*/
@@ -88,6 +92,13 @@ public:
 	Sound* targetSE;
 	Sound* shotSE;
 
+	//カメラシェイク用
+	bool isCameraShake;
+	int shakeTimer;
+
+	//パーティクル用
+	ParticleManager effect;
+
 public:
 	/*---- メンバ関数 ----*/
 
@@ -104,13 +115,13 @@ public:
 	void Generate(const Camera& cam, const XMFLOAT3& generatePos, const XMFLOAT3& forwardVec);
 
 	//更新処理
-	void Update(const XMFLOAT3& playerPos, const float& angle, const bool& isAttack, const bool& isStop);
+	void Update(Camera& cam,const XMFLOAT3& playerPos, const float& angle, const bool& isAttack, const bool& isStop);
 
 	//弾の更新処理
 	void BulletUpdate();
 
 	//描画処理
-	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);
+	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model, int particleGH);
 
 	//索敵
 	void Searching(const XMFLOAT3& playerPos);
@@ -135,55 +146,61 @@ public:
 	//正面ベクトルセット用
 	void SetForwardVec(const XMFLOAT3& forwardVec) { this->forwardVec = forwardVec; }
 
+	//カメラシェイク
+	void Shake(Camera& cam);
+
+	XMFLOAT3 GetPosRay2Walls(const Ray& ray, std::vector<Wall>& walls);
+
+	//ゲッタ
 	Object3D* GetObj() { return &enemyData; }
 
 };
 
-inline float Dot3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
-	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
-}
-
-inline double Cross2D(const XMFLOAT2& lhs, const XMFLOAT2& rhs) {
-	return (double)lhs.x * rhs.y - lhs.y * rhs.x;
-}
-
-inline XMFLOAT3 Cross3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
-	return XMFLOAT3(lhs.y * rhs.z - lhs.z * rhs.y,
-		lhs.z * rhs.x - lhs.x * rhs.z,
-		lhs.x * rhs.y - lhs.y * rhs.x);
-}
-
-inline float Length3D(const XMFLOAT3& rhs) {
-	return sqrtf(Dot3D(rhs, rhs));
-}
-
-inline XMFLOAT3 Normalize3D(const XMFLOAT3& rhs) {
-	float len = Length3D(rhs);
-	XMFLOAT3 buff = rhs;
-	buff.x /= len;
-	buff.y /= len;
-	buff.z /= len;
-	return buff;
-}
-
-inline int GetRand(const int& min, const int& max) {
-	return (rand() % (max - min + 1)) + min;
-}
-
-inline XMFLOAT3 AddXMFLOAT3(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
-	return XMFLOAT3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
-}
-
-inline XMFLOAT3 MulXMFLOAT3(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
-	return XMFLOAT3(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z);
-}
-
-//3D座標軸での二点間の距離を求める
-inline float Distance3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
-	return sqrtf(powf(lhs.x - rhs.x, 2.0f) + powf(lhs.y - rhs.y, 2.0f) + powf(lhs.z - rhs.z, 2.0f));
-}
-
-inline float calAngle(const XMFLOAT3& rhs, const XMFLOAT3& lhs)
-{
-	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));
-}
+//inline float Dot3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+//	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+//}
+//
+//inline double Cross2D(const XMFLOAT2& lhs, const XMFLOAT2& rhs) {
+//	return (double)lhs.x * rhs.y - lhs.y * rhs.x;
+//}
+//
+//inline XMFLOAT3 Cross3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+//	return XMFLOAT3(lhs.y * rhs.z - lhs.z * rhs.y,
+//		lhs.z * rhs.x - lhs.x * rhs.z,
+//		lhs.x * rhs.y - lhs.y * rhs.x);
+//}
+//
+//inline float Length3D(const XMFLOAT3& rhs) {
+//	return sqrtf(Dot3D(rhs, rhs));
+//}
+//
+//inline XMFLOAT3 Normalize3D(const XMFLOAT3& rhs) {
+//	float len = Length3D(rhs);
+//	XMFLOAT3 buff = rhs;
+//	buff.x /= len;
+//	buff.y /= len;
+//	buff.z /= len;
+//	return buff;
+//}
+//
+//inline int GetRand(const int& min, const int& max) {
+//	return (rand() % (max - min + 1)) + min;
+//}
+//
+//inline XMFLOAT3 AddXMFLOAT3(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+//	return XMFLOAT3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
+//}
+//
+//inline XMFLOAT3 MulXMFLOAT3(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+//	return XMFLOAT3(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z);
+//}
+//
+////3D座標軸での二点間の距離を求める
+//inline float Distance3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+//	return sqrtf(powf(lhs.x - rhs.x, 2.0f) + powf(lhs.y - rhs.y, 2.0f) + powf(lhs.z - rhs.z, 2.0f));
+//}
+//
+//inline float calAngle(const XMFLOAT3& rhs, const XMFLOAT3& lhs)
+//{
+//	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));
+//}

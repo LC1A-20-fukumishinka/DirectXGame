@@ -129,9 +129,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//モデル生成
 	Model boxModel;
 	Model domeModel;
+	Model box2Model;
 	//モデルのファイル読み込み
 	boxModel.CreateModel("box");
 	domeModel.CreateModel("skydome");
+	box2Model.CreateModel("box2");
 
 	Object3D box;
 
@@ -1371,7 +1373,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				pSphere.radius = 16;
 				if (!player.IsClear() && !player.IsDead())
 				{
-					EnemyMgr::Instance()->Update(player.GetPos(), player.GetAngle(), player.GetStopTimeFlag(), player.GetAttackFlag());
+					EnemyMgr::Instance()->Update(cam, player.GetPos(), player.GetAngle(), player.GetStopTimeFlag(), player.GetAttackFlag());
 				}
 				EnemyMgr::Instance()->UpdateData(cam);
 
@@ -1856,7 +1858,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			//dome.modelDraw(domeModel.GetModel(), model3D->GetPipeLine());
 
-			EnemyMgr::Instance()->Draw(model3D->GetPipeLine(), boxModel.GetModel());
+			EnemyMgr::Instance()->Draw(model3D->GetPipeLine(), box2Model.GetModel(), particleGH);
 
 			bomb.Draw();
 			//for (int i = 0; i < loomWalls.size(); i++)
