@@ -1415,14 +1415,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//debugText.Print("", window_width / 2 - 40, window_height / 2, 5);
 			titleLogo.SpriteDraw();
 
-			//•¶Žš
-			if (input->isPadConnect()) { title_pad.SpriteDraw(); }
-			else { title_keys.SpriteDraw(); }
-
 			DepthReset();
 
 			myObj->modelDraw(myModel->GetModel(), model3D->GetPipeLine());
 			enemyObj->modelDraw(enemyModel->GetModel(), model3D->GetPipeLine());
+
+			//•¶Žš
+			if (input->isPadConnect()) { title_pad.SpriteDraw(); }
+			else { title_keys.SpriteDraw(); }
 
 			break;
 
