@@ -331,7 +331,6 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 	{
 		//ステータスをターゲティングにする
 		status = STATUS_TARGET;
-		targetSE->PlayLoop();
 		searchTimer = 30;
 		searchDelayTimer = 0;
 	}
@@ -341,7 +340,6 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 	{
 		//ステータスをターゲティングにする
 		status = STATUS_TARGET;
-		targetSE->PlayLoop();
 		searchTimer = 30;
 		searchDelayTimer = 0;
 	}
@@ -358,6 +356,8 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 
 void Enemy::Targeting(const XMFLOAT3 &playerPos)
 {
+	targetSE->PlayLoop();
+
 	//敵からプレイヤーへの方向ベクトル
 	XMFLOAT3 buff = XMFLOAT3(enemyData.position.x - playerPos.x, enemyData.position.y - playerPos.y, enemyData.position.z - playerPos.z);
 	//正面ベクトルをプレイヤーの方向に向ける
@@ -593,3 +593,4 @@ void Enemy::Dead()
 	//	enemyBullet[i].Dead();
 	//}
 }
+

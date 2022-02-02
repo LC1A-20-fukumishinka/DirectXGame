@@ -74,7 +74,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -99,13 +99,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
+	Input *input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -892,11 +892,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	bool hp_3to2 = false;
 
 	//タイトル用
-	Object3D* myObj = player.GetObj();
-	Model* myModel = player.GetModel();
+	Object3D *myObj = player.GetObj();
+	Model *myModel = player.GetModel();
 
-	Object3D* enemyObj = EnemyMgr::Instance()->GetObj();
-	Model* enemyModel = EnemyMgr::Instance()->GetModel();
+	Object3D *enemyObj = EnemyMgr::Instance()->GetObj();
+	Model *enemyModel = EnemyMgr::Instance()->GetModel();
 
 	myObj->position = { 0,0,0 };
 	myObj->rotation = { 0,135,0 };
@@ -909,6 +909,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	float larpTimer = 0.0f;
 	float larpTimer2 = 0.2f;
+
+	bool isPause = false;
+	bool Done = false;
+	int PauseSelect = 0;
 
 	OutBgm.PlayLoop();
 	//if (FAILED(result))
@@ -1314,6 +1318,64 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		case GAME:
 
+			if (input->ButtonTrigger(XINPUT_GAMEPAD_START) || input->KeyTrigger(DIK_ESCAPE))
+			{
+				isPause = !isPause;
+				enterSE.Play();
+				EnemyMgr::Instance()->StopSound();
+				PauseSelect = 0;
+			}
+			if (isPause)
+			{
+				Done = (input->ButtonTrigger(XINPUT_GAMEPAD_A) || input->KeyTrigger(DIK_SPACE));
+				if (stickTrigger && input->LStick().y < 0.0f)
+				{
+					PauseSelect++;
+				}
+				else if (stickTrigger && input->LStick().y > 0.0f)
+				{
+					PauseSelect--;
+				}
+				if (PauseSelect > 2)
+				{
+					PauseSelect = 2;
+				}
+				if (PauseSelect < 0)
+				{
+					PauseSelect = 0;
+				}
+
+				if (Done && !isTrigger)
+				{
+					if (PauseSelect == 0)
+					{//続ける
+						isPause = false;
+					}
+					if (PauseSelect == 1)
+					{//ステージリトライ
+						sceneTransition.On();
+						isTrigger = true;
+					}
+					if (PauseSelect == 2)
+					{//ステージ選択に戻る
+						sceneTransition.On();
+						isTrigger = true;
+					}
+				}
+				if (sceneTransition.Change())
+				{
+					if (PauseSelect == 1)
+					{//ステージリトライ
+						isTrigger = true;
+					}
+					else if (PauseSelect == 2)
+					{//ステージ選択に戻る
+						sceneTransition.On();
+						isTrigger = true;
+					}
+				}
+					break;
+			}
 			XMFLOAT3 moveSpeed = { input->LStick().x , 0.0f, input->LStick().y };
 
 			box.Update(cam);
@@ -1333,7 +1395,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 					Vector3 push;
 					push = WallMgr::Instance()->GetWalls()[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
-					
+
 					playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
 					Vector3 ps;
 
@@ -1463,13 +1525,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (isClear)
 			{
-			float rate = clearEase.Do(Easing::Out, Easing::Cubic);
+				float rate = clearEase.Do(Easing::Out, Easing::Cubic);
 				Vector3 tmp = cam.position;
 				Vector3 endPos = player.GetPos();
 				endPos.x = upperRight[stageNum].x - player.GetPos().x;
 				endPos.z = 0;
-				endPos.y = 250- cam.position.y;
-				cam.eye = (endPos * rate) + (cam.eye * (1- rate));
+				endPos.y = 250 - cam.position.y;
+				cam.eye = (endPos * rate) + (cam.eye * (1 - rate));
 				cam.up = (Vector3(0, 1, 0) * rate) + (Vector3(cam.up) * (1 - rate));
 			}
 			if (!player.IsEffect() && isClear)
@@ -1947,6 +2009,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			go.SpriteDraw();
 
+			if (isPause)
+			{
+				debugText.Print("Pause", window_width / 2, window_height / 2, 2.0);
+			}
 			break;
 
 #pragma endregion
