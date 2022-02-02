@@ -110,3 +110,11 @@ void EnemyMgr::Generate(std::vector<DirectX::XMFLOAT3> &generatePos, std::vector
 		enemy[i].enemyData.rotation.y = angle;
 	}
 }
+
+void EnemyMgr::StopSound()
+{
+	for (int i = 0; i < MAX_ENEMY_COUNT; ++i)
+	{
+		enemy[i].targetSE->Stop();
+	}
+}

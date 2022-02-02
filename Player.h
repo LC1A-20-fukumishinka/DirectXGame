@@ -15,6 +15,7 @@ const int INVINCIBLE_COUNT = 60;					//無敵時間
 const int STOP_TIME_COUNT = 300;						//最大時間停止量
 const int STOP_TIME_DELAY = 30;						//攻撃可能までのクールタイム
 const int ATTACK_DELAY = 30;						//攻撃の最大CT
+const int DASH_DELAY = 30;							//ダッシュCT
 const int MAX_HP = 3;								//HP
 const float MOVE_SPEED = 2.5f;						//動く速さ
 const float DASH_SPEED = 65.0f;						//ダッシュ
@@ -43,6 +44,7 @@ private:
 	int attackDelay;								//攻撃のCT
 	int drawCount;									//被ダメエフェクト用
 	int damagedCount;								//無敵時間管理
+	int dashDelay;									//DASHのCT
 	float angle;									//移動する角度
 	float easeTimer;								//イージング
 	float movePower;								//移動の慣性用
@@ -66,11 +68,11 @@ private:
 	ParticleManager shift;
 
 	Vector3 cameraToPlayer;
-	Sound *damageSE;
-	Sound *ShiftSE;
-	Sound *StopSE;
-	Sound *PlaySE;
-	Sound *AttackSE;
+	Sound* damageSE;
+	Sound* ShiftSE;
+	Sound* StopSE;
+	Sound* PlaySE;
+	Sound* AttackSE;
 	//Sound* damageSE;
 
 public:
@@ -108,6 +110,8 @@ public:
 	bool IsEffect() { return isEffect; }								//エフェクトが終わったか(初期もfalseだから管理要注意)
 	bool IsClear() { return isClear; }									//クリアしたか
 	bool IsDash() { return isDash; }									//ダッシュしたか
+	Object3D* GetObj() { return &obj; }									//モデル情報を取得
+	Model* GetModel() { return &model; }
 
 private:
 	void ConvertToRadian(float& degree)
@@ -122,6 +126,12 @@ private:
 public:
 	float easeOutCubic(float t) {
 		return 1 - powf(1 - t, 3);
+	}
+
+	float easeInOutSine(float t)
+	{
+		//return -(cos(XM_PI * t) - 1) / 2;
+		return t < 0.5 ? 16 * t * t * t * t * t : 1 - pow(-2 * t + 2, 5) / 2;
 	}
 
 private:

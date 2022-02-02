@@ -3,7 +3,7 @@
 #include"Singleton.h"
 #include<vector>
 
-class EnemyMgr:public Singleton<EnemyMgr>
+class EnemyMgr :public Singleton<EnemyMgr>
 {
 public:
 	/*---- メンバ定数 ----*/
@@ -22,7 +22,7 @@ public:
 	//Enemy enemy;
 
 	Enemy enemy[MAX_ENEMY_COUNT];
-	
+
 	//初期化処理
 	void Init(const Camera& cam);
 
@@ -44,17 +44,23 @@ public:
 
 	XMFLOAT3 GetNearEnemyPos(const XMFLOAT3& playerPos);
 
+	Object3D* GetObj() { return enemy[0].GetObj(); }
+
+	Model* GetModel() { return &enemyModel; }
+
 	/// <summary>
 	/// 敵をまとめて生成する
 	/// </summary>
 	/// <param name="generatePos">呼び出す敵の配列</param>
 	void Generate(std::vector<DirectX::XMFLOAT3>& generatePos, std::vector<DirectX::XMFLOAT3>& forwardVec, const Camera& cam);
 
+	void StopSound();
+
 };
 
 inline float calAngle(const XMFLOAT3& rhs, const XMFLOAT3& lhs)
 {
-	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));	
+	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));
 }
 
 ////3D座標軸での二点間の距離を求める

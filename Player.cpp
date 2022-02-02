@@ -14,6 +14,7 @@ Player::Player(int deadGraph, int clearGraph, int particle, int DamageSound)
 	attackCount = 0;
 	attackDelay = 0;
 	drawCount = 0;
+	dashDelay = 0;
 	angle = 0;
 	easeTimer = 0;
 	movePower = 0;
@@ -75,6 +76,7 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	attackCount = 0;
 	attackDelay = 0;
 	drawCount = 0;
+	dashDelay = 0;
 	angle = 0;
 	easeTimer = 0;
 	movePower = 0;
@@ -154,8 +156,9 @@ void Player::Input(const Camera& camera)
 			vec3 = myVec;
 
 			//ƒ_ƒbƒVƒ…“ü—Í‚ª‚ ‚Á‚½ê‡
-			if (input->ButtonTrigger(XINPUT_GAMEPAD_B))
+			if (input->ButtonTrigger(XINPUT_GAMEPAD_B) && dashDelay >= DASH_DELAY)
 			{
+				dashDelay = 0;
 				for (int i = 0; i < 30; i++)
 				{
 					Vector3 shiftPos((((float)rand() / RAND_MAX * 2) - 1),
@@ -252,6 +255,8 @@ void Player::Input(const Camera& camera)
 	{
 		Damaged();
 	}
+
+	if (dashDelay < DASH_DELAY) { dashDelay++; }
 }
 
 void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
@@ -360,8 +365,8 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 		{
 			if (input->KeyTrigger(DIK_SPACE) && attackDelay == 0)
 			{
-			attackFlag = true;
-			AttackSE->Play();
+				attackFlag = true;
+				AttackSE->Play();
 
 			}
 			else if (attackDelay > 0) { attackDelay--; }
