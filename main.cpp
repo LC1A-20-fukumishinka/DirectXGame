@@ -519,7 +519,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//タイトル画面
 	Sprite titleLogo;
-	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/TitleGraph_Bright.png");
+	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/TitleGraphic.png");
 	titleLogo.Init(titleTex);
 	XMFLOAT2 titleTexSize = titleLogo.texSize;
 	titleLogo.position = { window_width / 2, window_height / 2 , 0.0f };
@@ -548,37 +548,51 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	/*----------DEAD_CLEAR(CLEARとDEADはPlayerで管理済)----------*/
 	int CLEAR_CHOICE = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_CHOICE.png");
-	int CLEAR_FRAME_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_FRAME_DOWN.png");
-	int CLEAR_FRAME_UP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_FRAME_UP.png");
+	//int CLEAR_FRAME_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_FRAME_DOWN.png");
+	//int CLEAR_FRAME_UP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_FRAME_UP.png");
 	int DEAD_CHOICE = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_CHOICE.png");
-	int DEAD_FRAME_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_FRAME_DOWN.png");
-	int DEAD_FRAME_UP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_FRAME_UP.png");
+	//int DEAD_FRAME_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_FRAME_DOWN.png");
+	//int DEAD_FRAME_UP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_FRAME_UP.png");
+
+	int CLEAR_FRAME = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_FRAME.png");
+	int DEAD_FRAME = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/DEAD_FRAME.png");
 
 	Sprite clear_choise;
-	Sprite clear_frame_down;
-	Sprite clear_frame_up;
+	//Sprite clear_frame_down;
+	//Sprite clear_frame_up;
 	Sprite dead_choise;
-	Sprite dead_frame_down;
-	Sprite dead_frame_up;
+	//Sprite dead_frame_down;
+	//Sprite dead_frame_up;
+
+	Sprite clear_frame;
+	Sprite dead_frame;
+
 	clear_choise.Init(CLEAR_CHOICE, { 0.0f, 0.0f });
-	clear_frame_down.Init(CLEAR_FRAME_DOWN, { 0.0f, 0.0f });
-	clear_frame_up.Init(CLEAR_FRAME_UP, { 0.0f, 0.0f });
+	//clear_frame_down.Init(CLEAR_FRAME_DOWN, { 0.0f, 0.0f });
+	//clear_frame_up.Init(CLEAR_FRAME_UP, { 0.0f, 0.0f });
 	dead_choise.Init(DEAD_CHOICE, { 0.0f, 0.0f });
-	dead_frame_down.Init(DEAD_FRAME_DOWN, { 0.0f, 0.0f });
-	dead_frame_up.Init(DEAD_FRAME_UP, { 0.0f, 0.0f });
+	//dead_frame_down.Init(DEAD_FRAME_DOWN, { 0.0f, 0.0f });
+	//dead_frame_up.Init(DEAD_FRAME_UP, { 0.0f, 0.0f });
+	clear_frame.Init(CLEAR_FRAME);
+	dead_frame.Init(DEAD_FRAME);
 
 	clear_choise.size = { window_width, window_height };
 	clear_choise.SpriteUpdate();
-	clear_frame_down.size = { window_width, window_height };
-	clear_frame_down.SpriteUpdate();
-	clear_frame_up.size = { window_width, window_height };
-	clear_frame_up.SpriteUpdate();
+	//clear_frame_down.size = { window_width, window_height };
+	//clear_frame_down.SpriteUpdate();
+	//clear_frame_up.size = { window_width, window_height };
+	//clear_frame_up.SpriteUpdate();
 	dead_choise.size = { window_width, window_height };
 	dead_choise.SpriteUpdate();
-	dead_frame_down.size = { window_width, window_height };
-	dead_frame_down.SpriteUpdate();
-	dead_frame_up.size = { window_width, window_height };
-	dead_frame_up.SpriteUpdate();
+	//dead_frame_down.size = { window_width, window_height };
+	//dead_frame_down.SpriteUpdate();
+	//dead_frame_up.size = { window_width, window_height };
+	//dead_frame_up.SpriteUpdate();
+	clear_frame.size = { 659,260 };
+	dead_frame.size = { 659,260 };
+
+	clear_frame.position = { window_width / 2,0 ,0 };
+	dead_frame.position = { window_width / 2,0 ,0 };
 
 	/*----------HUD----------*/
 	int HUD_CONTROLL_PAD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_BASE_PAD_2.png");
@@ -1977,11 +1991,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				clear_choise.SpriteDraw();
 				if (resultSelect == 0)
 				{
-					clear_frame_up.SpriteDraw();
+					//clear_frame_up.SpriteDraw();
 				}
 				else
 				{
-					clear_frame_down.SpriteDraw();
+					//clear_frame_down.SpriteDraw();
 				}
 			}
 			else
@@ -2005,11 +2019,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				dead_choise.SpriteDraw();
 				if (resultSelect == 0)
 				{
-					dead_frame_up.SpriteDraw();
+					//dead_frame_up.SpriteDraw();
 				}
 				else
 				{
-					dead_frame_down.SpriteDraw();
+					//dead_frame_down.SpriteDraw();
 				}
 			}
 			else
@@ -2034,11 +2048,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (choiseNum)
 			{
-				dead_frame_up.SpriteDraw();
+				//dead_frame_up.SpriteDraw();
 			}
 			else
 			{
-				dead_frame_down.SpriteDraw();
+				//dead_frame_down.SpriteDraw();
 			}
 
 			//クリア後セレクト
@@ -2048,11 +2062,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (choiseNum)
 			{
-				clear_frame_up.SpriteDraw();
+				//clear_frame_up.SpriteDraw();
 			}
 			else
 			{
-				clear_frame_down.SpriteDraw();
+				//clear_frame_down.SpriteDraw();
 			}
 
 #pragma endregion
