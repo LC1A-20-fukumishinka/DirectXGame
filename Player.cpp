@@ -287,7 +287,7 @@ void Player::Update(Camera& camera, const XMFLOAT3& enemyPos)
 			pos.z += vec3.z;
 		}
 	}
-	attackFlag = false;
+	//attackFlag = false;
 
 	Vector3 CameraPos = camera.position;
 	Vector3 cameraToPlayerVector = cameraToPlayer = Vector3(pos.x, pos.y, pos.z) - camera.position;
