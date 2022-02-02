@@ -22,8 +22,6 @@ void EnemyMgr::Update(const XMFLOAT3& playerPos, const float& angle, const bool&
 		{
 			enemy[i].Update(playerPos, angle, isAttack, isStop);
 		}
-		if (isStop)continue;
-		enemy[i].BulletUpdate();
 	}
 }
 
@@ -38,6 +36,7 @@ void EnemyMgr::UpdateData(const Camera& cam)
 		{
 			enemy[i].enemyBullet[j].bulletData.Update(cam);
 		}
+		enemy[i].BulletUpdate();
 	}
 }
 

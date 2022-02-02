@@ -24,7 +24,7 @@ Enemy::Enemy()
 	int shotData = Sound::SoundLoadWave("Resources/sounds/SE_Shot.wav");
 	shotSE = new Sound(shotData);
 	scale = 10.0f;
-	addScale = 0.25f;
+	addScale = 0.10f;
 }
 
 
@@ -49,6 +49,10 @@ void Enemy::Init(const Camera &cam)
 	isAttack = false;
 	searchDelayTimer = SEARCH_DELAY_TIMER_END;
 	HP = 100;
+	saveNum = 0;
+	isHit = false;
+	searchTimer = 0;
+	scale = 0;
 	for (int i = 0; i < MAX_BULLET; ++i)
 	{
 		enemyBullet[i].Init(cam);
@@ -436,12 +440,19 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 	}
 
 	//スケールを加算する
-	scale += addScale;
+	//float timeRatio = (float)targetingTimer / (float)TARGET_TIMER_END;
+	//const float MAX_AMOUNT = 0.02f;
+	//float add = fabs(addScale) + (timeRatio * MAX_AMOUNT);
+
+	if (addScale < 0)addScale -= ADD_SCALE_AMOUNT;
+	else addScale += ADD_SCALE_AMOUNT;
 
 	if (scale >= 12.0f || scale <= 8.0f)
 	{
 		addScale *= -1;
 	}
+
+	scale += addScale;
 
 	//タイマーを進める
 	targetingTimer++;
@@ -456,6 +467,8 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 		isAttack = true;
 		//射撃サウンドを再生
 		shotSE->Play();
+
+		addScale = 0.10f;
 
 		//追尾サウンドを停止
 		targetSE->Stop();
