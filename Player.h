@@ -129,10 +129,14 @@ public:
 		return 1 - powf(1 - t, 3);
 	}
 
-	float easeInOutSine(float t)
+	float easeFirst(float t)
 	{
-		//return -(cos(XM_PI * t) - 1) / 2;
-		return t < 0.5 ? 16 * t * t * t * t * t : 1 - pow(-2 * t + 2, 5) / 2;
+		return sqrt(1 - pow(t - 1, 2));
+	}
+
+	float easeSecond(float t)
+	{
+		return 1 - sqrt(1 - pow(t, 2));
 	}
 
 private:

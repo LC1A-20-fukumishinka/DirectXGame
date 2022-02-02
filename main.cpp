@@ -825,9 +825,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//開始時の文字
 	int GO = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/go.png");
 	Sprite go;
-	go.Init(GO, XMFLOAT2(0.0f, 0.0f));
-	go.size = { 640,180 };
-	go.position = { 320.0f,-180.0f,0 };
+	go.Init(GO);
+	go.size = { 640,160 };
+	go.position = { window_width / 2,-80.0f,0 };
 
 	float easeTimer_START = 1.0f;
 	bool UpdateStart = false;
@@ -890,6 +890,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	bool hp_1to0 = false;
 	bool hp_2to1 = false;
 	bool hp_3to2 = false;
+
+	int easeCount = 0;
 
 	//タイトル用
 	Object3D* myObj = player.GetObj();
@@ -1041,11 +1043,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		mask.SpriteUpdate();
 
 		//開始時文字
-		if (easeTimer_START < 1.0f) {
-			easeTimer_START += 0.006f;
-			if (easeTimer_START >= 0.0f) { go.position.y = (900 - (-180)) * player.easeInOutSine(easeTimer_START) + (-180); }
+		if (nowScene == GAME && easeCount < 2 && sceneTransition.GetNowStatus() == 2) {
+
+			if (easeTimer_START < 1.0f) {
+				if (easeCount == 0 && go.position.y < 330 || easeCount == 1 && go.position.y >= 390)
+					easeTimer_START += 0.03f;
+			}
+
+			else
+			{
+				if (easeCount < 2) {
+					easeTimer_START = 0.0f; easeCount++;
+				}
+			}
+
+			if (easeCount == 0) { go.position.y = (330 - (-80)) * player.easeFirst(easeTimer_START) + (-80); }
+			else if (easeCount == 1) {
+				if (go.position.y < 390) { go.position.y += 4; }
+				else { go.position.y = (800 - 390) * player.easeSecond(easeTimer_START) + 390; }
+			}
 		}
-		if (easeTimer_START >= 0.7f) { UpdateStart = true; }
+		if (easeCount == 1 && easeTimer_START >= 0.7f) { UpdateStart = true; }
 		go.SpriteUpdate();
 
 		//ギア処理
@@ -1333,7 +1351,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 					Vector3 push;
 					push = WallMgr::Instance()->GetWalls()[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
-					
+
 					playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
 					Vector3 ps;
 
@@ -1463,13 +1481,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (isClear)
 			{
-			float rate = clearEase.Do(Easing::Out, Easing::Cubic);
+				float rate = clearEase.Do(Easing::Out, Easing::Cubic);
 				Vector3 tmp = cam.position;
 				Vector3 endPos = player.GetPos();
 				endPos.x = upperRight[stageNum].x - player.GetPos().x;
 				endPos.z = 0;
-				endPos.y = 250- cam.position.y;
-				cam.eye = (endPos * rate) + (cam.eye * (1- rate));
+				endPos.y = 250 - cam.position.y;
+				cam.eye = (endPos * rate) + (cam.eye * (1 - rate));
 				cam.up = (Vector3(0, 1, 0) * rate) + (Vector3(cam.up) * (1 - rate));
 			}
 			if (!player.IsEffect() && isClear)
@@ -1555,6 +1573,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				if (sceneTransition.Change() && isTrigger)
 				{
 					easeTimer_START = 0.0f;
+					easeCount = 0;
 					mask.size = { 0,0 };
 					easeTimer = 0.0f;
 					isTrigger = false;
@@ -1686,6 +1705,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				if (sceneTransition.Change() && isTrigger)
 				{
 					easeTimer_START = 0.0f;
+					easeCount = 0;
 					mask.size = { 0,0 };
 					easeTimer = 0.0f;
 					isTrigger = false;
