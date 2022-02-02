@@ -45,6 +45,7 @@ private:
 	const int MAX_BULLET_TIMER = 10;			//射撃レート
 	const float SEARCH_RADIUS = 150.0f;			//索敵範囲
 	const float SENSING_RADIUS = 50.0f;			//索敵時にこれ以上近づいたら感知するよ～範囲
+	const float ADD_SCALE_AMOUNT = 0.01;
 
 public:
 	/*---- メンバ変数 ----*/
@@ -68,7 +69,7 @@ public:
 	int searchTimer;		//索敵する時間
 	int rotateStatus;		//索敵時のステータス
 	float scale;
-	float addScale;			
+	float addScale;
 
 	//ターゲティング用
 	int targetingTimer;
