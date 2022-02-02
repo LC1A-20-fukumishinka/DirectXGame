@@ -757,9 +757,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	stage_frame.position = { half_Width,half_height,0 };
 
 	//ステージレイアウト
-	int LAYOUT_1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_1_1.png");
-	int LAYOUT_2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_2_1.png");
-	int LAYOUT_3 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_3_1.png");
+	int LAYOUT_1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_1.png");
+	int LAYOUT_2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_2.png");
+	int LAYOUT_3 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/Layout_3.png");
 
 	Sprite layout_1;
 	Sprite layout_2;
@@ -782,10 +782,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	layout_1.position = { half_Width,half_height,0 };
 	layout_2.position = { half_Width,half_height,0 };
 	layout_3.position = { half_Width,half_height,0 };
-
-	layout_1.SpriteUpdate();
-	layout_2.SpriteUpdate();
-	layout_3.SpriteUpdate();
 
 	//開始時の文字
 	int GO = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/go.png");
@@ -1090,6 +1086,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			myObj->Update(cam);
 			enemyObj->Update(cam);
 
+			layout_1.color.w = 0;
+			layout_2.color.w = 0;
+			layout_3.color.w = 0;
+
 			break;
 
 #pragma endregion
@@ -1184,6 +1184,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 				stage_select_keys.SpriteUpdate();
 			}
+
+			layout_1.SpriteUpdate();
+			layout_2.SpriteUpdate();
+			layout_3.SpriteUpdate();
 
 			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
@@ -1717,19 +1721,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (stageNum == 0 && !isMove)
 			{
 				debugText.Print("stage 1", 10, 100, 3);
-				layout_1.color = { 1,1,1,1 };
+				layout_2.color.w = 0;
+				layout_3.color.w = 0;
+				if (layout_1.color.w < 1.0f) { layout_1.color.w += 0.1f; }
 				layout_1.SpriteDraw();
 			}
 			if (stageNum == 1 && !isMove)
 			{
 				debugText.Print("stage 2", 10, 100, 3);
-				layout_2.color = { 1,1,1,1 };
+				layout_1.color.w = 0;
+				layout_3.color.w = 0;
+				if (layout_2.color.w < 1.0f) { layout_2.color.w += 0.1f; }
 				layout_2.SpriteDraw();
 			}
 			if (stageNum == 2 && !isMove)
 			{
 				debugText.Print("stage 3", 10, 100, 3);
-				layout_3.color = { 1,1,1,1 };
+				layout_1.color.w = 0;
+				layout_2.color.w = 0;
+				if (layout_3.color.w < 1.0f) { layout_3.color.w += 0.1f; }
 				layout_3.SpriteDraw();
 			}
 
