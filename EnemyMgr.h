@@ -27,12 +27,12 @@ public:
 	void Init(const Camera& cam);
 
 	//更新処理
-	void Update(const XMFLOAT3& playerPos, const float& angle, const bool& isStop, const bool& isAttack);
+	void Update(Camera& cam, const XMFLOAT3& playerPos, const float& angle, const bool& isStop, const bool& isAttack);
 
 	void UpdateData(const Camera& cam);
 
 	//描画処理
-	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& bulletModel);
+	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& bulletModel, int particleGH);
 
 	//敵の攻撃とプレイヤーの判定
 	bool CheckEnemyAttackToPlayer(int i);

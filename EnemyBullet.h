@@ -16,6 +16,7 @@ public:
 	const int MAX_DES_TIMER = 100;
 	const float EXPLOSION_RADIUS = 40.0f;
 	const int MAX_EXPLOSION_TIMER = 60;
+	const float GENERATE_POS = 30.0f;
 
 	enum BULLET_STATUS
 	{
@@ -56,3 +57,52 @@ public:
 	//ï`âÊ
 	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);
 };
+
+inline float Dot3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+}
+
+inline double Cross2D(const XMFLOAT2& lhs, const XMFLOAT2& rhs) {
+	return (double)lhs.x * rhs.y - lhs.y * rhs.x;
+}
+
+inline XMFLOAT3 Cross3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+	return XMFLOAT3(lhs.y * rhs.z - lhs.z * rhs.y,
+		lhs.z * rhs.x - lhs.x * rhs.z,
+		lhs.x * rhs.y - lhs.y * rhs.x);
+}
+
+inline float Length3D(const XMFLOAT3& rhs) {
+	return sqrtf(Dot3D(rhs, rhs));
+}
+
+inline XMFLOAT3 Normalize3D(const XMFLOAT3& rhs) {
+	float len = Length3D(rhs);
+	XMFLOAT3 buff = rhs;
+	buff.x /= len;
+	buff.y /= len;
+	buff.z /= len;
+	return buff;
+}
+
+inline int GetRand(const int& min, const int& max) {
+	return (rand() % (max - min + 1)) + min;
+}
+
+inline XMFLOAT3 AddXMFLOAT3(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+	return XMFLOAT3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
+}
+
+inline XMFLOAT3 MulXMFLOAT3(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+	return XMFLOAT3(lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z);
+}
+
+//3Dç¿ïWé≤Ç≈ÇÃìÒì_ä‘ÇÃãóó£ÇãÅÇﬂÇÈ
+inline float Distance3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
+	return sqrtf(powf(lhs.x - rhs.x, 2.0f) + powf(lhs.y - rhs.y, 2.0f) + powf(lhs.z - rhs.z, 2.0f));
+}
+
+inline float calAngle(const XMFLOAT3& rhs, const XMFLOAT3& lhs)
+{
+	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));
+}

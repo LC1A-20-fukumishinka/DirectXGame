@@ -25,13 +25,24 @@ void EnemyBullet::Init(const Camera &cam)
 void EnemyBullet::Generate(const XMFLOAT3 &generatePos, const XMFLOAT3 &forwardVec, const bool& isEnemyTypeSearch)
 {
 	//生成座標と正面ベクトルを設定
-	bulletData.position = generatePos;
+	XMFLOAT3 honraiGeneratePos = AddXMFLOAT3(generatePos, forwardVec * GENERATE_POS);
+	bulletData.position = honraiGeneratePos;
 	this->forwardVec = forwardVec;
 	isAlive = true;
 	desTimer = 0;
 	bulletData.color = { 1, 1, 1, 1 };
+	bulletData.scale.x = 40.0f;
+	bulletData.scale.y = 40.0f;
+	bulletData.scale.z = 1200.0f;
 	if (isEnemyTypeSearch)speed = BULLET_SPEED_FAST;
 	else speed = BULLET_SPEED;
+	XMFLOAT3 honraiForwardVec = { 0,0,1 };
+	//正面ベクトルの初期値と指定されたベクトルのなす角度を求める
+	float angle = calAngle(forwardVec, honraiForwardVec);
+	angle = acosf(angle);
+	angle = XMConvertToDegrees(angle);
+	if (forwardVec.x < 0)angle *= -1;
+	bulletData.rotation.y = angle;
 }
 
 void EnemyBullet::Update()

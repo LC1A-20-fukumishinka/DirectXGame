@@ -25,6 +25,8 @@ Enemy::Enemy()
 	shotSE = new Sound(shotData);
 	scale = 10.0f;
 	addScale = 0.10f;
+	isCameraShake = false;
+	shakeTimer = 0;
 }
 
 
@@ -67,7 +69,7 @@ void Enemy::Generate(const Camera &cam, const XMFLOAT3 &generatePos, const XMFLO
 	this->forwardVec = forwardVec;
 }
 
-void Enemy::Update(const XMFLOAT3 &playerPos, const float &angle, const bool &isAttack, const bool &isStop)
+void Enemy::Update(Camera& cam,const XMFLOAT3 &playerPos, const float &angle, const bool &isAttack, const bool &isStop)
 {
 	//生成済みじゃなかったら生成する
 	if (!isAlive)return;
@@ -245,6 +247,9 @@ void Enemy::Update(const XMFLOAT3 &playerPos, const float &angle, const bool &is
 			//スケールの更新
 			enemyData.scale = { scale, scale, scale };
 
+			//カメラのシェイク処理
+			Shake(cam);
+
 			//レイの更新処理
 			//座標
 			forwardRay.start = XMLoadFloat3(&enemyData.position);
@@ -272,11 +277,12 @@ void Enemy::BulletUpdate()
 	}
 }
 
-void Enemy::Draw(const PipeClass::PipelineSet &pipelineSet, const ModelObject &model)
+void Enemy::Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model, int particleGH)
 {
 	if (isAlive)
 	{
 		enemyData.modelDraw(model, pipelineSet);
+		effect.Draw(particleGH);
 	}
 }
 
@@ -313,6 +319,8 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 
 	scale = 10.0f;
 
+	addScale = 0.10f;
+
 	//当たり判定に使うプレイヤーの当たり判定
 	Sphere playerSphere = {};
 	playerSphere.center = XMLoadFloat3(&playerPos);
@@ -331,7 +339,6 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 	{
 		//ステータスをターゲティングにする
 		status = STATUS_TARGET;
-		targetSE->PlayLoop();
 		searchTimer = 30;
 		searchDelayTimer = 0;
 	}
@@ -341,7 +348,6 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 	{
 		//ステータスをターゲティングにする
 		status = STATUS_TARGET;
-		targetSE->PlayLoop();
 		searchTimer = 30;
 		searchDelayTimer = 0;
 	}
@@ -358,6 +364,8 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 
 void Enemy::Targeting(const XMFLOAT3 &playerPos)
 {
+	targetSE->PlayLoop();
+
 	//敵からプレイヤーへの方向ベクトル
 	XMFLOAT3 buff = XMFLOAT3(enemyData.position.x - playerPos.x, enemyData.position.y - playerPos.y, enemyData.position.z - playerPos.z);
 	//正面ベクトルをプレイヤーの方向に向ける
@@ -509,7 +517,25 @@ void Enemy::Attack(const XMFLOAT3 &playerPos)
 			enemyBullet[0].Generate(enemyData.position, forwardVec, isEnemyTypeSeach);
 			shotSE->Play();
 
+			Ray bulletRay = {};
+			bulletRay.start = XMLoadFloat3(&enemyBullet[0].bulletData.position);
+			bulletRay.dir = XMLoadFloat3(&enemyBullet[0].forwardVec);
+
+			for (int i = 0; i < 10; ++i) {
+				float randX = (((float)rand() / RAND_MAX) * 2) - 1.0f;
+				float randZ = (((float)rand() / RAND_MAX) * 2) - 1.0f;
+				Vector3 tmp(randX, 0, randZ);
+				float power = ((float)rand() / RAND_MAX) * 3;
+				tmp = tmp.normalaize();
+				XMFLOAT3 generatePos = GetPosRay2Walls(bulletRay, WallMgr::Instance()->GetWalls());
+
+				XMFLOAT3 shiftVec = enemyBullet[0].forwardVec * -10.0f;
+
+				effect.Add(15, generatePos + shiftVec, tmp * power, XMFLOAT3(0, 0, 0), 10.0f, 0.0f, { 1,0,0,1 }, { 1,0,0,1 });
+			}
+
 			attackDelayTimer = 0;
+			isCameraShake = true;
 			Sphere playerSphere = {};
 			playerSphere.center = XMLoadFloat3(&playerPos);
 			playerSphere.radius = 16;
@@ -592,4 +618,37 @@ void Enemy::Dead()
 	//{
 	//	enemyBullet[i].Dead();
 	//}
+}
+
+void Enemy::Shake(Camera& cam)
+{
+	if (!isCameraShake)return;
+	cam.SetShift(Shake::GetShake(1.0f, true, false, true));
+
+	shakeTimer++;
+	if (shakeTimer > MAX_SHAKE_TIMER)
+	{
+		shakeTimer = 0;
+		isCameraShake = false;
+	}
+}
+
+XMFLOAT3 Enemy::GetPosRay2Walls(const Ray& ray, std::vector<Wall>& walls)
+{
+	//正面レイ方向に壁があったら
+	//壁一つ一つ回す
+	for (int i = 0; i < walls.size(); ++i)
+	{
+		//壁1つの三角形ぶん回す
+		for (int j = 0; j < walls[0].GetFaces().size(); ++j)
+		{
+			XMVECTOR v;
+			if (Collision::CheckRay2Triangle(ray, walls[i].GetFaces()[j], 0, &v))
+			{
+				XMFLOAT3 wallPos;
+				XMStoreFloat3(&wallPos, v);
+				return wallPos;
+			}
+		}
+	}
 }
