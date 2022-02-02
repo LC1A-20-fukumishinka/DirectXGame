@@ -32,12 +32,6 @@ Enemy::~Enemy()
 	delete shotSE;
 }
 
-Enemy::~Enemy()
-{
-	delete findSE;
-	delete shotSE;
-}
-
 void Enemy::Init(const Camera &cam)
 {
 	status = STATUS_SEARCH;
