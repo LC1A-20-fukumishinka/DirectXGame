@@ -1812,10 +1812,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				gears[i].SpriteDraw();
 			}
 
-			debugText.Print("stageselect", 10, 10, 3);
 			if (stageNum == 0 && !isMove)
 			{
-				debugText.Print("stage 1", 10, 100, 3);
 				layout_2.color.w = 0;
 				layout_3.color.w = 0;
 				if (layout_1.color.w < 1.0f) { layout_1.color.w += 0.1f; }
@@ -1823,7 +1821,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			if (stageNum == 1 && !isMove)
 			{
-				debugText.Print("stage 2", 10, 100, 3);
 				layout_1.color.w = 0;
 				layout_3.color.w = 0;
 				if (layout_2.color.w < 1.0f) { layout_2.color.w += 0.1f; }
@@ -1831,7 +1828,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			if (stageNum == 2 && !isMove)
 			{
-				debugText.Print("stage 3", 10, 100, 3);
 				layout_1.color.w = 0;
 				layout_2.color.w = 0;
 				if (layout_3.color.w < 1.0f) { layout_3.color.w += 0.1f; }
