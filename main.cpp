@@ -213,7 +213,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int hp;
 	Object3D goal;
 	goal.Init(cam);
-	goal.color = {1, 0, 0,1};
+	goal.color = { 1, 0, 0,1 };
 
 	Object3D floor;
 	floor.scale = { 1000.0f, 2.0f, 300.0f };
@@ -710,6 +710,55 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	float easeTimer = 0.0f;
 
+	//番号
+	int STAGE1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_1.png");
+	int STAGE2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_2.png");
+	int STAGE3 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_3.png");
+	int STAGE4 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_4.png");
+	int STAGE5 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_5.png");
+	int STAGE_FRAME = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_FRAME.png");
+
+	Sprite stage_1;
+	Sprite stage_2;
+	Sprite stage_3;
+	Sprite stage_4;
+	Sprite stage_5;
+	Sprite stage_frame;
+
+	stage_1.Init(STAGE1);
+	stage_2.Init(STAGE2);
+	stage_3.Init(STAGE3);
+	stage_4.Init(STAGE4);
+	stage_5.Init(STAGE5);
+	stage_frame.Init(STAGE_FRAME);
+
+	stage_1.size = { 192,192 };
+	stage_2.size = { 192,192 };
+	stage_3.size = { 192,192 };
+	stage_4.size = { 192,192 };
+	stage_5.size = { 192,192 };
+	stage_frame.size = { 192,192 };
+
+	float half_Width = window_width / 2;
+	float half_height = window_height / 2;
+	float mini_Width = window_width / 4;
+	float mini_height = window_height / 4;
+
+	float stageNumF = 0.0f;
+	float stageEase = 0.0f;
+	bool isMove = false;
+	bool direction = false;
+	bool trigger = false;
+
+	stage_1.position = { half_Width + mini_Width * 0.0f,half_height,0 };
+	stage_2.position = { half_Width + mini_Width * 1.0f,half_height,0 };
+	stage_3.position = { half_Width + mini_Width * 2.0f,half_height,0 };
+	stage_4.position = { half_Width + mini_Width * 3.0f,half_height,0 };
+	stage_5.position = { half_Width + mini_Width * 4.0f,half_height,0 };
+	stage_frame.position = { half_Width,half_height,0 };
+
+	float stageSelectEase = 0.0f;
+
 	//開始時の文字
 	int GO = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/go.png");
 	Sprite go;
@@ -958,7 +1007,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			next_keys.SpriteUpdate();
 		}
 
-
 #pragma endregion
 
 
@@ -1052,14 +1100,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			if ((input->KeyTrigger(DIK_A) || input->KeyTrigger(DIK_D)) || (stickTrigger))
 			{
+				trigger = true;
 
 				if (input->KeyTrigger(DIK_A) || input->LStick().x < 0.0f)
 				{
 					stageNum--;
+					if (!isMove && stageNum >= 0) { direction = false; isMove = true; stageEase = 0.0f; }
 				}
 				if (input->KeyTrigger(DIK_D) || input->LStick().x > 0.0f)
 				{
 					stageNum++;
+					if (!isMove && stageNum <= MAX_STAGE_NUM - 1) { direction = true; isMove = true; stageEase = 0.0f; }
 				}
 
 				if (stageNum < 0)
@@ -1073,6 +1124,36 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				}
 				SelectSE.Play();
 			}
+
+			//ステージ選択画面処理
+			//左(1->0)
+			if (!direction && stageNum >= 0 && isMove)
+			{
+				stageNumF = (stageNum - (stageNum + 1)) * player.easeOutCubic(stageEase) + (stageNum + 1);
+				if (stageEase < 1.0f) { stageEase += 0.1f; }
+				else { isMove = false; stageEase = 0.0f; stageNumF = stageNum; }
+			}
+
+			//右(0->1)
+			else if (direction && stageNum < MAX_STAGE_NUM && isMove)
+			{
+				stageNumF = (stageNum - (stageNum - 1)) * player.easeOutCubic(stageEase) + (stageNum - 1);
+				if (stageEase < 1.0f) { stageEase += 0.1f; }
+				else { isMove = false; stageEase = 0.0f; stageNumF = stageNum; }
+			}
+
+			stage_1.position = { half_Width + mini_Width * (-stageNumF + 0),half_height,0 };
+			stage_2.position = { half_Width + mini_Width * (-stageNumF + 1),half_height,0 };
+			stage_3.position = { half_Width + mini_Width * (-stageNumF + 2),half_height,0 };
+			stage_4.position = { half_Width + mini_Width * (-stageNumF + 3),half_height,0 };
+			stage_5.position = { half_Width + mini_Width * (-stageNumF + 4),half_height,0 };
+
+			stage_1.SpriteUpdate();
+			stage_2.SpriteUpdate();
+			stage_3.SpriteUpdate();
+			stage_4.SpriteUpdate();
+			stage_5.SpriteUpdate();
+			stage_frame.SpriteUpdate();
 
 			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
@@ -1119,8 +1200,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				}
 				Vector3 goalScale(upperRight[stageNum]);
 				goalScale -= Vector3(lowerLeft[stageNum]);
-				goal.position = Vector3(lowerLeft[stageNum]) + (goalScale/2);
-				goal.position.y = floor.position.y + floor.scale.y +1.0f;
+				goal.position = Vector3(lowerLeft[stageNum]) + (goalScale / 2);
+				goal.position.y = floor.position.y + floor.scale.y + 1.0f;
 				goal.scale = goalScale;
 				goalScale.y = 0.1;
 
@@ -1564,6 +1645,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				debugText.Print("stage 2", 10, 100, 3);
 			}
+
+			//ステージ選択番号
+			stage_1.SpriteDraw();
+			stage_2.SpriteDraw();
+			stage_3.SpriteDraw();
+			stage_4.SpriteDraw();
+			stage_5.SpriteDraw();
+			stage_frame.SpriteDraw();
+
 			break;
 
 #pragma endregion
