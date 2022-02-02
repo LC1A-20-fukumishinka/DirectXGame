@@ -672,18 +672,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	scene_gear_up.size = { window_width, window_height };
 
 	/*-------STAGE_SELECT-------*/
-	int STAGE_SELECT_GRAPH_PAD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_CONTROLLER.png");
-	int STAGE_SELECT_GRAPH_KEYBOARD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_KEYBOARD.png");
+	int BACK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/back.png");
+	int STAGE_SELECT = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_SELECT.png");
+	int STAGE_SELECT_GRAPH_PAD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_ENTER_PAD.png");
+	int STAGE_SELECT_GRAPH_KEYBOARD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/SELECT_ENTER_KEY.png");
 
+	Sprite back;
+	Sprite stage_select;
 	Sprite stage_select_pad;
 	Sprite stage_select_keys;
-	stage_select_pad.Init(STAGE_SELECT_GRAPH_PAD, { 0.0f, 0.0f });
-	stage_select_keys.Init(STAGE_SELECT_GRAPH_KEYBOARD, { 0.0f, 0.0f });
 
-	stage_select_pad.size = { window_width, window_height };
-	stage_select_keys.size = { window_width, window_height };
-	stage_select_pad.SpriteUpdate();
-	stage_select_keys.SpriteUpdate();
+	back.Init(BACK);
+	stage_select.Init(STAGE_SELECT);
+	stage_select_pad.Init(STAGE_SELECT_GRAPH_PAD);
+	stage_select_keys.Init(STAGE_SELECT_GRAPH_KEYBOARD);
+
+	back.size = { window_width,window_height };
+	stage_select.size = { 800,160 };
+	stage_select_pad.size = { 640, 320 };
+	stage_select_keys.size = { 640, 320 };
+
+	back.position = { window_width / 2,window_height / 2,0 };
+	stage_select.position = { window_width / 2,80,0 };
+	stage_select_pad.position = { window_width / 2,620 ,0 };
+	stage_select_keys.position = { window_width / 2,620,0 };
+
+	back.SpriteUpdate();
+	stage_select.SpriteUpdate();
 
 	int MASK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/mask_circle.png");
 	Sprite mask;
@@ -754,7 +769,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	layout_2.Init(LAYOUT_2);
 	layout_3.Init(LAYOUT_3);
 
-	float late = 1.3f;
+	float late = 1.4f;
 
 	layout_1.size = { 600 * late,300 * late };
 	layout_2.size = { 600 * late,300 * late };
@@ -994,28 +1009,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		if (easeTimer_START >= 0.7f) { UpdateStart = true; }
 		go.SpriteUpdate();
 
-		//死亡後、クリア後の文字
-		if (input->isPadConnect())
-		{
-			if (next_pad.color.w >= 1.5f) { isAdd = false; }
-			else if (next_pad.color.w <= -0.5f) { isAdd = true; }
-
-			if (!isAdd) { next_pad.color.w -= 0.02f; }
-			else { next_pad.color.w += 0.02f; }
-
-			next_pad.SpriteUpdate();
-		}
-		else
-		{
-			if (next_keys.color.w >= 1.5f) { isAdd = false; }
-			else if (next_keys.color.w <= -0.5f) { isAdd = true; }
-
-			if (!isAdd) { next_keys.color.w -= 0.02f; }
-			else { next_keys.color.w += 0.02f; }
-
-			next_keys.SpriteUpdate();
-		}
-
 #pragma endregion
 
 
@@ -1101,7 +1094,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		case STAGESELECT:
 
-
 			if (input->ButtonTrigger(XINPUT_GAMEPAD_B) || input->KeyTrigger(DIK_ESCAPE))
 			{
 				nowScene = TITLE;
@@ -1163,6 +1155,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			stage_4.SpriteUpdate();
 			stage_5.SpriteUpdate();
 			stage_frame.SpriteUpdate();
+
+			//選択画面,文字
+			back.SpriteUpdate();
+			stage_select.SpriteUpdate();
+
+			if (input->isPadConnect())
+			{
+				if (stage_select_pad.color.w >= 1.5f) { isAdd = false; }
+				else if (stage_select_pad.color.w <= -0.5f) { isAdd = true; }
+
+				if (!isAdd) { stage_select_pad.color.w -= 0.02f; }
+				else { stage_select_pad.color.w += 0.02f; }
+
+				stage_select_pad.SpriteUpdate();
+			}
+			else
+			{
+				if (stage_select_keys.color.w >= 1.5f) { isAdd = false; }
+				else if (stage_select_keys.color.w <= -0.5f) { isAdd = true; }
+
+				if (!isAdd) { stage_select_keys.color.w -= 0.02f; }
+				else { stage_select_keys.color.w += 0.02f; }
+
+				stage_select_keys.SpriteUpdate();
+			}
 
 			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
@@ -1405,6 +1422,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			UpdateStart = false;
 
+			//死亡後、クリア後の文字
+			if (input->isPadConnect())
+			{
+				if (next_pad.color.w >= 1.5f) { isAdd = false; }
+				else if (next_pad.color.w <= -0.5f) { isAdd = true; }
+
+				if (!isAdd) { next_pad.color.w -= 0.02f; }
+				else { next_pad.color.w += 0.02f; }
+
+				next_pad.SpriteUpdate();
+			}
+			else
+			{
+				if (next_keys.color.w >= 1.5f) { isAdd = false; }
+				else if (next_keys.color.w <= -0.5f) { isAdd = true; }
+
+				if (!isAdd) { next_keys.color.w -= 0.02f; }
+				else { next_keys.color.w += 0.02f; }
+
+				next_keys.SpriteUpdate();
+			}
+
 			if (resultFlag)
 			{
 				if (stickTrigger || (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S)))
@@ -1514,6 +1553,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case GAMEOVER:
 
 			UpdateStart = false;
+
+			//死亡後、クリア後の文字
+			if (input->isPadConnect())
+			{
+				if (next_pad.color.w >= 1.5f) { isAdd = false; }
+				else if (next_pad.color.w <= -0.5f) { isAdd = true; }
+
+				if (!isAdd) { next_pad.color.w -= 0.02f; }
+				else { next_pad.color.w += 0.02f; }
+
+				next_pad.SpriteUpdate();
+			}
+			else
+			{
+				if (next_keys.color.w >= 1.5f) { isAdd = false; }
+				else if (next_keys.color.w <= -0.5f) { isAdd = true; }
+
+				if (!isAdd) { next_keys.color.w -= 0.02f; }
+				else { next_keys.color.w += 0.02f; }
+
+				next_keys.SpriteUpdate();
+			}
 
 			if (resultFlag)
 			{
@@ -1646,14 +1707,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		case STAGESELECT:
 
-			if (input->isPadConnect())
-			{
-				stage_select_pad.SpriteDraw();
-			}
-			else
-			{
-				stage_select_keys.SpriteDraw();
-			}
+			back.SpriteDraw();
 
 			debugText.Print("stageselect", 10, 10, 3);
 			if (stageNum == 0 && !isMove)
@@ -1679,6 +1733,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			stage_4.SpriteDraw();
 			stage_5.SpriteDraw();
 			stage_frame.SpriteDraw();
+
+			if (input->isPadConnect())
+			{
+				stage_select_pad.SpriteDraw();
+			}
+			else
+			{
+				stage_select_keys.SpriteDraw();
+			}
+
+			stage_select.SpriteDraw();
 
 			break;
 
