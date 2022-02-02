@@ -769,19 +769,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	layout_2.Init(LAYOUT_2);
 	layout_3.Init(LAYOUT_3);
 
-	float late = 1.4f;
+	float late = 1.6f;
 
 	layout_1.size = { 600 * late,300 * late };
 	layout_2.size = { 600 * late,300 * late };
 	layout_3.size = { 600 * late,300 * late };
 
+	/*layout_1.size = { 600.0f,300.0f };
+	layout_2.size = { 600.0f,300.0f };
+	layout_3.size = { 600.0f,300.0f };*/
+
 	layout_1.position = { half_Width,half_height,0 };
 	layout_2.position = { half_Width,half_height,0 };
 	layout_3.position = { half_Width,half_height,0 };
-
-	layout_1.SpriteUpdate();
-	layout_2.SpriteUpdate();
-	layout_3.SpriteUpdate();
 
 	//ŠJŽnŽž‚Ì•¶Žš
 	int GO = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/go.png");
@@ -1086,6 +1086,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			myObj->Update(cam);
 			enemyObj->Update(cam);
 
+			layout_1.color.w = 0;
+			layout_2.color.w = 0;
+			layout_3.color.w = 0;
+
 			break;
 
 #pragma endregion
@@ -1180,6 +1184,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 				stage_select_keys.SpriteUpdate();
 			}
+
+			layout_1.SpriteUpdate();
+			layout_2.SpriteUpdate();
+			layout_3.SpriteUpdate();
 
 			if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 			{
@@ -1716,16 +1724,25 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (stageNum == 0 && !isMove)
 			{
 				debugText.Print("stage 1", 10, 100, 3);
+				layout_2.color.w = 0;
+				layout_3.color.w = 0;
+				if (layout_1.color.w < 1.0f) { layout_1.color.w += 0.1f; }
 				layout_1.SpriteDraw();
 			}
 			if (stageNum == 1 && !isMove)
 			{
 				debugText.Print("stage 2", 10, 100, 3);
+				layout_1.color.w = 0;
+				layout_3.color.w = 0;
+				if (layout_2.color.w < 1.0f) { layout_2.color.w += 0.1f; }
 				layout_2.SpriteDraw();
 			}
 			if (stageNum == 2 && !isMove)
 			{
 				debugText.Print("stage 3", 10, 100, 3);
+				layout_1.color.w = 0;
+				layout_2.color.w = 0;
+				if (layout_3.color.w < 1.0f) { layout_3.color.w += 0.1f; }
 				layout_3.SpriteDraw();
 			}
 
