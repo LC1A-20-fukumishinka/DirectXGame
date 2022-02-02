@@ -84,11 +84,18 @@ public:
 	//敵の種類判別用
 	bool isEnemyTypeSeach;
 
+	//サウンド
+	Sound* targetSE;
+	Sound* shotSE;
+
 public:
 	/*---- メンバ関数 ----*/
 
 	//コンストラクタ
 	Enemy();
+
+	//デストラクタ
+	~Enemy();
 
 	//初期化処理
 	void Init(const Camera& cam);
