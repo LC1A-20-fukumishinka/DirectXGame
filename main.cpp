@@ -74,7 +74,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI* Win = WinAPI::GetInstance();
+	WinAPI *Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -99,13 +99,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX* myDirectX = MyDirectX::GetInstance();
+	MyDirectX *myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input* input = Input::GetInstance();
+	Input *input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -118,7 +118,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 #pragma region Init
-	const float wallHeight = 50;
+	const float wallHeight = 1000;
 	ParticleManager part;
 
 	cam.Init(Vector3(0, 250, 0), Vector3(0, 0, 0), { 0,0,0 }, { 0,0,1 });
@@ -169,12 +169,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Vector3 right = -left;
 
 #pragma region startPos
+	float worldScale = 1.5f;
 
 	std::vector<XMFLOAT3> StartPositions;
-	const XMFLOAT3 STAGE_1 = { -450.1f,0,0 };
-	const XMFLOAT3 STAGE_2 = { -450.1f,0,-125.1f };
-	const XMFLOAT3 STAGE_3 = { -450.1f,0,0 };
-	const XMFLOAT3 STAGE_4 = { 0,0,0 };
+	const XMFLOAT3 STAGE_1 = Vector3( -450.1f,0,0 ) * worldScale;
+	const XMFLOAT3 STAGE_2 = Vector3( -450.1f,0,-125.1f ) * worldScale;
+	const XMFLOAT3 STAGE_3 = Vector3( -450.1f,0,0 ) * worldScale;
+	const XMFLOAT3 STAGE_4 = Vector3( 0,0,0 ) * worldScale;
 
 	StartPositions.push_back(STAGE_1);
 	StartPositions.push_back(STAGE_2);
@@ -183,17 +184,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma endregion
 #pragma region goal
-	//floor.scale = { 1000.0f, 2.0f, 300.0f };
 	XMFLOAT3 lowerLeft[3];
 	XMFLOAT3 upperRight[3];
-	lowerLeft[0] = { 400,0,-50 };
-	upperRight[0] = { 500,0,50 };
+	lowerLeft[0]  = Vector3( 400,0,-50 ) * worldScale;
+	upperRight[0] = Vector3( 500,0,50 ) * worldScale;
 
-	lowerLeft[1] = { 450,0, 100 };
-	upperRight[1] = { 500,0,150 };
+	lowerLeft[1]  = Vector3( 400,0, 100 ) * worldScale;
+	upperRight[1] = Vector3( 500,0,150 ) * worldScale;
 
-	lowerLeft[2] = { 450,0, -150 };
-	upperRight[2] = { 500,0,-100 };
+	lowerLeft[2]  = Vector3( 400,0, -150 ) * worldScale;
+	upperRight[2] = Vector3( 500,0,-100 ) * worldScale;
 
 #pragma endregion
 
@@ -213,140 +213,137 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int hp;
 	Object3D goal;
 	goal.Init(cam);
-	goal.color = { 1, 0, 0,1 };
+	goal.color = { 3, 1, 1,1 };
+
 
 	Object3D floor;
-	floor.scale = { 1000.0f, 2.0f, 300.0f };
-	floor.position = { 0.0f, -20.0f, 0.0f };
-	floor.color = { 3.0f,2.0f ,2.0f ,1.0f };
+	Vector3 floorBaseScale = { 1000.0f, 2.0f, 300.0f  };
+	floor.scale = { 1000.0f, 2.0f, 300.0f  };
+	floor.position = { 0.0f, -18.0f, 0.0f };
+	floor.color = { 1.0f,0.6f ,0.5f ,1.0f };
 	floor.Init(cam);
 
 
-	DirectX::XMFLOAT3 pillarScale = { 10, wallHeight, 10 };
-	DirectX::XMFLOAT3 LPillarScale = { 50, wallHeight, 50 };
-	DirectX::XMFLOAT3 wideWallScale = { 200, wallHeight, 10 };
-	DirectX::XMFLOAT3 heightWallScale = { 10, wallHeight, 100 };
-	DirectX::XMFLOAT3 LHeightWallScale = { 80, wallHeight, 150 };
-	DirectX::XMFLOAT3 LWidthWallScale = { 150, wallHeight, 100 };
+	Vector3 pillarScale = Vector3(30, wallHeight, 10) * worldScale;
+	Vector3 LPillarScale = Vector3(50, wallHeight, 50) * worldScale;
+	Vector3 wideWallScale = Vector3(200, wallHeight, 10) * worldScale;
+	Vector3 heightWallScale = Vector3(10, wallHeight, 100) * worldScale;
+	Vector3 LHeightWallScale = Vector3(80, wallHeight, 150) * worldScale;
+	Vector3 LWidthWallScale = Vector3(150, wallHeight, 100) * worldScale;
 
 #pragma endregion
 
 	std::vector<Wall> outWall;
 	outWall.resize(4);
-	outWall[0].Init(cam, { -(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 1000, floor.scale.z });
-	outWall[1].Init(cam, { 0.0f,floor.position.y ,-(floor.scale.z / 2) }, { floor.scale.x, 1000, 10 });
-	outWall[2].Init(cam, { +(floor.scale.x / 2),floor.position.y ,0.0f }, { 10, 1000, floor.scale.z });
-	outWall[3].Init(cam, { 0.0f,floor.position.y ,+(floor.scale.z / 2) }, { floor.scale.x, 1000, 10 });
+	outWall[0].Init(cam,  Vector3( -(floor.scale.x / 2),floor.position.y ,0.0f ) * worldScale, Vector3( 10, 1000, floor.scale.z ) * worldScale);
+	outWall[1].Init(cam,  Vector3( 0.0f,floor.position.y ,-(floor.scale.z / 2) ) * worldScale, Vector3( floor.scale.x, 1000, 10 ) * worldScale);
+	outWall[2].Init(cam,  Vector3( +(floor.scale.x / 2),floor.position.y ,0.0f ) * worldScale, Vector3( 10, 1000, floor.scale.z ) * worldScale);
+	outWall[3].Init(cam,  Vector3( 0.0f,floor.position.y ,+(floor.scale.z / 2) ) * worldScale, Vector3( floor.scale.x, 1000, 10 ) * worldScale);
 #pragma region １面壁
 
 	std::vector<Wall> loomWalls;
-	Wall wall[14];
+	const int stage_1_wallCount = 14;
+	Wall wall[stage_1_wallCount];
 
 
 
-	wall[0].Init(cam, { 0.0f,floor.position.y ,0.0f }, pillarScale);
-	loomWalls.push_back(wall[0]);
-
+	wall[0].Init(cam,  Vector3( 0.0f,floor.position.y ,0.0f ), pillarScale);
 	//入口奥
-	wall[1].Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale);
-	loomWalls.push_back(wall[1]);
-	wall[2].Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale);
-	loomWalls.push_back(wall[2]);
-
+	wall[1].Init(cam,  Vector3( -floor.scale.x / 2 + 100,floor.position.y ,floor.scale.z / 2 - 100 ) *worldScale, wideWallScale);
+	wall[2].Init(cam,  Vector3( -floor.scale.x / 2 + 200,floor.position.y ,floor.scale.z / 2 - 50 ) *worldScale, heightWallScale);
 	//入口手前
-	wall[3].Init(cam, { -floor.scale.x / 2 + 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale);
-	loomWalls.push_back(wall[3]);
-	wall[4].Init(cam, { -floor.scale.x / 2 + 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale);
-	loomWalls.push_back(wall[4]);
-
+	wall[3].Init(cam,  Vector3( -floor.scale.x / 2 + 100,floor.position.y ,-floor.scale.z / 2 + 100 ) *worldScale, wideWallScale);
+	wall[4].Init(cam,  Vector3( -floor.scale.x / 2 + 200,floor.position.y ,-floor.scale.z / 2 + 50 ) *worldScale, heightWallScale);
 	//入り口側中央柱
-	wall[5].Init(cam, { -180,floor.position.y ,0 }, LHeightWallScale);
-	loomWalls.push_back(wall[5]);
-
+	wall[5].Init(cam,  Vector3( -180,floor.position.y ,0 ) *worldScale, LHeightWallScale);
 	//出口側二本柱
-	wall[6].Init(cam, { +200,floor.position.y ,-80 }, LPillarScale);
-	loomWalls.push_back(wall[6]);
-	wall[7].Init(cam, { +200,floor.position.y ,+80 }, LPillarScale);
-	loomWalls.push_back(wall[7]);
-
+	wall[6].Init(cam,  Vector3( +200,floor.position.y ,-80 ) *worldScale, LPillarScale);
+	wall[7].Init(cam,  Vector3( +200,floor.position.y ,+80 ) *worldScale, LPillarScale);
 	//中間通路壁
-	wall[8].Init(cam, { 0,floor.position.y ,floor.scale.z / 2 - 50 }, LWidthWallScale);
-	loomWalls.push_back(wall[8]);
-	wall[9].Init(cam, { 0,floor.position.y ,-floor.scale.z / 2 + 50 }, LWidthWallScale);
-	loomWalls.push_back(wall[9]);
-
+	wall[8].Init(cam,  Vector3( 0,floor.position.y ,floor.scale.z / 2 - 50 ) *worldScale, LWidthWallScale);
+	wall[9].Init(cam,  Vector3( 0,floor.position.y ,-floor.scale.z / 2 + 50 ) *worldScale, LWidthWallScale);
 	//出口奥
-	wall[10].Init(cam, { floor.scale.x / 2 - 100,floor.position.y ,floor.scale.z / 2 - 100 }, wideWallScale);
-	loomWalls.push_back(wall[10]);
-	wall[11].Init(cam, { floor.scale.x / 2 - 200,floor.position.y ,floor.scale.z / 2 - 50 }, heightWallScale);
-	loomWalls.push_back(wall[11]);
-
+	wall[10].Init(cam, Vector3( floor.scale.x / 2 - 100,floor.position.y ,floor.scale.z / 2 - 100 ) *worldScale, wideWallScale);
+	wall[11].Init(cam, Vector3( floor.scale.x / 2 - 200,floor.position.y ,floor.scale.z / 2 - 50 ) *worldScale, heightWallScale);
 	//出口手前
-	wall[12].Init(cam, { +floor.scale.x / 2 - 100,floor.position.y ,-floor.scale.z / 2 + 100 }, wideWallScale);
-	loomWalls.push_back(wall[12]);
-	wall[13].Init(cam, { +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 }, heightWallScale);
-	loomWalls.push_back(wall[13]);
+	wall[12].Init(cam, Vector3( +floor.scale.x / 2 - 100,floor.position.y ,-floor.scale.z / 2 + 100 ) *worldScale, wideWallScale);
+	wall[13].Init(cam, Vector3( +floor.scale.x / 2 - 200,floor.position.y ,-floor.scale.z / 2 + 50 ) *worldScale, heightWallScale);
 
+	for (int i = 0; i < stage_1_wallCount;i++)
+	{
+		loomWalls.push_back(wall[i]);
+	}
 	for (int i = 0; i < outWall.size(); i++)
 	{
 		loomWalls.push_back(outWall[i]);
 	}
 	WallMgr::Instance()->Init(loomWalls);
-
+	std::vector<XMFLOAT3> loomEnemyGeneratePos;
+	loomEnemyGeneratePos.push_back(Vector3( -255, 0, 105 ) * worldScale);
+	loomEnemyGeneratePos.push_back(Vector3( -255, 0, -105) * worldScale);
+	loomEnemyGeneratePos.push_back(Vector3( -85, 0, 0) * worldScale);
+	loomEnemyGeneratePos.push_back(Vector3( 130, 0, -50) * worldScale);
+	loomEnemyGeneratePos.push_back(Vector3( 130, 0, 50) * worldScale);
+	loomEnemyGeneratePos.push_back(Vector3( 260, 0, 0) * worldScale);
+	std::vector<XMFLOAT3> enemyForwardVec;
+	enemyForwardVec.push_back(XMFLOAT3(0, 0, -1));
+	enemyForwardVec.push_back(XMFLOAT3(0, 0, 1 ) );
+	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0 ) );
+	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
+	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
+	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0 ));
 #pragma endregion
 
 #pragma region 二面壁
 
 	std::vector<Wall> townWalls;
-	Wall townWallData[12];
+	const int stage_2_wallCount = 12;
+
+	Wall townWallData[stage_2_wallCount];
 
 	//初期地点右上
-	townWallData[0].Init(cam, { -floor.scale.x / 2 + 75,floor.position.y, -75.0f }, { 50, wallHeight, 50 });
-	townWalls.push_back(townWallData[0]);
+	townWallData[0].Init(cam, Vector3( -floor.scale.x / 2 + 75,floor.position.y, -75.0f ) * worldScale, Vector3(50, wallHeight, 50) * worldScale);
 
 	//左壁沿い
-	townWallData[1].Init(cam, { -floor.scale.x / 2 + 25,floor.position.y ,25.0f }, { 50, wallHeight, 50 });
-	townWalls.push_back(townWallData[1]);
-
+	townWallData[1].Init(cam, Vector3( -floor.scale.x / 2 + 25,floor.position.y ,25.0f ) * worldScale, Vector3(50, wallHeight, 50) * worldScale);
 	//初期地点右右上
-	townWallData[2].Init(cam, { -floor.scale.x / 2 + 250,floor.position.y, -75.0f }, { 50, wallHeight, 50 });
-	townWalls.push_back(townWallData[2]);
-
+	townWallData[2].Init(cam, Vector3(-floor.scale.x / 2 + 250,floor.position.y, -75.0f) * worldScale, Vector3(50, wallHeight, 50) * worldScale);
 	//初期地点側上部縦長壁
-	townWallData[3].Init(cam, { -floor.scale.x / 2 + 180,floor.position.y, 40.0f }, { 50, wallHeight, 100 });
-	townWalls.push_back(townWallData[3]);
-
+	townWallData[3].Init(cam, Vector3(-floor.scale.x / 2 + 180,floor.position.y, 40.0f) * worldScale, Vector3(50, wallHeight, 100) * worldScale);
 	//中央上部左横長壁
-	townWallData[4].Init(cam, { -140,floor.position.y ,floor.scale.z / 2 - 80 }, { 150, wallHeight, 75 });
-	townWalls.push_back(townWallData[4]);
-
+	townWallData[4].Init(cam, Vector3(-140,floor.position.y ,floor.scale.z / 2 - 80) * worldScale, Vector3(150, wallHeight, 75) * worldScale);
 	//中央下部大壁
-	townWallData[5].Init(cam, { -20,floor.position.y ,-floor.scale.z / 2 + 50 }, { 140, wallHeight, 100 });
-	townWalls.push_back(townWallData[5]);
-
+	townWallData[5].Init(cam, Vector3(-20,floor.position.y ,-floor.scale.z / 2 + 50) * worldScale, Vector3(140, wallHeight, 100) * worldScale);
 	//中央上部右大壁
-	townWallData[6].Init(cam, { +100,floor.position.y ,60.0f }, { 150, wallHeight, 120 });
-	townWalls.push_back(townWallData[6]);
-
+	townWallData[6].Init(cam, Vector3(+100,floor.position.y ,60.0f) * worldScale, Vector3(150, wallHeight, 120) * worldScale);
 	//右側下段壁
-	townWallData[7].Init(cam, { +200,floor.position.y ,-80 }, { 150, wallHeight, 50 });
-	townWalls.push_back(townWallData[7]);
-
+	townWallData[7].Init(cam, Vector3(+200,floor.position.y ,-80) * worldScale, Vector3(150, wallHeight, 50) * worldScale);
 	//右上隔離壁縦
-	townWallData[8].Init(cam, { floor.scale.x / 2 - 230,floor.position.y ,floor.scale.z / 2 - 50 }, { 50, wallHeight, 100 });
-	townWalls.push_back(townWallData[8]);
+	townWallData[8].Init(cam, Vector3(floor.scale.x / 2 - 230,floor.position.y ,floor.scale.z / 2 - 50) * worldScale, Vector3(50, wallHeight, 100) * worldScale);
 	//右下端壁
-	townWallData[9].Init(cam, { floor.scale.x / 2 - 75,floor.position.y ,-floor.scale.z / 2 + 100 }, { 150, wallHeight, 200 });
-	townWalls.push_back(townWallData[9]);
-
+	townWallData[9].Init(cam, Vector3(floor.scale.x / 2 - 75,floor.position.y ,-floor.scale.z / 2 + 100) * worldScale, Vector3(150, wallHeight, 200) * worldScale);
 	//隔離部屋内壁
-	townWallData[10].Init(cam, { floor.scale.x / 2 - 75,floor.position.y ,floor.scale.z / 2 - 100 }, { 150, wallHeight, 100 });
-	townWalls.push_back(townWallData[10]);
-
+	townWallData[10].Init(cam, Vector3(floor.scale.x / 2 - 75,floor.position.y ,floor.scale.z / 2 - 100) * worldScale, Vector3(150, wallHeight, 100) * worldScale);
 	//壁抜け対策
-	townWallData[11].Init(cam, { -floor.scale.x / 2 ,floor.position.y ,-floor.scale.z / 2 }, { 40, wallHeight, 40 });
+	townWallData[11].Init(cam, Vector3(-floor.scale.x / 2 ,floor.position.y ,-floor.scale.z / 2) * worldScale, Vector3(40, wallHeight, 40 ) * worldScale);
+
+	townWalls.push_back(townWallData[0]);
+	townWalls.push_back(townWallData[1]);
+	townWalls.push_back(townWallData[2]);
+	townWalls.push_back(townWallData[3]);
+	townWalls.push_back(townWallData[4]);
+	townWalls.push_back(townWallData[5]);
+	townWalls.push_back(townWallData[6]);
+	townWalls.push_back(townWallData[7]);
+	townWalls.push_back(townWallData[8]);
+	townWalls.push_back(townWallData[9]);
+	townWalls.push_back(townWallData[10]);
 	townWalls.push_back(townWallData[11]);
 
+	for (int i = 0; i < stage_2_wallCount; i++)
+	{
+		townWalls.push_back(townWallData[i]);
+	}
 	for (int i = 0; i < outWall.size(); i++)
 	{
 		townWalls.push_back(outWall[i]);
@@ -360,28 +357,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	Scenes nowScene = TITLE;
 	Scenes oldScene = nowScene;
-	std::vector<XMFLOAT3> loomEnemyGeneratePos;
-	loomEnemyGeneratePos.push_back(XMFLOAT3{ -255, 0, 105 });
-	loomEnemyGeneratePos.push_back(XMFLOAT3{ -255, 0, -105 });
-	loomEnemyGeneratePos.push_back(XMFLOAT3{ -85, 0, 0 });
-	loomEnemyGeneratePos.push_back(XMFLOAT3{ 130, 0, -50 });
-	loomEnemyGeneratePos.push_back(XMFLOAT3{ 130, 0, 50 });
-	loomEnemyGeneratePos.push_back(XMFLOAT3{ 260, 0, 0 });
-	std::vector<XMFLOAT3> enemyForwardVec;
-	enemyForwardVec.push_back(XMFLOAT3(0, 0, -1));
-	enemyForwardVec.push_back(XMFLOAT3(0, 0, 1));
-	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0));
-	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
-	enemyForwardVec.push_back(XMFLOAT3(-1, 0, 0));
-	enemyForwardVec.push_back(XMFLOAT3(1, 0, 0));
+
 
 	std::vector<XMFLOAT3> townEnemyGeneratePos;
-	townEnemyGeneratePos.push_back(XMFLOAT3{ -336, 0, -70 });
-	townEnemyGeneratePos.push_back(XMFLOAT3{ -396, 0, 64 });
-	townEnemyGeneratePos.push_back(XMFLOAT3{ -148, 0, -26 });
-	townEnemyGeneratePos.push_back(XMFLOAT3{ -23, 0, 66 });
-	townEnemyGeneratePos.push_back(XMFLOAT3{ 88, 0, -80 });
-	townEnemyGeneratePos.push_back(XMFLOAT3{ 304, 0, 0 });
+	townEnemyGeneratePos.push_back(Vector3( -336, 0, -70 ) * worldScale);
+	townEnemyGeneratePos.push_back(Vector3( -396, 0, 64  ) * worldScale);
+	townEnemyGeneratePos.push_back(Vector3( -148, 0, -26 ) * worldScale);
+	townEnemyGeneratePos.push_back(Vector3( -23, 0, 66   ) * worldScale);
+	townEnemyGeneratePos.push_back(Vector3( 88, 0, -80   ) * worldScale);
+	townEnemyGeneratePos.push_back(Vector3( 304, 0, 0    ) * worldScale);
 
 
 
@@ -390,63 +374,62 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 #pragma region 3面壁
 	std::vector<Wall> thirdStageWalls;
-	Wall thirdStageWallData[9];
+	const int stage_3_wallCount = 9;
+
+	Wall thirdStageWallData[stage_3_wallCount];
 
 	//入口壁
-	thirdStageWallData[0].Init(cam, Vector3(-floor.scale.x / 2 + 50, -20, floor.scale.z / 2 - 50), Vector3(100, wallHeight, 100));
-	thirdStageWalls.push_back(thirdStageWallData[0]);
-	thirdStageWallData[1].Init(cam, Vector3(-floor.scale.x / 2 + 50, -20, -floor.scale.z / 2 + 50), Vector3(100, wallHeight, 100));
-	thirdStageWalls.push_back(thirdStageWallData[1]);
+	thirdStageWallData[0].Init(cam, Vector3(-floor.scale.x / 2 + 50, -20, floor.scale.z / 2 - 50) * worldScale, Vector3(100, wallHeight, 100) * worldScale);
+	thirdStageWallData[1].Init(cam, Vector3(-floor.scale.x / 2 + 50, -20, -floor.scale.z / 2 + 50) * worldScale, Vector3(100, wallHeight, 100) * worldScale);
 
 	//鍵壁
-	thirdStageWallData[2].Init(cam, Vector3(-floor.scale.x / 2 + 150, -20, -60), Vector3(150, wallHeight, 20));
-	thirdStageWalls.push_back(thirdStageWallData[2]);
-	thirdStageWallData[3].Init(cam, Vector3(-floor.scale.x / 2 + 215, -20, 0), Vector3(20, wallHeight, 100));
-	thirdStageWalls.push_back(thirdStageWallData[3]);
+	thirdStageWallData[2].Init(cam, Vector3(-floor.scale.x / 2 + 150, -20, -60) * worldScale, Vector3(150, wallHeight, 20) * worldScale);
+	thirdStageWallData[3].Init(cam, Vector3(-floor.scale.x / 2 + 215, -20, 0) * worldScale, Vector3(20, wallHeight, 100) * worldScale);
 
 	//中央縦壁
-	thirdStageWallData[4].Init(cam, Vector3(-floor.scale.x / 2 + 350, -20, 40), Vector3(40, wallHeight, 220));
-	thirdStageWalls.push_back(thirdStageWallData[4]);
+	thirdStageWallData[4].Init(cam, Vector3(-floor.scale.x / 2 + 350, -20, 40) * worldScale, Vector3(40, wallHeight, 220) * worldScale);
 
 	//中央でっぱり
-	thirdStageWallData[5].Init(cam, Vector3(-floor.scale.x / 2 + 410, -20, +60), Vector3(80, wallHeight, 20));
-	thirdStageWalls.push_back(thirdStageWallData[5]);
+	thirdStageWallData[5].Init(cam, Vector3(-floor.scale.x / 2 + 410, -20, +60) * worldScale, Vector3(80, wallHeight, 20) * worldScale);
 
 	//ゴール側竪壁
-	thirdStageWallData[6].Init(cam, Vector3(-floor.scale.x / 2 + 700, -20, +60), Vector3(300, wallHeight, 20));
-	thirdStageWalls.push_back(thirdStageWallData[6]);
+	thirdStageWallData[6].Init(cam, Vector3(-floor.scale.x / 2 + 700, -20, +60) * worldScale, Vector3(300, wallHeight, 20) * worldScale);
 
 
 	//右上横壁
-	thirdStageWallData[7].Init(cam, Vector3(-floor.scale.x / 2 + 650, -20, -55), Vector3(40, wallHeight, 220));
-	thirdStageWalls.push_back(thirdStageWallData[7]);
+	thirdStageWallData[7].Init(cam, Vector3(-floor.scale.x / 2 + 650, -20, -55) * worldScale, Vector3(40, wallHeight, 220) * worldScale);
 
 	//ゴール壁
-	thirdStageWallData[8].Init(cam, Vector3(floor.scale.x / 2 - 80, -20, -100), Vector3(200, wallHeight, 20));
-	thirdStageWalls.push_back(thirdStageWallData[8]);
+	thirdStageWallData[8].Init(cam, Vector3(floor.scale.x / 2 - 80, -20, -100) * worldScale, Vector3(200, wallHeight, 20) * worldScale);
+	for (int i = 0; i < stage_3_wallCount; i++)
+	{
+		thirdStageWalls.push_back(thirdStageWallData[i]);
+	}
+
+
 	for (int i = 0; i < outWall.size(); i++)
 	{
 		thirdStageWalls.push_back(outWall[i]);
 	}
 
 	std::vector<XMFLOAT3> thirdStageEnemyGeneratePos;
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -346, 0, 97 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -222, 0, 97 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -222, 0, -7 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -365, 0, -106 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 2, 0, -100 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -89, 0, 10 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -89, 0, -55 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 87, 0, 10 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 87, 0, -55 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ -89, 0, 108 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 87, 0, 108 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 228, 0, 108 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 430, 0, 107 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 430, 0, -47 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 342, 0, -47 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 211, 0, 16 });
-	thirdStageEnemyGeneratePos.push_back(XMFLOAT3{ 221, 0, -102 });
+	thirdStageEnemyGeneratePos.push_back(Vector3( -346, 0, 97 ) * worldScale );
+	thirdStageEnemyGeneratePos.push_back(Vector3( -222, 0, 97 ) * worldScale );
+	thirdStageEnemyGeneratePos.push_back(Vector3( -222, 0, -7 ) * worldScale );
+	thirdStageEnemyGeneratePos.push_back(Vector3( -365, 0, -106) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( 2, 0, -100) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( -89, 0, 10) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( -89, 0, -55) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( 87, 0, 10) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( 87, 0, -55) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( -89, 0, 108) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( 87, 0, 108) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( 228, 0, 108) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( 430, 0, 107 ) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( 430, 0, -47 ) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( 342, 0, -47 ) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( 211, 0, 16) * worldScale);
+	thirdStageEnemyGeneratePos.push_back(Vector3( 221, 0, -102) *worldScale);
 	std::vector<XMFLOAT3> thirdStageEnemyGenerateAngle;
 	thirdStageEnemyGenerateAngle.resize(thirdStageEnemyGeneratePos.size());
 	for (int i = 0; i < thirdStageEnemyGenerateAngle.size(); i++)
@@ -454,6 +437,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		thirdStageEnemyGenerateAngle[i] = up;
 	}
 
+	floor.scale = { floorBaseScale.x * worldScale, 2.0f, floorBaseScale.z * worldScale };
 #pragma endregion
 
 	//EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, cam);
@@ -829,11 +813,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	bool hp_3to2 = false;
 
 	//タイトル用
-	Object3D* myObj = player.GetObj();
-	Model* myModel = player.GetModel();
+	Object3D *myObj = player.GetObj();
+	Model *myModel = player.GetModel();
 
-	Object3D* enemyObj = EnemyMgr::Instance()->GetObj();
-	Model* enemyModel = EnemyMgr::Instance()->GetModel();
+	Object3D *enemyObj = EnemyMgr::Instance()->GetObj();
+	Model *enemyModel = EnemyMgr::Instance()->GetModel();
 
 	myObj->position = { 0,0,0 };
 	myObj->rotation = { 0,135,0 };
@@ -1359,6 +1343,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			isClear = player.IsClear();
 
+			if (isClear)
+			{
+				Vector3 tmp = cam.position;
+				Vector3 endPos = player.GetPos();
+				endPos.x = upperRight[stageNum].x - player.GetPos().x;
+				endPos.y = cam.target.y;
+				endPos.z = 0;
+				cam.eye = endPos;
+				cam.up = { 0, 1, 0 };
+			}
 			if (!player.IsEffect() && isClear)
 			{
 				nowScene = CLEAR;

@@ -87,7 +87,6 @@ public:
 	void DeathEffect(Camera& camera);
 	void ClearEffect(Camera& camera, bool setGoalAndCheak);
 	bool SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRight);	//左下と右上を指定する
-
 public:
 	XMFLOAT3 GetPos() { return pos; }									//ポジションを返す
 	XMFLOAT3 GetCameraToPlayer() { return cameraToPlayer; };
