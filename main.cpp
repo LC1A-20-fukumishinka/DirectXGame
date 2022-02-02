@@ -186,13 +186,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//floor.scale = { 1000.0f, 2.0f, 300.0f };
 	XMFLOAT3 lowerLeft[3];
 	XMFLOAT3 upperRight[3];
-	lowerLeft[0] = { 350,0,-40 };
-	upperRight[0] = { 450,0,40 };
+	lowerLeft[0] = { 400,0,-50 };
+	upperRight[0] = { 500,0,50 };
 
-	lowerLeft[1] = { 400,0, 100 };
-	upperRight[1] = { 450,0,150 };
+	lowerLeft[1] = { 450,0, 100 };
+	upperRight[1] = { 500,0,150 };
 
-	lowerLeft[2] = { 400,0, -150 };
+	lowerLeft[2] = { 450,0, -150 };
 	upperRight[2] = { 500,0,-100 };
 
 #pragma endregion
@@ -1226,7 +1226,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					mask.size = { 0,0 };
 					easeTimer = 0.0f;
 					isTrigger = false;
-					stageNum += 1;
 					if (resultSelect <= 0)
 					{
 						stageNum += 1;
