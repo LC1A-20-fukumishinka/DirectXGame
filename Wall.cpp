@@ -105,35 +105,35 @@ void Wall::SetFace(DirectX::XMFLOAT3 pos, DirectX::XMFLOAT3 scale)
 
 	//far–ÊF
 	wallFace[0].p0 += TLF;
-	wallFace[0].p1 += TRF;
-	wallFace[0].p2 += BLF;
+	wallFace[0].p2 += TRF;
+	wallFace[0].p1 += BLF;
 	wallFace[1].p0 += BLF;
-	wallFace[1].p1 += TRF;
-	wallFace[1].p2 += BRF;
+	wallFace[1].p2 += TRF;
+	wallFace[1].p1 += BRF;
 
 	//right–ÊR
 	wallFace[2].p0 += TRF;
-	wallFace[2].p1 += TRN;
-	wallFace[2].p2 += BRF;
+	wallFace[2].p2 += TRN;
+	wallFace[2].p1 += BRF;
 	wallFace[3].p0 += BRF;
-	wallFace[3].p1 += TRN;
-	wallFace[3].p2 += BRN;
+	wallFace[3].p2 += TRN;
+	wallFace[3].p1 += BRN;
 
 	//near–ÊN
 	wallFace[4].p0 += TRN;
-	wallFace[4].p1 += TLN;
-	wallFace[4].p2 += BRN;
+	wallFace[4].p2 += TLN;
+	wallFace[4].p1 += BRN;
 	wallFace[5].p0 += BRN;
-	wallFace[5].p1 += TLN;
-	wallFace[5].p2 += BLN;
+	wallFace[5].p2 += TLN;
+	wallFace[5].p1 += BLN;
 
 	//left–ÊL
 	wallFace[6].p0 += TLN;
-	wallFace[6].p1 += TLF;
-	wallFace[6].p2 += BLN;
+	wallFace[6].p2 += TLF;
+	wallFace[6].p1 += BLN;
 	wallFace[7].p0 += BLN;
-	wallFace[7].p1 += TLF;
-	wallFace[7].p2 += BLF;
+	wallFace[7].p2 += TLF;
+	wallFace[7].p1 += BLF;
 
 	for (int i = 0; i < 8; i++)
 	{
