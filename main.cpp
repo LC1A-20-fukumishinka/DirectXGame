@@ -186,13 +186,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//floor.scale = { 1000.0f, 2.0f, 300.0f };
 	XMFLOAT3 lowerLeft[3];
 	XMFLOAT3 upperRight[3];
-	lowerLeft[0] = { 350,0,-40 };
-	upperRight[0] = { 450,0,40 };
+	lowerLeft[0] = { 400,0,-50 };
+	upperRight[0] = { 500,0,50 };
 
-	lowerLeft[1] = { 400,0, 100 };
-	upperRight[1] = { 450,0,150 };
+	lowerLeft[1] = { 450,0, 100 };
+	upperRight[1] = { 500,0,150 };
 
-	lowerLeft[2] = { 400,0, -150 };
+	lowerLeft[2] = { 450,0, -150 };
 	upperRight[2] = { 500,0,-100 };
 
 #pragma endregion
@@ -211,7 +211,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	player.Init(cam, StartPositions[0]);
 	bool isdead;
 	int hp;
-
+	Object3D goal;
+	goal.Init(cam);
+	goal.color = {1, 0, 0,1};
 
 	Object3D floor;
 	floor.scale = { 1000.0f, 2.0f, 300.0f };
@@ -1097,6 +1099,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					WallMgr::Instance()->Init(loomWalls);
 					EnemyMgr::Instance()->Init(cam);
 					EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
+
 				}
 				else if (stageNum == 1)
 				{
@@ -1114,6 +1117,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					EnemyMgr::Instance()->Init(cam);
 					EnemyMgr::Instance()->Generate(thirdStageEnemyGeneratePos, thirdStageEnemyGenerateAngle, cam);
 				}
+				Vector3 goalScale(upperRight[stageNum]);
+				goalScale -= Vector3(lowerLeft[stageNum]);
+				goal.position = Vector3(lowerLeft[stageNum]) + (goalScale/2);
+				goal.position.y = floor.position.y + floor.scale.y +1.0f;
+				goal.scale = goalScale;
+				goalScale.y = 0.1;
 
 			}
 
@@ -1171,7 +1180,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			box.position = enemyPos;
 			box.Update(cam);
-
+			goal.Update(cam);
 			box.position = { box.position.x + moveSpeed.x,box.position.y + moveSpeed.y ,box.position.z + moveSpeed.z };
 
 			dome.Update(cam);
@@ -1332,7 +1341,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					mask.size = { 0,0 };
 					easeTimer = 0.0f;
 					isTrigger = false;
-					stageNum += 1;
 					if (resultSelect <= 0)
 					{
 						stageNum += 1;
@@ -1363,6 +1371,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 						}
 						nowScene = GAME;
 						enterSE.Play();
+						Vector3 goalScale(upperRight[stageNum]);
+						goalScale -= Vector3(lowerLeft[stageNum]);
+						goal.position = Vector3(lowerLeft[stageNum]) + (goalScale / 2);
+						goal.position.y = floor.position.y + floor.scale.y + 1.0f;
+						goal.scale = goalScale;
+						goalScale.y = 0.1;
 					}
 					else
 					{
@@ -1461,6 +1475,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 						}
 						nowScene = GAME;
 						enterSE.Play();
+						Vector3 goalScale(upperRight[stageNum]);
+						goalScale -= Vector3(lowerLeft[stageNum]);
+						goal.position = Vector3(lowerLeft[stageNum]) + (goalScale / 2);
+						goal.position.y = floor.position.y + floor.scale.y + 1.0f;
+						goal.scale = goalScale;
+						goalScale.y = 0.1;
 					}
 					else
 					{
@@ -1554,7 +1574,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			//if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
-
+			goal.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 			player.Draw(model3D->GetPipeLine());
 			for (int i = 0; i < outWall.size(); i++)
 			{

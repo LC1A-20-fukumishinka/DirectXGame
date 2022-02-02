@@ -381,29 +381,49 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 	XMFLOAT3 distance = {};
 	UpdateForwardVec(distance, matRot);
 
-	float angle = Cross2D({ forwardVec.x,forwardVec.z }, { distance.x,distance.z });
+	float cross = Cross2D({ forwardVec.x,forwardVec.z }, { distance.x,distance.z });
 
-	if (angle < 0)
+	float angle = calAngle(forwardVec, distance);
+
+	angle = acosf(angle);
+
+	angle = 180.0f - fabs(XMConvertToDegrees(angle));
+
+	if (cross < 0)
 	{
-		enemyData.rotation.y += XM_PI;
+		if (angle < TARGET_ROTATE_SPEED)
+		{
+			enemyData.rotation.y += angle;
+		}
+		else
+		{
+			enemyData.rotation.y += TARGET_ROTATE_SPEED;
+		}
 	}
 	else
 	{
-		enemyData.rotation.y -= XM_PI;
+		if (angle < TARGET_ROTATE_SPEED)
+		{
+			enemyData.rotation.y -= angle;
+		}
+		else
+		{
+			enemyData.rotation.y -= TARGET_ROTATE_SPEED;
+		}
 	}
 
 	//“G‚ÆƒvƒŒƒCƒ„[‚Ì‹——£‚ðŒvŽZ
 	float dis = Distance3D(enemyData.position, playerPos);
 	float sR = 16 + SENSING_RADIUS;
 
-	if (angle > 0.75 && angle < 1 && dis > sR)
+	if (cross > 0.75 && cross < 1 && dis > sR)
 	{
 		status = STATUS_SEARCH;
 		targetingTimer = 0;
 		//‰¹Ž~‚ß‚é
 		targetSE->Stop();
 	}
-	else if (angle < -0.75 && angle > -1 && dis > sR)
+	else if (cross < -0.75 && cross > -1 && dis > sR)
 	{
 		status = STATUS_SEARCH;
 		targetingTimer = 0;
