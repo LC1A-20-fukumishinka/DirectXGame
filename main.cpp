@@ -498,7 +498,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//タイトル画面
 	Sprite titleLogo;
-	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/TitleGraph.png");
+	int titleTex = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/TitleGraph_Bright.png");
 	titleLogo.Init(titleTex);
 	XMFLOAT2 titleTexSize = titleLogo.texSize;
 	titleLogo.position = { window_width / 2, window_height / 2 , 0.0f };
@@ -1507,6 +1507,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					}
 
 					hud_base_life.SpriteDraw();
+					hud_timestate.SpriteDraw();
 
 
 					//ミスったかも(下はみ出る)
@@ -1536,7 +1537,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					//hud_stop.SpriteDraw();
 					//hud_play.SpriteDraw();
 
-					hud_timestate.SpriteDraw();
+					//hud_timestate.SpriteDraw();
 
 					hud_life_1.SpriteDraw();
 					hud_life_2.SpriteDraw();
