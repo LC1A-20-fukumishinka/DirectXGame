@@ -1149,6 +1149,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (!isClear && player.IsClear())
 			{
 				BGM.Stop();
+				EnemyMgr::Instance()->StopSound();
 				ClearSE.Play();
 			}
 			isClear = player.IsClear();
@@ -1161,6 +1162,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (!isDead && player.IsDead())
 			{
 				BGM.Stop();
+				EnemyMgr::Instance()->StopSound();
 				GameoverSE.Play();
 			}
 			isDead = player.IsDead();

@@ -19,15 +19,16 @@ Enemy::Enemy()
 	saveNum = 0;
 	isHit = false;
 	isEnemyTypeSeach = true;
-	int FindData = Sound::SoundLoadWave("Resources/sounds/SE_Find.wav");
+	int targetData = Sound::SoundLoadWave("Resources/sounds/SE_Find.wav");
+	targetSE = new Sound(targetData);
 	int shotData = Sound::SoundLoadWave("Resources/sounds/SE_Shot.wav");
-	findSE = new Sound(FindData);
 	shotSE = new Sound(shotData);
 }
 
+
 Enemy::~Enemy()
 {
-	delete findSE;
+	delete targetSE;
 	delete shotSE;
 }
 
@@ -276,8 +277,13 @@ void Enemy::Update(const XMFLOAT3 &playerPos, const float &angle, const bool &is
 			p2.y = 10;
 			forwardTriangle.p2 = XMLoadFloat3(&p2);
 		}
+		else
+		{
+			targetSE->Stop();
+		}
 	}
 }
+
 
 void Enemy::BulletUpdate()
 {
@@ -340,6 +346,7 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 	{
 		//ステータスをターゲティングにする
 		status = STATUS_TARGET;
+		targetSE->PlayLoop();
 		searchTimer = 30;
 		searchDelayTimer = 0;
 	}
@@ -349,7 +356,7 @@ void Enemy::Searching(const XMFLOAT3 &playerPos)
 	{
 		//ステータスをターゲティングにする
 		status = STATUS_TARGET;
-		findSE->Play();
+		targetSE->PlayLoop();
 		searchTimer = 30;
 		searchDelayTimer = 0;
 	}
@@ -385,15 +392,23 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 		enemyData.rotation.y -= XM_PI;
 	}
 
-	if (angle > 0.75 && angle < 1)
+	//敵とプレイヤーの距離を計算
+	float dis = Distance3D(enemyData.position, playerPos);
+	float sR = 16 + SENSING_RADIUS;
+
+	if (angle > 0.75 && angle < 1 && dis > sR)
 	{
 		status = STATUS_SEARCH;
 		targetingTimer = 0;
+		//音止める
+		targetSE->Stop();
 	}
-	else if (angle < -0.75 && angle > -1)
+	else if (angle < -0.75 && angle > -1 && dis > sR)
 	{
 		status = STATUS_SEARCH;
 		targetingTimer = 0;
+		//音止める
+		targetSE->Stop();
 	}
 
 	//追尾中に壁に隠れられたらステータスを捜索に変える
@@ -401,7 +416,11 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 	{
 		status = STATUS_SEARCH;
 		targetingTimer = 0;
+		//音止める
+		targetSE->Stop();
 	}
+
+	//音鳴らす
 
 	//タイマーを進める
 	targetingTimer++;
@@ -417,6 +436,9 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 		XMFLOAT3 honraiForwardVec = { -forwardVec.x,-forwardVec.y,-forwardVec.z };
 
 		//enemyBullet[0].Generate(enemyData.position, distance, isEnemyTypeSeach);
+
+		//音止める
+		targetSE->Stop();
 
 		//ステータスを攻撃にする
 		status = STATUS_ATTACK;
@@ -450,6 +472,7 @@ void Enemy::Attack(const XMFLOAT3 &playerPos)
 		if (attackDelayTimer >= ATTACK_DELAY_TIMER_END)
 		{
 			enemyBullet[0].Generate(enemyData.position, forwardVec, isEnemyTypeSeach);
+			shotSE->Play();
 
 			attackDelayTimer = 0;
 			Sphere playerSphere = {};
@@ -526,6 +549,7 @@ XMFLOAT3 Enemy::GetNearEnemyBulletPos(const XMFLOAT3 &playerPos)
 
 void Enemy::Dead()
 {
+	targetSE->Stop();
 	isAlive = false;
 	//for (int i = 0; i < MAX_BULLET; i++)
 	//{

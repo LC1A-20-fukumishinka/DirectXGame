@@ -54,6 +54,8 @@ public:
 	/// <param name="generatePos">ŒÄ‚Ño‚·“G‚Ì”z—ñ</param>
 	void Generate(std::vector<DirectX::XMFLOAT3>& generatePos, std::vector<DirectX::XMFLOAT3>& forwardVec, const Camera& cam);
 
+	void StopSound();
+
 };
 
 inline float calAngle(const XMFLOAT3& rhs, const XMFLOAT3& lhs)
