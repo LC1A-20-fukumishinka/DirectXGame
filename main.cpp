@@ -714,29 +714,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int STAGE1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_1.png");
 	int STAGE2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_2.png");
 	int STAGE3 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_3.png");
-	int STAGE4 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_4.png");
-	int STAGE5 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_5.png");
+	//int STAGE4 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_4.png");
+	//int STAGE5 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_5.png");
 	int STAGE_FRAME = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/STAGE_SELECT/STAGE_FRAME.png");
 
 	Sprite stage_1;
 	Sprite stage_2;
 	Sprite stage_3;
-	Sprite stage_4;
-	Sprite stage_5;
+	//Sprite stage_4;
+	//Sprite stage_5;
 	Sprite stage_frame;
 
 	stage_1.Init(STAGE1);
 	stage_2.Init(STAGE2);
 	stage_3.Init(STAGE3);
-	stage_4.Init(STAGE4);
-	stage_5.Init(STAGE5);
+	//stage_4.Init(STAGE4);
+	//stage_5.Init(STAGE5);
 	stage_frame.Init(STAGE_FRAME);
 
 	stage_1.size = { 192,192 };
 	stage_2.size = { 192,192 };
 	stage_3.size = { 192,192 };
-	stage_4.size = { 192,192 };
-	stage_5.size = { 192,192 };
+	//stage_4.size = { 192,192 };
+	//stage_5.size = { 192,192 };
 	stage_frame.size = { 192,192 };
 
 	float half_Width = window_width / 2;
@@ -753,8 +753,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	stage_1.position = { half_Width + mini_Width * 0.0f,half_height,0 };
 	stage_2.position = { half_Width + mini_Width * 1.0f,half_height,0 };
 	stage_3.position = { half_Width + mini_Width * 2.0f,half_height,0 };
-	stage_4.position = { half_Width + mini_Width * 3.0f,half_height,0 };
-	stage_5.position = { half_Width + mini_Width * 4.0f,half_height,0 };
+	//stage_4.position = { half_Width + mini_Width * 3.0f,half_height,0 };
+	//stage_5.position = { half_Width + mini_Width * 4.0f,half_height,0 };
 	stage_frame.position = { half_Width,half_height,0 };
 
 	//ステージレイアウト
@@ -1226,14 +1226,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			stage_1.position = { half_Width + mini_Width * (-stageNumF + 0),half_height,0 };
 			stage_2.position = { half_Width + mini_Width * (-stageNumF + 1),half_height,0 };
 			stage_3.position = { half_Width + mini_Width * (-stageNumF + 2),half_height,0 };
-			stage_4.position = { half_Width + mini_Width * (-stageNumF + 3),half_height,0 };
-			stage_5.position = { half_Width + mini_Width * (-stageNumF + 4),half_height,0 };
+			//stage_4.position = { half_Width + mini_Width * (-stageNumF + 3),half_height,0 };
+			//stage_5.position = { half_Width + mini_Width * (-stageNumF + 4),half_height,0 };
 
 			stage_1.SpriteUpdate();
 			stage_2.SpriteUpdate();
 			stage_3.SpriteUpdate();
-			stage_4.SpriteUpdate();
-			stage_5.SpriteUpdate();
+			//stage_4.SpriteUpdate();
+			//stage_5.SpriteUpdate();
 			stage_frame.SpriteUpdate();
 
 			//選択画面,文字
@@ -1342,6 +1342,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				else if (stickTrigger && input->LStick().y > 0.0f)
 				{
 					PauseSelect--;
+
 				}
 				if (PauseSelect > 2)
 				{
@@ -1359,29 +1360,68 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 						isPause = false;
 					}
 					if (PauseSelect == 1)
-					{//ステージリトライ
+					{//ステージリトライ(決定)
 						sceneTransition.On();
 						isTrigger = true;
 					}
 					if (PauseSelect == 2)
-					{//ステージ選択に戻る
+					{//ステージ選択に戻る(決定)
 						sceneTransition.On();
 						isTrigger = true;
 					}
+					SelectSE.Play();
 				}
 				if (sceneTransition.Change())
 				{
 					if (PauseSelect == 1)
-					{//ステージリトライ
-						isTrigger = true;
+					{//ステージリトライ(実行)
+						isTrigger = false;
+#pragma region retry
+						easeTimer_START = 0.0f;
+						if (UpdateStart) { UpdateStart = false; }
+							if (stageNum == 0)
+							{
+								player.Init(cam, StartPositions[stageNum]);
+								cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+								WallMgr::Instance()->Init(loomWalls);
+								EnemyMgr::Instance()->Init(cam);
+								EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
+
+							}
+							else if (stageNum == 1)
+							{
+								player.Init(cam, StartPositions[stageNum]);
+								cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+								WallMgr::Instance()->Init(townWalls);
+								EnemyMgr::Instance()->Init(cam);
+								EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
+							}
+							else if (stageNum == 2)
+							{
+								player.Init(cam, StartPositions[stageNum]);
+								cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+								WallMgr::Instance()->Init(thirdStageWalls);
+								EnemyMgr::Instance()->Init(cam);
+								EnemyMgr::Instance()->Generate(thirdStageEnemyGeneratePos, thirdStageEnemyGenerateAngle, cam);
+							}
+							Vector3 goalScale(upperRight[stageNum]);
+							goalScale -= Vector3(lowerLeft[stageNum]);
+							goal.position = Vector3(lowerLeft[stageNum]) + (goalScale / 2);
+							goal.position.y = floor.position.y + floor.scale.y + 1.0f;
+							goal.scale = goalScale;
+							goalScale.y = 0.1;
+#pragma endregion
 					}
 					else if (PauseSelect == 2)
-					{//ステージ選択に戻る
-						sceneTransition.On();
-						isTrigger = true;
+					{//ステージ選択に戻る(実行)
+					nowScene = STAGESELECT;
+					BGM.Stop();
+					OutBgm.PlayLoop();
+						isTrigger = false;
 					}
+					isPause = false;
 				}
-					break;
+				break;
 			}
 			XMFLOAT3 moveSpeed = { input->LStick().x , 0.0f, input->LStick().y };
 
@@ -1898,8 +1938,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			stage_1.SpriteDraw();
 			stage_2.SpriteDraw();
 			stage_3.SpriteDraw();
-			stage_4.SpriteDraw();
-			stage_5.SpriteDraw();
+			//stage_4.SpriteDraw();
+			//stage_5.SpriteDraw();
 			stage_frame.SpriteDraw();
 
 			if (input->isPadConnect())
@@ -2030,6 +2070,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (isPause)
 			{
 				debugText.Print("Pause", window_width / 2, window_height / 2, 2.0);
+				if (PauseSelect == 0)
+				{
+					debugText.Print("continue", 100, 100, 2.0f);
+				}
+				else if (PauseSelect == 1)
+				{
+					debugText.Print("retry", 100, 100, 2.0f);
+				}
+				else if (PauseSelect == 2)
+				{
+					debugText.Print("StageSelect", 100, 100, 2.0f);
+				}
+
 			}
 			break;
 
