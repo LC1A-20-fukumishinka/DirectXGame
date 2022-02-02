@@ -389,26 +389,30 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 
 	angle = 180.0f - fabs(XMConvertToDegrees(angle));
 
-	if (cross < 0)
+	if (!std::isnan(angle))
 	{
-		if (angle < TARGET_ROTATE_SPEED)
+
+		if (cross < 0)
 		{
-			enemyData.rotation.y += angle;
+			if (angle < TARGET_ROTATE_SPEED)
+			{
+				enemyData.rotation.y += angle;
+			}
+			else
+			{
+				enemyData.rotation.y += TARGET_ROTATE_SPEED;
+			}
 		}
 		else
 		{
-			enemyData.rotation.y += TARGET_ROTATE_SPEED;
-		}
-	}
-	else
-	{
-		if (angle < TARGET_ROTATE_SPEED)
-		{
-			enemyData.rotation.y -= angle;
-		}
-		else
-		{
-			enemyData.rotation.y -= TARGET_ROTATE_SPEED;
+			if (angle < TARGET_ROTATE_SPEED)
+			{
+				enemyData.rotation.y -= angle;
+			}
+			else
+			{
+				enemyData.rotation.y -= TARGET_ROTATE_SPEED;
+			}
 		}
 	}
 
@@ -431,8 +435,12 @@ void Enemy::Targeting(const XMFLOAT3 &playerPos)
 		targetSE->Stop();
 	}
 
+	Ray honraiRay = {};
+	honraiRay.start = XMLoadFloat3(&enemyData.position);
+	honraiRay.dir = XMLoadFloat3(&(playerPos - enemyData.position));
+
 	//追尾中に壁に隠れられたらステータスを捜索に変える
-	if (CheckRay2Walls(forwardRay, WallMgr::Instance()->GetWalls(), playerPos))
+	if (CheckRay2Walls(honraiRay, WallMgr::Instance()->GetWalls(), playerPos))
 	{
 		status = STATUS_SEARCH;
 		targetingTimer = 0;
@@ -529,15 +537,17 @@ bool Enemy::CheckRay2Walls(const Ray &ray, std::vector<Wall> &walls, const XMFLO
 	//壁一つ一つ回す
 	for (int i = 0; i < walls.size(); ++i)
 	{
-		XMFLOAT3 wallPos = walls[i].GetPos();
-		if (Distance3D(enemyData.position, wallPos) > Distance3D(enemyData.position, playerPos)) continue;
-
 		//壁1つの三角形ぶん回す
 		for (int j = 0; j < walls[0].GetFaces().size(); ++j)
 		{
-			if (Collision::CheckRay2Triangle(forwardRay, walls[i].GetFaces()[j]))
+			XMVECTOR v;
+			if (Collision::CheckRay2Triangle(ray, walls[i].GetFaces()[j], 0, &v))
 			{
-				return true;
+				XMFLOAT3 wallPos;
+				XMStoreFloat3(&wallPos, v);
+				float wDis = Distance3D(enemyData.position, wallPos);
+				float pDis = Distance3D(enemyData.position, playerPos);
+				if (wDis <= pDis)return true;
 			}
 		}
 	}

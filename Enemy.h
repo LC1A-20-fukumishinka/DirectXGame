@@ -47,7 +47,7 @@ private:
 
 	static const int MAX_BULLET = 20;
 	const int MAX_BULLET_TIMER = 10;			//ËŒ‚ƒŒ[ƒg
-	const float SEARCH_RADIUS = 120.0f;			//õ“G”ÍˆÍ
+	const float SEARCH_RADIUS = 150.0f;			//õ“G”ÍˆÍ
 	const float SENSING_RADIUS = 50.0f;			//õ“G‚É‚±‚êˆÈã‹ß‚Ã‚¢‚½‚çŠ´’m‚·‚é‚æ`”ÍˆÍ
 
 public:
@@ -144,8 +144,8 @@ inline float Dot3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
 	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 }
 
-inline float Cross2D(const XMFLOAT2& lhs, const XMFLOAT2& rhs) {
-	return lhs.x * rhs.y - lhs.y * rhs.x;
+inline double Cross2D(const XMFLOAT2& lhs, const XMFLOAT2& rhs) {
+	return (double)lhs.x * rhs.y - lhs.y * rhs.x;
 }
 
 inline XMFLOAT3 Cross3D(const XMFLOAT3& lhs, const XMFLOAT3& rhs) {
