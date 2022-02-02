@@ -451,6 +451,42 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int stopGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/stop.png");
 	//Playerの攻撃範囲
 	int haniGH = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/hani.png");
+
+	//範囲改
+	int ATTACK_ANIM1 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/ATTACK/ATTACK_ANIM1.png");
+	int ATTACK_ANIM2 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/ATTACK/ATTACK_ANIM2.png");
+	int ATTACK_ANIM3 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/ATTACK/ATTACK_ANIM3.png");
+	int ATTACK_ANIM4 = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/ATTACK/ATTACK_ANIM4.png");
+	int ATTACK_AREA = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/ATTACK/ATTACK_AREA.png");
+
+	Sprite attack_anim[4];
+	Sprite attack_area;
+
+	attack_anim[0].Init(ATTACK_ANIM1, XMFLOAT2(0.5f, 1.0f));
+	attack_anim[1].Init(ATTACK_ANIM2, XMFLOAT2(0.5f, 1.0f));
+	attack_anim[2].Init(ATTACK_ANIM3, XMFLOAT2(0.5f, 1.0f));
+	attack_anim[3].Init(ATTACK_ANIM4, XMFLOAT2(0.5f, 1.0f));
+	attack_area.Init(ATTACK_AREA, XMFLOAT2(0.5f, 1.0f));
+
+	attack_anim[0].position = { window_width / 2,window_height / 2,0 };
+	attack_anim[1].position = { window_width / 2,window_height / 2,0 };
+	attack_anim[2].position = { window_width / 2,window_height / 2,0 };
+	attack_anim[3].position = { window_width / 2,window_height / 2,0 };
+	attack_area.position = { window_width / 2,window_height / 2,0 };
+
+	attack_anim[0].color.w = 0.7f;
+	attack_anim[1].color.w = 0.7f;
+	attack_anim[2].color.w = 0.7f;
+	attack_anim[3].color.w = 0.7f;
+	attack_area.color.w = 0.7f;
+
+	//アニメーション用タイマー
+	int animationTimer = 0;
+	int ANIMATION_TIMER = 2;
+	int number = 0;
+	bool isAnimation = false;
+
+
 	BombEffect::SetTexture(particleGH);
 
 	Sprite spriteStart;
@@ -668,6 +704,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	float easeTimer_START = 1.0f;
 	bool UpdateStart = false;
 
+	//死亡後、クリア後の文字
+	int NEXT_PAD = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/NEXT_CONTROLLER.png");
+	int NEXT_KEYS = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/NEXT_KEYBOARD.png");
+
+	Sprite next_pad;
+	Sprite next_keys;
+
+	next_pad.Init(NEXT_PAD);
+	next_keys.Init(NEXT_KEYS);
+
+	next_pad.size = { 240,64 };
+	next_keys.size = { 240,64 };
+
+	next_pad.position = { window_width - 200,window_height - 64,0 };
+	next_keys.position = { window_width - 200,window_height - 64,0 };
+
 #pragma endregion
 
 #pragma region 敵
@@ -794,6 +846,47 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		XMFLOAT3 CtoP = player.GetCameraToPlayer();
 		hani.position = { width / 2 + (CtoP.x * 2) ,height / 2 - (CtoP.z * 2),0 };
+
+		//範囲改
+		attack_anim[0].rotation = player.GetAngle() + 90.0f;
+		attack_anim[1].rotation = player.GetAngle() + 90.0f;
+		attack_anim[2].rotation = player.GetAngle() + 90.0f;
+		attack_anim[3].rotation = player.GetAngle() + 90.0f;
+		attack_area.rotation = player.GetAngle() + 90.0f;
+
+		attack_anim[0].position = { width / 2 + (CtoP.x * 2) ,height / 2 - (CtoP.z * 2),0 };
+		attack_anim[1].position = { width / 2 + (CtoP.x * 2) ,height / 2 - (CtoP.z * 2),0 };
+		attack_anim[2].position = { width / 2 + (CtoP.x * 2) ,height / 2 - (CtoP.z * 2),0 };
+		attack_anim[3].position = { width / 2 + (CtoP.x * 2) ,height / 2 - (CtoP.z * 2),0 };
+		attack_area.position = { width / 2 + (CtoP.x * 2) ,height / 2 - (CtoP.z * 2),0 };
+
+		if (!isAnimation)
+		{
+			if (number != 0) { number = 0; }
+			isAnimation = player.GetAttackFlag();
+		}
+
+		if (isAnimation)
+		{
+			if (animationTimer < ANIMATION_TIMER) { animationTimer++; }
+			else { number++; animationTimer = 0; }
+
+			if (number >= 3 && animationTimer >= ANIMATION_TIMER) { isAnimation = false; number = 0; }
+		}
+
+		if (!player.IsDead())
+		{
+			if (isAnimation)
+			{
+				attack_anim[0].SpriteUpdate();
+				attack_anim[1].SpriteUpdate();
+				attack_anim[2].SpriteUpdate();
+				attack_anim[3].SpriteUpdate();
+			}
+			else { attack_area.SpriteUpdate(); }
+
+		}
+
 		if (!player.IsDead()) { spriteStart.SpriteUpdate(); }
 		if (!player.IsDead()) { spriteStop.SpriteUpdate(); }
 		if (!player.IsDead()) { hani.SpriteUpdate(); }
@@ -826,6 +919,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		}
 		if (easeTimer_START >= 0.7f) { UpdateStart = true; }
 		go.SpriteUpdate();
+
+		//死亡後、クリア後の文字
+		if (input->isPadConnect())
+		{
+			if (next_pad.color.w >= 1.5f) { isAdd = false; }
+			else if (next_pad.color.w <= -0.5f) { isAdd = true; }
+
+			if (!isAdd) { next_pad.color.w -= 0.02f; }
+			else { next_pad.color.w += 0.02f; }
+
+			next_pad.SpriteUpdate();
+		}
+		else
+		{
+			if (next_keys.color.w >= 1.5f) { isAdd = false; }
+			else if (next_keys.color.w <= -0.5f) { isAdd = true; }
+
+			if (!isAdd) { next_keys.color.w -= 0.02f; }
+			else { next_keys.color.w += 0.02f; }
+
+			next_keys.SpriteUpdate();
+		}
 
 
 #pragma endregion
@@ -1475,7 +1590,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			part.Draw(particleGH);
 
 			//攻撃範囲
-			if (!player.IsDead() && !isClear) { hani.SpriteDraw(); }
+			//if (!player.IsDead() && !isClear) { hani.SpriteDraw(); }
+
+			//範囲改
+			if (isAnimation)
+			{
+				if (!player.IsDead() && !isClear)
+				{
+					attack_anim[number].SpriteDraw();
+				}
+			}
+
+			else { if (!player.IsDead() && !isClear) { attack_area.SpriteDraw(); } }
+
 			//再生
 			if (!player.IsDead() && !isStop && !isClear) { spriteStart.SpriteDraw(); }
 			//一時停止
@@ -1568,6 +1695,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				clearSprite.SpriteDraw();
 			}
+
+			//文字
+			if (input->isPadConnect()) { next_pad.SpriteDraw(); }
+			else { next_keys.SpriteDraw(); }
+
 			break;
 
 #pragma endregion
@@ -1591,6 +1723,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				deadSprite.SpriteDraw();
 			}
+
+			//文字
+			if (input->isPadConnect()) { next_pad.SpriteDraw(); }
+			else { next_keys.SpriteDraw(); }
+
 			break;
 
 #pragma endregion

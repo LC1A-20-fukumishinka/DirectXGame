@@ -20,7 +20,7 @@ const int MAX_HP = 3;								//HP
 const float MOVE_SPEED = 2.5f;						//動く速さ
 const float DASH_SPEED = 65.0f;						//ダッシュ
 const float MOVE_ANGLE = 10.0f;						//向きを変える速さ
-const float ATTACK_ANGLE = 90;						//攻撃範囲角度
+const float ATTACK_ANGLE = 70;						//攻撃範囲角度
 
 using namespace DirectX;
 
