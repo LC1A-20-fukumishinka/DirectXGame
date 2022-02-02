@@ -66,11 +66,11 @@ private:
 	ParticleManager shift;
 
 	Vector3 cameraToPlayer;
-	Sound *damageSE;
-	Sound *ShiftSE;
-	Sound *StopSE;
-	Sound *PlaySE;
-	Sound *AttackSE;
+	Sound* damageSE;
+	Sound* ShiftSE;
+	Sound* StopSE;
+	Sound* PlaySE;
+	Sound* AttackSE;
 	//Sound* damageSE;
 
 public:
@@ -108,6 +108,8 @@ public:
 	bool IsEffect() { return isEffect; }								//エフェクトが終わったか(初期もfalseだから管理要注意)
 	bool IsClear() { return isClear; }									//クリアしたか
 	bool IsDash() { return isDash; }									//ダッシュしたか
+	Object3D* GetObj() { return &obj; }									//モデル情報を取得
+	Model* GetModel() { return &model; }
 
 private:
 	void ConvertToRadian(float& degree)
@@ -122,6 +124,12 @@ private:
 public:
 	float easeOutCubic(float t) {
 		return 1 - powf(1 - t, 3);
+	}
+
+	float easeInOutSine(float t)
+	{
+		//return -(cos(XM_PI * t) - 1) / 2;
+		return t < 0.5 ? 16 * t * t * t * t * t : 1 - pow(-2 * t + 2, 5) / 2;
 	}
 
 private:

@@ -3,7 +3,7 @@
 #include"Singleton.h"
 #include<vector>
 
-class EnemyMgr:public Singleton<EnemyMgr>
+class EnemyMgr :public Singleton<EnemyMgr>
 {
 public:
 	/*---- ƒƒ“ƒo’è” ----*/
@@ -22,7 +22,7 @@ public:
 	//Enemy enemy;
 
 	Enemy enemy[MAX_ENEMY_COUNT];
-	
+
 	//‰Šú‰»ˆ—
 	void Init(const Camera& cam);
 
@@ -44,6 +44,10 @@ public:
 
 	XMFLOAT3 GetNearEnemyPos(const XMFLOAT3& playerPos);
 
+	Object3D* GetObj() { return enemy[0].GetObj(); }
+
+	Model* GetModel() { return &enemyModel; }
+
 	/// <summary>
 	/// “G‚ğ‚Ü‚Æ‚ß‚Ä¶¬‚·‚é
 	/// </summary>
@@ -54,7 +58,7 @@ public:
 
 inline float calAngle(const XMFLOAT3& rhs, const XMFLOAT3& lhs)
 {
-	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));	
+	return Dot3D(lhs, rhs) / (Length3D(lhs) * Length3D(rhs));
 }
 
 ////3DÀ•W²‚Å‚Ì“ñ“_ŠÔ‚Ì‹——£‚ğ‹‚ß‚é

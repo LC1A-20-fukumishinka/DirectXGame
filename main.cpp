@@ -519,6 +519,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	title_keys.size = { 640,64 };
 	title_pad.size = { 640,64 };
 
+	//float alpha = 0.0f;
+
+	bool isAdd = false;
+
 	/*----------DEAD_CLEAR(CLEARとDEADはPlayerで管理済)----------*/
 	int CLEAR_CHOICE = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_CHOICE.png");
 	int CLEAR_FRAME_DOWN = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/DEAD_CLEAR/CLEAR_FRAME_DOWN.png");
@@ -609,16 +613,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	hud_life_3.position = XMFLOAT3(32 + (64 * 2), window_height - 32, 0);
 	hud_timestate.position = XMFLOAT3(window_width - 32, 32, 0);
 	hud_play.position = XMFLOAT3(window_width - 32, 32, 0);
-	hud_stop.position = XMFLOAT3(window_width - 32, 32, 0);
+	hud_stop.position = XMFLOAT3(window_width - 32, 0, 0);
 	hud_base_pad.SpriteUpdate();
 	hud_base_keys.SpriteUpdate();
 
 
 	hud_timestate.SpriteUpdate();
-	hud_play.SpriteUpdate();
-	hud_stop.SpriteUpdate();
+	/*hud_play.SpriteUpdate();
+	hud_stop.SpriteUpdate();*/
 
 	hud_base_life.SpriteUpdate();
+
+	//合体させたHUD
+	int HUD_PLAY_STOP = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/HUD/HUD_PLAY_STOP.png");
+	Sprite hud_play_stop;
+	hud_play_stop.Init(HUD_PLAY_STOP, XMFLOAT2(1.0, 0.0));
+	hud_play_stop.size = { 192,80 };
+	hud_play_stop.position = XMFLOAT3(1248, 32, 0);
+	float hud_ease = 0.0f;
 
 	/*----------SCENE_CHANGE----------*/
 	int BACK_STICK = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/SCENE_CHANGE/BACK_STICK.png");
@@ -657,7 +669,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	mask.size = { 0,0 };
 	mask.position = { window_width / 2,window_height / 2,0 };
 	mask.color.w = 0.1f;
+
 	float easeTimer = 0.0f;
+
+	//開始時の文字
+	int GO = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/go.png");
+	Sprite go;
+	go.Init(GO, XMFLOAT2(0.0f, 0.0f));
+	go.size = { 640,180 };
+	go.position = { 320.0f,-180.0f,0 };
+
+	float easeTimer_START = 1.0f;
+	bool UpdateStart = false;
 
 #pragma endregion
 
@@ -699,8 +722,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	bool isTrigger = false;
 	//HP管理用
 	bool hp_1to0 = false;
-	bool hp_2to1 = false;;
-	bool hp_3to2 = false;;
+	bool hp_2to1 = false;
+	bool hp_3to2 = false;
+
+	//タイトル用
+	Object3D* myObj = player.GetObj();
+	Model* myModel = player.GetModel();
+
+	Object3D* enemyObj = EnemyMgr::Instance()->GetObj();
+	Model* enemyModel = EnemyMgr::Instance()->GetModel();
+
+	myObj->position = { 0,0,0 };
+	myObj->rotation = { 0,135,0 };
+
+	enemyObj->position = { 0,0,0 };
+	enemyObj->rotation = myObj->rotation;
+
+	cam.target = { 0,0,0 };
+	cam.eye = { 0,30,-80 };
+
+	float larpTimer = 0.0f;
+	float larpTimer2 = 0.2f;
 
 	OutBgm.PlayLoop();
 	//if (FAILED(result))
@@ -777,17 +819,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		if (isStop)
 		{
+			if (easeTimer < 0.0f) { easeTimer = 0.0f; }
 			if (easeTimer < 1.0f) { easeTimer += 0.02f; }
 			mask.size.x = (1920 - 0) * player.easeOutCubic(easeTimer) + 0;
 			mask.size.y = (1920 - 0) * player.easeOutCubic(easeTimer) + 0;
 		}
 		else
 		{
+			if (easeTimer > 1.0f) { easeTimer = 1.0f; }
 			if (easeTimer > 0.0f) { easeTimer -= 0.02f; }
 			mask.size.x = (0 - 1920) * player.easeOutCubic(1 - easeTimer) + 1920;
 			mask.size.y = (0 - 1920) * player.easeOutCubic(1 - easeTimer) + 1920;
 		}
 		mask.SpriteUpdate();
+
+		//開始時文字
+		if (easeTimer_START < 1.0f) {
+			easeTimer_START += 0.006f;
+			if (easeTimer_START >= 0.0f) { go.position.y = (900 - (-180)) * player.easeInOutSine(easeTimer_START) + (-180); }
+		}
+		if (easeTimer_START >= 0.7f) { UpdateStart = true; }
+		go.SpriteUpdate();
+
 
 #pragma endregion
 
@@ -817,12 +870,26 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		case TITLE:
 			titleLogo.SpriteTransferVertexBuffer();
+
+			//文字
 			if (input->isPadConnect())
 			{
+				if (title_pad.color.w >= 1.5f) { isAdd = false; }
+				else if (title_pad.color.w <= -0.5f) { isAdd = true; }
+
+				if (!isAdd) { title_pad.color.w -= 0.02f; }
+				else { title_pad.color.w += 0.02f; }
+
 				title_pad.SpriteUpdate();
 			}
 			else
 			{
+				if (title_keys.color.w >= 1.5f) { isAdd = false; }
+				else if (title_keys.color.w <= -0.5f) { isAdd = true; }
+
+				if (!isAdd) { title_keys.color.w -= 0.02f; }
+				else { title_keys.color.w += 0.02f; }
+
 				title_keys.SpriteUpdate();
 			}
 
@@ -837,6 +904,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				nowScene = STAGESELECT;
 			}
+
+			if (larpTimer < 1.0f) { larpTimer += 0.003f; }
+			else { larpTimer = 0.0f; }
+			if (larpTimer2 < 1.0f) { larpTimer2 += 0.003f; }
+			else { larpTimer2 = 0.0f; }
+
+			myObj->position.x = (200 - (-600)) * larpTimer + (-600);
+			myObj->position.z = (-200 - 500) * larpTimer + 500;
+
+			enemyObj->position.x = (200 - (-600)) * larpTimer2 + (-600);
+			enemyObj->position.z = (-200 - 500) * larpTimer2 + 500;
+
+			myObj->Update(cam);
+			enemyObj->Update(cam);
 
 			break;
 
@@ -890,6 +971,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (sceneTransition.Change() && isTrigger)
 			{
+				easeTimer_START = 0.0f;
+				if (UpdateStart) { UpdateStart = false; }
 				isTrigger = false;
 				nowScene = GAME;
 				if (stageNum == 0)
@@ -926,6 +1009,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region GAME_UPDATE
 
 		case GAME:
+
 			XMFLOAT3 moveSpeed = { input->LStick().x , 0.0f, input->LStick().y };
 
 			box.Update(cam);
@@ -1025,6 +1109,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			hud_life_2.SpriteUpdate();
 			hud_life_3.SpriteUpdate();
 
+			//合体させたHUD
+			hud_play.SpriteUpdate();
+			hud_stop.SpriteUpdate();
+			hud_play_stop.SpriteUpdate();
+
 			if (player.IsHit())
 			{
 				for (int i = 0; i < 50; i++)
@@ -1088,6 +1177,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		case CLEAR:
 
+			UpdateStart = false;
+
 			if (resultFlag)
 			{
 				if (stickTrigger || (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S)))
@@ -1120,6 +1211,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				//シーン遷移挟んだ移行処理
 				if (sceneTransition.Change() && isTrigger)
 				{
+					easeTimer_START = 0.0f;
 					isTrigger = false;
 					stageNum += 1;
 					if (resultSelect <= 0)
@@ -1187,6 +1279,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma region GAMEOVER_UPDATE
 
 		case GAMEOVER:
+
+			UpdateStart = false;
+
 			if (resultFlag)
 			{
 				if (stickTrigger || (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S)))
@@ -1218,6 +1313,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				//シーン遷移挟んだ処理
 				if (sceneTransition.Change() && isTrigger)
 				{
+					easeTimer_START = 0.0f;
 					isTrigger = false;
 					if (resultSelect <= 0)
 					{
@@ -1291,6 +1387,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		case TITLE:
 			//debugText.Print("", window_width / 2 - 40, window_height / 2, 5);
 			titleLogo.SpriteDraw();
+
+			//文字
+			if (input->isPadConnect()) { title_pad.SpriteDraw(); }
+			else { title_keys.SpriteDraw(); }
+
+			DepthReset();
+
+			myObj->modelDraw(myModel->GetModel(), model3D->GetPipeLine());
+			enemyObj->modelDraw(enemyModel->GetModel(), model3D->GetPipeLine());
+
 			break;
 
 #pragma endregion
@@ -1358,38 +1464,65 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//時間停止,解除時の演出
 			mask.SpriteDraw();
 
-			if (!isClear && !player.IsDead())
+			//開始時文字一定位置までは描画をしない
+			if (UpdateStart)
 			{
-				//UI(簡易)
-				if (input->isPadConnect())
+				if (!isClear && !player.IsDead())
 				{
-					hud_base_pad.SpriteDraw();
-				}
-				else
-				{
-					hud_base_keys.SpriteDraw();
-				}
-				hud_base_life.SpriteDraw();
-				hud_timestate.SpriteDraw();
-				if (isStop)
-				{
-					hud_stop.SpriteDraw();
-				}
-				else
-				{
-					hud_play.SpriteDraw();
-				}
+					//UI(簡易)
+					if (input->isPadConnect())
+					{
+						hud_base_pad.SpriteDraw();
+					}
+					else
+					{
+						hud_base_keys.SpriteDraw();
+					}
 
-				/*if (player.GetHP() >= 1) { hud_life_1.SpriteDraw(); }
-				if (player.GetHP() >= 2) { hud_life_2.SpriteDraw(); }
-				if (player.GetHP() >= 3) { hud_life_3.SpriteDraw(); }*/
+					hud_base_life.SpriteDraw();
 
-				hud_life_1.SpriteDraw();
-				hud_life_2.SpriteDraw();
-				hud_life_3.SpriteDraw();
+
+					//ミスったかも(下はみ出る)
+					//hud_stop.position.y = (32) * player.easeOutCubic(easeTimer) + 0;
+					//hud_play.position.y = (32) * player.easeOutCubic(easeTimer) + 32;
+
+					//if (easeTimer < 0.0f) { hud_stop.position.y = 0; hud_play.position.y = 32; }
+					//if (easeTimer > 1.0f) { hud_stop.position.y = 32; hud_play.position.y = 64; }
+
+					if (isStop)
+					{
+						hud_stop.position.y = 32;
+						hud_stop.SpriteDraw();
+						//hud_play_stop.position.y = (32 - 0) * player.easeOutCubic(easeTimer) + 32;
+					}
+					else
+					{
+						hud_play.position.y = 32;
+						//hud_play_stop.position.y = (64 - 96) * player.easeOutCubic(1 - easeTimer) + 64;
+						hud_play.SpriteDraw();
+					}
+
+					/*if (player.GetHP() >= 1) { hud_life_1.SpriteDraw(); }
+					if (player.GetHP() >= 2) { hud_life_2.SpriteDraw(); }
+					if (player.GetHP() >= 3) { hud_life_3.SpriteDraw(); }*/
+
+					//hud_stop.SpriteDraw();
+					//hud_play.SpriteDraw();
+
+					hud_timestate.SpriteDraw();
+
+					hud_life_1.SpriteDraw();
+					hud_life_2.SpriteDraw();
+					hud_life_3.SpriteDraw();
+
+					//合体させたHUD
+					//hud_play_stop.SpriteDraw();
+				}
+				//hud_play.SpriteDraw();
+				//hud_stop.SpriteDraw();
 			}
-			//hud_play.SpriteDraw();
-			//hud_stop.SpriteDraw();
+
+			go.SpriteDraw();
 
 			break;
 
