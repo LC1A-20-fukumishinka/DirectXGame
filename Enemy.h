@@ -67,6 +67,8 @@ public:
 	int searchDelayTimer;	//索敵ディレイタイマー
 	int searchTimer;		//索敵する時間
 	int rotateStatus;		//索敵時のステータス
+	float scale;
+	float addScale;			
 
 	//ターゲティング用
 	int targetingTimer;
@@ -105,6 +107,7 @@ public:
 
 	//弾の更新処理
 	void BulletUpdate();
+
 	//描画処理
 	void Draw(const PipeClass::PipelineSet& pipelineSet, const ModelObject& model);
 
