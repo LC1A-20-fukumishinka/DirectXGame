@@ -49,6 +49,10 @@ void Enemy::Init(const Camera &cam)
 	isAttack = false;
 	searchDelayTimer = SEARCH_DELAY_TIMER_END;
 	HP = 100;
+	saveNum = 0;
+	isHit = false;
+	searchTimer = 0;
+	scale = 0;
 	for (int i = 0; i < MAX_BULLET; ++i)
 	{
 		enemyBullet[i].Init(cam);
