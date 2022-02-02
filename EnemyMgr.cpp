@@ -32,6 +32,8 @@ void EnemyMgr::UpdateData(const Camera& cam)
 		//enemy[i].enemyData.rotation.y += 1.0f;
 		//XVˆ—
 		enemy[i].enemyData.Update(cam);
+		enemy[i].effect.Update();
+
 		for (int j = 0; j < 20; ++j)
 		{
 			enemy[i].enemyBullet[j].bulletData.Update(cam);
