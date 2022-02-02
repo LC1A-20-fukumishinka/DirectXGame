@@ -891,7 +891,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	bool hp_2to1 = false;
 	bool hp_3to2 = false;
 
-	int easeCount = 0;
+	//int easeCount = 0;
 
 	//タイトル用
 	Object3D* myObj = player.GetObj();
@@ -1043,27 +1043,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		mask.SpriteUpdate();
 
 		//開始時文字
-		if (nowScene == GAME && easeCount < 2 && sceneTransition.GetNowStatus() == 2) {
+		if (nowScene == GAME && sceneTransition.GetNowStatus() == 2) {
 
-			if (easeTimer_START < 1.0f) {
-				if (easeCount == 0 && go.position.y < 330 || easeCount == 1 && go.position.y >= 390)
-					easeTimer_START += 0.03f;
-			}
-
-			else
-			{
-				if (easeCount < 2) {
-					easeTimer_START = 0.0f; easeCount++;
-				}
-			}
-
-			if (easeCount == 0) { go.position.y = (330 - (-80)) * player.easeFirst(easeTimer_START) + (-80); }
-			else if (easeCount == 1) {
-				if (go.position.y < 390) { go.position.y += 4; }
-				else { go.position.y = (800 - 390) * player.easeSecond(easeTimer_START) + 390; }
-			}
+			if (easeTimer_START < 1.0f) { easeTimer_START += 0.01f; }
+			else { easeTimer_START = 1.0f; }
+			go.position.y = (800 - (-80)) * player.easeSecond(easeTimer_START) + (-80);
 		}
-		if (easeCount == 1 && easeTimer_START >= 0.7f) { UpdateStart = true; }
+		if (easeTimer_START >= 0.7f) { UpdateStart = true; }
+
 		go.SpriteUpdate();
 
 		//ギア処理
@@ -1188,29 +1175,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			if ((input->KeyTrigger(DIK_A) || input->KeyTrigger(DIK_D)) || (stickTrigger))
 			{
-				trigger = true;
+				if (sceneTransition.GetNowStatus() != 1)
+				{
+					if (input->KeyTrigger(DIK_A) || input->LStick().x < 0.0f)
+					{
+						stageNum--;
+						if (!isMove && stageNum >= 0) { direction = false; isMove = true; stageEase = 0.0f; }
+					}
+					if (input->KeyTrigger(DIK_D) || input->LStick().x > 0.0f)
+					{
+						stageNum++;
+						if (!isMove && stageNum <= MAX_STAGE_NUM - 1) { direction = true; isMove = true; stageEase = 0.0f; }
+					}
 
-				if (input->KeyTrigger(DIK_A) || input->LStick().x < 0.0f)
-				{
-					stageNum--;
-					if (!isMove && stageNum >= 0) { direction = false; isMove = true; stageEase = 0.0f; }
-				}
-				if (input->KeyTrigger(DIK_D) || input->LStick().x > 0.0f)
-				{
-					stageNum++;
-					if (!isMove && stageNum <= MAX_STAGE_NUM - 1) { direction = true; isMove = true; stageEase = 0.0f; }
-				}
+					if (stageNum < 0)
+					{
+						stageNum = 0;
+					}
 
-				if (stageNum < 0)
-				{
-					stageNum = 0;
+					if (stageNum >= MAX_STAGE_NUM)
+					{
+						stageNum = MAX_STAGE_NUM - 1;
+					}
+					SelectSE.Play();
 				}
-
-				if (stageNum >= MAX_STAGE_NUM)
-				{
-					stageNum = MAX_STAGE_NUM - 1;
-				}
-				SelectSE.Play();
+				//trigger = true;
 			}
 
 			//ステージ選択画面処理
@@ -1544,36 +1533,40 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				if (stickTrigger || (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S)))
 				{
-					if (input->LStick().y > 0.0f || input->KeyTrigger(DIK_W))
+					if (sceneTransition.GetNowStatus() != 1)
 					{
-						resultSelect--;
+						if (input->LStick().y > 0.0f || input->KeyTrigger(DIK_W))
+						{
+							resultSelect--;
+						}
+						else if (input->LStick().y < 0.0f || input->KeyTrigger(DIK_S))
+						{
+							resultSelect++;
+						}
+						SelectSE.Play();
 					}
-					else if (input->LStick().y < 0.0f || input->KeyTrigger(DIK_S))
+					if (resultSelect >= 2)
 					{
-						resultSelect++;
+						resultSelect = 1;
 					}
-					SelectSE.Play();
+					if (resultSelect <= -1)
+					{
+						resultSelect = 0;
+					}
 				}
-				if (resultSelect >= 2)
-				{
-					resultSelect = 1;
-				}
-				if (resultSelect <= -1)
-				{
-					resultSelect = 0;
-				}
+
 				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && !isTrigger)
 				{
+					if (sceneTransition.GetNowStatus() != 1) { enterSE.Play(); }
 					sceneTransition.On();
 					isTrigger = true;
-					enterSE.Play();
 				}
 
 				//シーン遷移挟んだ移行処理
 				if (sceneTransition.Change() && isTrigger)
 				{
 					easeTimer_START = 0.0f;
-					easeCount = 0;
+					//easeCount = 0;
 					mask.size = { 0,0 };
 					easeTimer = 0.0f;
 					isTrigger = false;
@@ -1677,35 +1670,40 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				if (stickTrigger || (input->KeyTrigger(DIK_W) || input->KeyTrigger(DIK_S)))
 				{
-					if (input->LStick().y > 0.0f || input->KeyTrigger(DIK_W))
+					if (sceneTransition.GetNowStatus() != 1)
 					{
-						resultSelect--;
+						if (input->LStick().y > 0.0f || input->KeyTrigger(DIK_W))
+						{
+							resultSelect--;
+						}
+						else if (input->LStick().y < 0.0f || input->KeyTrigger(DIK_S))
+						{
+							resultSelect++;
+						}
+						SelectSE.Play();
 					}
-					else if (input->LStick().y < 0.0f || input->KeyTrigger(DIK_S))
+					if (resultSelect >= 2)
 					{
-						resultSelect++;
+						resultSelect = 1;
 					}
-					SelectSE.Play();
+					if (resultSelect <= -1)
+					{
+						resultSelect = 0;
+					}
 				}
-				if (resultSelect >= 2)
-				{
-					resultSelect = 1;
-				}
-				if (resultSelect <= -1)
-				{
-					resultSelect = 0;
-				}
+
 				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A) && !isTrigger)
 				{
+					if (sceneTransition.GetNowStatus() != 1) { enterSE.Play(); }
 					sceneTransition.On();
 					isTrigger = true;
-					enterSE.Play();
 				}
+
 				//シーン遷移挟んだ処理
 				if (sceneTransition.Change() && isTrigger)
 				{
 					easeTimer_START = 0.0f;
-					easeCount = 0;
+					//easeCount = 0;
 					mask.size = { 0,0 };
 					easeTimer = 0.0f;
 					isTrigger = false;
