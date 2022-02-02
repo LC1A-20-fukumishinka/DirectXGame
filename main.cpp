@@ -1214,6 +1214,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				if (sceneTransition.Change() && isTrigger)
 				{
 					easeTimer_START = 0.0f;
+					mask.size = { 0,0 };
+					easeTimer = 0.0f;
 					isTrigger = false;
 					stageNum += 1;
 					if (resultSelect <= 0)
@@ -1267,7 +1269,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 			//HPのAlpha値を戻す
-			if (hud_life_1.color.w != 1.0f)
+			if (hud_life_3.color.w != 1.0f)
 			{
 				hud_life_1.color.w = 1.0f;
 				hud_life_2.color.w = 1.0f;
@@ -1316,6 +1318,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				if (sceneTransition.Change() && isTrigger)
 				{
 					easeTimer_START = 0.0f;
+					mask.size = { 0,0 };
+					easeTimer = 0.0f;
 					isTrigger = false;
 					if (resultSelect <= 0)
 					{
@@ -1362,7 +1366,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 
 			//HPのAlpha値を戻す
-			if (hud_life_1.color.w != 1.0f)
+			if (hud_life_3.color.w != 1.0f)
 			{
 				hud_life_1.color.w = 1.0f;
 				hud_life_2.color.w = 1.0f;
@@ -1464,7 +1468,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (!player.IsDead() && isStop && !isClear) { spriteStop.SpriteDraw(); }
 
 			//時間停止,解除時の演出
-			mask.SpriteDraw();
+			if (!isClear && !isdead)mask.SpriteDraw();
 
 			//開始時文字一定位置までは描画をしない
 			if (UpdateStart)
@@ -1485,21 +1489,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 					//ミスったかも(下はみ出る)
-					//hud_stop.position.y = (32) * player.easeOutCubic(easeTimer) + 0;
-					//hud_play.position.y = (32) * player.easeOutCubic(easeTimer) + 32;
+					hud_stop.position.y = (32) * player.easeOutCubic(easeTimer) + 0;
+					hud_play.position.y = (32) * player.easeOutCubic(easeTimer) + 32;
 
-					//if (easeTimer < 0.0f) { hud_stop.position.y = 0; hud_play.position.y = 32; }
-					//if (easeTimer > 1.0f) { hud_stop.position.y = 32; hud_play.position.y = 64; }
+					if (easeTimer < 0.0f) { hud_stop.position.y = 0; hud_play.position.y = 32; }
+					if (easeTimer > 1.0f) { hud_stop.position.y = 32; hud_play.position.y = 64; }
 
 					if (isStop)
 					{
-						hud_stop.position.y = 32;
+						//hud_stop.position.y = 32;
 						hud_stop.SpriteDraw();
 						//hud_play_stop.position.y = (32 - 0) * player.easeOutCubic(easeTimer) + 32;
 					}
 					else
 					{
-						hud_play.position.y = 32;
+						//hud_play.position.y = 32;
 						//hud_play_stop.position.y = (64 - 96) * player.easeOutCubic(1 - easeTimer) + 64;
 						hud_play.SpriteDraw();
 					}
