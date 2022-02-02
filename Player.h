@@ -15,6 +15,7 @@ const int INVINCIBLE_COUNT = 60;					//無敵時間
 const int STOP_TIME_COUNT = 300;						//最大時間停止量
 const int STOP_TIME_DELAY = 30;						//攻撃可能までのクールタイム
 const int ATTACK_DELAY = 30;						//攻撃の最大CT
+const int DASH_DELAY = 30;							//ダッシュCT
 const int MAX_HP = 3;								//HP
 const float MOVE_SPEED = 2.5f;						//動く速さ
 const float DASH_SPEED = 65.0f;						//ダッシュ
@@ -43,6 +44,7 @@ private:
 	int attackDelay;								//攻撃のCT
 	int drawCount;									//被ダメエフェクト用
 	int damagedCount;								//無敵時間管理
+	int dashDelay;									//DASHのCT
 	float angle;									//移動する角度
 	float easeTimer;								//イージング
 	float movePower;								//移動の慣性用
