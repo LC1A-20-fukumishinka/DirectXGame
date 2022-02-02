@@ -166,6 +166,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	SceneTransition sceneTransition;
 	//sceneTransition.Init();
 
+	int destroyedTextData = TextureMgr::Instance()->SpriteLoadTexture(L"Resources/destroyed.png");
+	Sprite hoge;
+	hoge.Init(destroyedTextData);
+	hoge.size = hoge.texSize;
+	hoge.color.w = 0.0f;
+	Vector3 ScreenCenter = { window_width / 2, window_height / 2, 0 };
+
 	Vector3 up(0, 0, 1), left(-1, 0, 0);
 
 	Vector3 down = -up;
@@ -1341,12 +1348,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		case GAME:
 
-			if (input->ButtonTrigger(XINPUT_GAMEPAD_START) || input->KeyTrigger(DIK_ESCAPE))
+			if ((input->ButtonTrigger(XINPUT_GAMEPAD_START) || input->KeyTrigger(DIK_ESCAPE)) && !isClear && !isDead)
 			{
 				isPause = !isPause;
 				enterSE.Play();
 				EnemyMgr::Instance()->StopSound();
 				PauseSelect = 0;
+				sceneTransition.On();
 			}
 			if (isPause)
 			{
@@ -1389,52 +1397,88 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				}
 				if (sceneTransition.Change())
 				{
-					if (PauseSelect == 1)
-					{//ステージリトライ(実行)
-						isTrigger = false;
 #pragma region retry
-						easeTimer_START = 0.0f;
-						if (UpdateStart) { UpdateStart = false; }
-							if (stageNum == 0)
-							{
-								player.Init(cam, StartPositions[stageNum]);
-								cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
-								WallMgr::Instance()->Init(loomWalls);
-								EnemyMgr::Instance()->Init(cam);
-								EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
+					easeTimer_START = 0.0f;
+					if (UpdateStart) { UpdateStart = false; }
+					if (stageNum == 0)
+					{
+						player.Init(cam, StartPositions[stageNum]);
+						cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+						WallMgr::Instance()->Init(loomWalls);
+						EnemyMgr::Instance()->Init(cam);
+						EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
 
-							}
-							else if (stageNum == 1)
-							{
-								player.Init(cam, StartPositions[stageNum]);
-								cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
-								WallMgr::Instance()->Init(townWalls);
-								EnemyMgr::Instance()->Init(cam);
-								EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
-							}
-							else if (stageNum == 2)
-							{
-								player.Init(cam, StartPositions[stageNum]);
-								cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
-								WallMgr::Instance()->Init(thirdStageWalls);
-								EnemyMgr::Instance()->Init(cam);
-								EnemyMgr::Instance()->Generate(thirdStageEnemyGeneratePos, thirdStageEnemyGenerateAngle, cam);
-							}
-							Vector3 goalScale(upperRight[stageNum]);
-							goalScale -= Vector3(lowerLeft[stageNum]);
-							goal.position = Vector3(lowerLeft[stageNum]) + (goalScale / 2);
-							goal.position.y = floor.position.y + floor.scale.y + 1.0f;
-							goal.scale = goalScale;
-							goalScale.y = 0.1;
+					}
+					else if (stageNum == 1)
+					{
+						player.Init(cam, StartPositions[stageNum]);
+						cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+						WallMgr::Instance()->Init(townWalls);
+						EnemyMgr::Instance()->Init(cam);
+						EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
+					}
+					else if (stageNum == 2)
+					{
+						player.Init(cam, StartPositions[stageNum]);
+						cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+						WallMgr::Instance()->Init(thirdStageWalls);
+						EnemyMgr::Instance()->Init(cam);
+						EnemyMgr::Instance()->Generate(thirdStageEnemyGeneratePos, thirdStageEnemyGenerateAngle, cam);
+					}
+					Vector3 goalScale(upperRight[stageNum]);
+					goalScale -= Vector3(lowerLeft[stageNum]);
+					goal.position = Vector3(lowerLeft[stageNum]) + (goalScale / 2);
+					goal.position.y = floor.position.y + floor.scale.y + 1.0f;
+					goal.scale = goalScale;
+					goalScale.y = 0.1;
 #pragma endregion
-					}
-					else if (PauseSelect == 2)
-					{//ステージ選択に戻る(実行)
-					nowScene = STAGESELECT;
-					BGM.Stop();
-					OutBgm.PlayLoop();
-						isTrigger = false;
-					}
+					//					if (PauseSelect == 1)
+					//					{//ステージリトライ(実行)
+					//						isTrigger = false;
+					//#pragma region retry
+					//							easeTimer_START = 0.0f;
+					//						if (UpdateStart) { UpdateStart = false; }
+					//						if (stageNum == 0)
+					//						{
+					//							player.Init(cam, StartPositions[stageNum]);
+					//							cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+					//							WallMgr::Instance()->Init(loomWalls);
+					//							EnemyMgr::Instance()->Init(cam);
+					//							EnemyMgr::Instance()->Generate(loomEnemyGeneratePos, loomEnemyAngles, cam);
+					//
+					//						}
+					//						else if (stageNum == 1)
+					//						{
+					//							player.Init(cam, StartPositions[stageNum]);
+					//							cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+					//							WallMgr::Instance()->Init(townWalls);
+					//							EnemyMgr::Instance()->Init(cam);
+					//							EnemyMgr::Instance()->Generate(townEnemyGeneratePos, townEnemyAngles, cam);
+					//						}
+					//						else if (stageNum == 2)
+					//						{
+					//							player.Init(cam, StartPositions[stageNum]);
+					//							cam.Init(XMFLOAT3(0, 250, 0), XMFLOAT3(0, 0, 0), StartPositions[stageNum], { 0,0,1 });
+					//							WallMgr::Instance()->Init(thirdStageWalls);
+					//							EnemyMgr::Instance()->Init(cam);
+					//							EnemyMgr::Instance()->Generate(thirdStageEnemyGeneratePos, thirdStageEnemyGenerateAngle, cam);
+					//						}
+					//						Vector3 goalScale(upperRight[stageNum]);
+					//						goalScale -= Vector3(lowerLeft[stageNum]);
+					//						goal.position = Vector3(lowerLeft[stageNum]) + (goalScale / 2);
+					//						goal.position.y = floor.position.y + floor.scale.y + 1.0f;
+					//						goal.scale = goalScale;
+					//						goalScale.y = 0.1;
+					//#pragma endregion
+					//					}
+					//					else if (PauseSelect == 2)
+					//					{//ステージ選択に戻る(実行)
+					//					nowScene = STAGESELECT;
+					//					BGM.Stop();
+					//					OutBgm.PlayLoop();
+					//						isTrigger = false;
+					//					}
+					go.position.y = 800;
 					isPause = false;
 				}
 				break;
@@ -1555,7 +1599,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					Vector3 tmp(randX, 0, randZ);
 					float power = ((float)rand() / RAND_MAX) * 3;
 					tmp = tmp.normalaize();
-					part.Add(15, EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos()), tmp * power, XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
+					Vector3 enemyPos = EnemyMgr::Instance()->GetNearEnemyPos(player.GetPos());
+					part.Add(15, enemyPos, tmp * power, XMFLOAT3(0, 0, 0), 10.0f, 0.0f);
+					hoge.position = ScreenCenter + Vector3(enemyPos.x - cam.position.x, -(enemyPos.z - cam.position.z), 0);
+					hoge.color.w = 1.0f;
 				}
 				EnemyMgr::Instance()->DeadNearEnemy();
 				EnemyDamageSE.Play();
@@ -1614,7 +1661,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			{
 				nowScene = GAMEOVER;
 			}
-
+			{
+				Vector3 screenSpeed(player.GetVec3());
+				
+				screenSpeed *= 2.0f;
+				hoge.position = Vector3(hoge.position) += Vector3(-screenSpeed.x, screenSpeed.z, 0);
+				hoge.color.w -= 0.05f;
+				hoge.SpriteUpdate();
+			}
 			break;
 
 #pragma endregion
@@ -1718,6 +1772,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 						}
 						nowScene = GAME;
 						enterSE.Play();
+						OutBgm.Stop();
+						BGM.PlayLoop();
 						Vector3 goalScale(upperRight[stageNum]);
 						goalScale -= Vector3(lowerLeft[stageNum]);
 						goal.position = Vector3(lowerLeft[stageNum]) + (goalScale / 2);
@@ -1729,6 +1785,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					{
 						nowScene = STAGESELECT;
 						//enterSE.Play();
+						stageNum = 0;
+
 					}
 					resultFlag = false;
 					resultSelect = 0;
@@ -1740,7 +1798,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				{
 					resultFlag = true;
 					ClearSE.Stop();
-					OutBgm.Play();
+					OutBgm.PlayLoop();
 				}
 			}
 
@@ -1850,6 +1908,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 						}
 						nowScene = GAME;
 						enterSE.Play();
+						OutBgm.Stop();
+						BGM.PlayLoop();
 						Vector3 goalScale(upperRight[stageNum]);
 						goalScale -= Vector3(lowerLeft[stageNum]);
 						goal.position = Vector3(lowerLeft[stageNum]) + (goalScale / 2);
@@ -1860,6 +1920,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					else
 					{
 						nowScene = STAGESELECT;
+						stageNum = 0;
 						//enterSE.Play();
 					}
 					resultFlag = false;
@@ -1871,7 +1932,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 				if (input->KeyTrigger(DIK_SPACE) || input->ButtonTrigger(XINPUT_GAMEPAD_A))
 				{
 					resultFlag = true;
-					OutBgm.Play();
+					OutBgm.PlayLoop();
 				}
 			}
 
@@ -1999,7 +2060,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			player.Draw(model3D->GetPipeLine());
 
 			part.Draw(particleGH);
-
+			hoge.SpriteDraw();
 			//攻撃範囲
 			//if (!player.IsDead() && !isClear) { hani.SpriteDraw(); }
 
@@ -2087,23 +2148,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			go.SpriteDraw();
 
-			if (isPause)
-			{
-				debugText.Print("Pause", window_width / 2, window_height / 2, 2.0);
-				if (PauseSelect == 0)
-				{
-					debugText.Print("continue", 100, 100, 2.0f);
-				}
-				else if (PauseSelect == 1)
-				{
-					debugText.Print("retry", 100, 100, 2.0f);
-				}
-				else if (PauseSelect == 2)
-				{
-					debugText.Print("StageSelect", 100, 100, 2.0f);
-				}
+			//if (isPause)
+			//{
+			//	debugText.Print("Pause", window_width / 2, window_height / 2, 2.0);
+			//	if (PauseSelect == 0)
+			//	{
+			//		debugText.Print("continue", 100, 100, 2.0f);
+			//	}
+			//	else if (PauseSelect == 1)
+			//	{
+			//		debugText.Print("retry", 100, 100, 2.0f);
+			//	}
+			//	else if (PauseSelect == 2)
+			//	{
+			//		debugText.Print("StageSelect", 100, 100, 2.0f);
+			//	}
 
-			}
+			//}
 			break;
 
 #pragma endregion
