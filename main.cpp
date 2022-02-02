@@ -112,7 +112,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 
 	Camera cam;
-
+	Easing clearEase;
+	clearEase.Init(60);
 #pragma region particles
 	ParticleManager::StaticInitialize(&cam);
 #pragma endregion
@@ -1137,7 +1138,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 					Vector3 push;
 					push = WallMgr::Instance()->GetWalls()[i].PushBack(player.GetPos(), { box.scale.x, 0.0f, box.scale.z }, playerSpeed);
-
+					
 					playerSpeed = { playerSpeed.x + push.x, playerSpeed.y + push.y ,playerSpeed.z + push.z };
 					Vector3 ps;
 
@@ -1264,17 +1265,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 			if (isClear)
 			{
+			float rate = clearEase.Do(Easing::Out, Easing::Cubic);
 				Vector3 tmp = cam.position;
 				Vector3 endPos = player.GetPos();
 				endPos.x = upperRight[stageNum].x - player.GetPos().x;
-				endPos.y = cam.target.y;
 				endPos.z = 0;
-				cam.eye = endPos;
-				cam.up = { 0, 1, 0 };
+				endPos.y = 250- cam.position.y;
+				cam.eye = (endPos * rate) + (cam.eye * (1- rate));
+				cam.up = (Vector3(0, 1, 0) * rate) + (Vector3(cam.up) * (1 - rate));
 			}
 			if (!player.IsEffect() && isClear)
 			{
 				nowScene = CLEAR;
+				clearEase.Reset();
 			}
 
 			if (!isDead && player.IsDead())
@@ -1569,7 +1572,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//if (!player.IsHit()) box.modelDraw(boxModel.GetModel(), model3D->GetPipeLine());
 			floor.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
 			goal.modelDraw(boxModel.GetModel(), ModelPipeline::GetInstance()->GetPipeLine());
-			player.Draw(model3D->GetPipeLine());
 			for (int i = 0; i < outWall.size(); i++)
 			{
 				outWall[i].Draw();
@@ -1586,6 +1588,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			//	//loomWalls[i].Draw();
 			//}
 			WallMgr::Instance()->Draw();
+			player.Draw(model3D->GetPipeLine());
 
 			part.Draw(particleGH);
 

@@ -1,7 +1,6 @@
 #include "Player.h"
 #include "Shake.h"
 #include <cmath>
-
 Player::Player(int deadGraph, int clearGraph, int particle, int DamageSound)
 {
 	pos = { 0,0,0 };
@@ -101,6 +100,7 @@ void Player::Init(const Camera& camera, const XMFLOAT3& pos)
 	clear.position = { 0,-720,0 };
 	clear.size = { 1280,720 };
 	clear.SpriteUpdate();
+	animation.Init(300);
 }
 
 void Player::Input(const Camera& camera)
@@ -161,15 +161,7 @@ void Player::Input(const Camera& camera)
 				dashDelay = 0;
 				for (int i = 0; i < 30; i++)
 				{
-					Vector3 shiftPos((((float)rand() / RAND_MAX * 2) - 1),
-						0,
-						(((float)rand() / RAND_MAX * 2) - 1));
-					shiftPos = shiftPos.normalaize() * ((float)rand() / RAND_MAX) * 10;
-
-					shiftPos.y = (((float)rand() / RAND_MAX * 2) - 1) * 10;
-
-					float scale = ((float)rand() / RAND_MAX) * 10;
-					shift.Add((int)(30 + (3 * scale)), Vector3(pos) + shiftPos, Vector3(), Vector3(), 10 + scale, 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+				MakeParticle();
 				}
 				ShiftSE->Play();
 				vec3.x *= DASH_SPEED;
@@ -558,15 +550,37 @@ bool Player::SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRig
 	return false;
 }
 
+bool Player::ClearAnimation()
+{
+	MakeParticle();
+pos.y = 3000 * animation.Do(Easing::Cubic, Easing::Sine);
+return false;
+}
+
+void Player::MakeParticle()
+{
+	Vector3 shiftPos((((float)rand() / RAND_MAX * 2) - 1),
+		0,
+		(((float)rand() / RAND_MAX * 2) - 1));
+	shiftPos = shiftPos.normalaize() * ((float)rand() / RAND_MAX) * 10;
+
+	shiftPos.y = (((float)rand() / RAND_MAX * 2) - 1) * 10;
+
+	float scale = ((float)rand() / RAND_MAX) * 10;
+	shift.Add((int)(30 + (3 * scale)), Vector3(pos) + shiftPos, Vector3(), Vector3(), 10 + scale, 0, { 1.0f, 1.0f, 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+}
+
 void Player::ClearEffect(Camera& camera, bool setGoalAndCheak)
 {
 	if (setGoalAndCheak)
 	{
+		ClearAnimation();
 		if (!spriteClearFlag) isEffect = true;
 		if (easeTimer < 1.0f)
 		{
 			easeTimer += 0.01f;
-			camera.eye.y = (650 - 250) * easeOutCubic(easeTimer) + 250;
+			//camera.eye.y = (650 - 250) * easeOutCubic(easeTimer) + 250;
 		}
 		else { spriteClearFlag = true; }
 	}

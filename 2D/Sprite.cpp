@@ -91,7 +91,7 @@ void Sprite::Init(UINT texNumber, DirectX::XMFLOAT2 anchorpoint, bool isFlipX, b
 
 	ConstBufferData* constMap = nullptr;
 	result = constBuff->Map(0, nullptr, (void**)&constMap);
-	constMap->color = DirectX::XMFLOAT4(1, 1, 1, 1);//色指定(RGBA)
+	constMap->color = color;//色指定(RGBA)
 	constMap->mat = SpriteCommon::Instance()->matProjection;	//平行透視投影
 	constBuff->Unmap(0, nullptr);
 

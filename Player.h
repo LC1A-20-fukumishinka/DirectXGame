@@ -10,7 +10,7 @@
 #include "Vector3.h"
 #include "particleManager.h"
 #include "Sound.h"
-
+#include "EaseClass.h"
 const int INVINCIBLE_COUNT = 60;					//無敵時間
 const int STOP_TIME_COUNT = 300;						//最大時間停止量
 const int STOP_TIME_DELAY = 30;						//攻撃可能までのクールタイム
@@ -86,6 +86,8 @@ public:
 	void PushBack(const XMFLOAT3& enemyPos);
 	void DeathEffect(Camera& camera);
 	void ClearEffect(Camera& camera, bool setGoalAndCheak);
+	bool ClearAnimation();
+	void MakeParticle();
 	bool SetGoalAndCheak(const XMFLOAT3& lowerLeft, const XMFLOAT3& upperRight);	//左下と右上を指定する
 public:
 	XMFLOAT3 GetPos() { return pos; }									//ポジションを返す
@@ -111,7 +113,7 @@ public:
 	bool IsDash() { return isDash; }									//ダッシュしたか
 	Object3D* GetObj() { return &obj; }									//モデル情報を取得
 	Model* GetModel() { return &model; }
-
+	Easing animation;
 private:
 	void ConvertToRadian(float& degree)
 	{
