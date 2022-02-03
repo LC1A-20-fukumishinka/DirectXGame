@@ -74,7 +74,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//WindowsAPI初期化処理
 #pragma region WindowsAPI
 
-	WinAPI *Win = WinAPI::GetInstance();
+	WinAPI* Win = WinAPI::GetInstance();
 
 	Win->Init(window_width, window_height);
 #pragma endregion
@@ -99,13 +99,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 #pragma endregion
 
 	//DirectX初期化処理 ここまで
-	MyDirectX *myDirectX = MyDirectX::GetInstance();
+	MyDirectX* myDirectX = MyDirectX::GetInstance();
 
-	IGraphicsPipeline *Pipe3D = GraphicsPipeline3D::GetInstance();
-	IGraphicsPipeline *model3D = ModelPipeline::GetInstance();
+	IGraphicsPipeline* Pipe3D = GraphicsPipeline3D::GetInstance();
+	IGraphicsPipeline* model3D = ModelPipeline::GetInstance();
 
 #pragma region DirectInput
-	Input *input = Input::GetInstance();
+	Input* input = Input::GetInstance();
 	input->Init(Win->w, Win->hwnd);
 #pragma endregion
 
@@ -917,11 +917,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//int easeCount = 0;
 
 	//タイトル用
-	Object3D *myObj = player.GetObj();
-	Model *myModel = player.GetModel();
+	Object3D* myObj = player.GetObj();
+	Model* myModel = player.GetModel();
 
-	Object3D *enemyObj = EnemyMgr::Instance()->GetObj();
-	Model *enemyModel = EnemyMgr::Instance()->GetModel();
+	Object3D* enemyObj = EnemyMgr::Instance()->GetObj();
+	Model* enemyModel = EnemyMgr::Instance()->GetModel();
 
 	myObj->position = { 0,0,0 };
 	myObj->rotation = { 0,135,0 };
@@ -1431,6 +1431,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 					goal.position.y = floor.position.y + floor.scale.y + 1.0f;
 					goal.scale = goalScale;
 					goalScale.y = 0.1;
+					//HPのAlpha値を戻す
+					hud_life_1.color.w = 1.0f;
+					hud_life_2.color.w = 1.0f;
+					hud_life_3.color.w = 1.0f;
+					hp_3to2 = false;
+					hp_2to1 = false;
+					hp_1to0 = false;
+					int hp_debug = hp;
+					player.ResetCount();
+
 #pragma endregion
 					//					if (PauseSelect == 1)
 					//					{//ステージリトライ(実行)
@@ -1663,7 +1673,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			{
 				Vector3 screenSpeed(player.GetVec3());
-				
+
 				screenSpeed *= 2.0f;
 				hoge.position = Vector3(hoge.position) += Vector3(-screenSpeed.x, screenSpeed.z, 0);
 				hoge.color.w -= 0.05f;

@@ -114,6 +114,7 @@ public:
 	Object3D* GetObj() { return &obj; }									//ƒ‚ƒfƒ‹î•ñ‚ğæ“¾
 	Model* GetModel() { return &model; }
 	Easing animation;
+	void ResetCount() { damagedCount = 0; }
 private:
 	void ConvertToRadian(float& degree)
 	{
